@@ -1,7 +1,8 @@
 {
     "name": "backend",
     "version": "1.0.0",
-    "description": "Backend for StrathTank",
+    "author": "Edwin,Denzel",
+    "description": "Backend for  project StrathTank",
     "main": "pilot.js",
     "scripts": {
         "start": "node pilot.js",
