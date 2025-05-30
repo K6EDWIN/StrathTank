@@ -9,7 +9,22 @@
 <body>
     <div class="registration-container">
         <h2>Create Account</h2>
-        
+         <!--social media logins-->
+        <div class="social-login">
+            <button class="linkedIn">
+                <i class="fab fa-linkedIn"></i>
+                In
+            </button>
+            <button class="GitHub">
+                <i class="fab fa-GitHub"></i>
+                <img src="images\githubIcon.png" alt="GitHub Icon" class="github-logo">
+            </button>
+            <button class="google">
+                <i class="fab fa-google"></i>
+                G+
+            </button>
+          
+        </div>
         <form action="/registration" method="POST">
             <div class="form-group">
                 <label for="username">Username</label>
@@ -27,7 +42,9 @@
             </div>
             <button type="submit" class="registration-btn">Sign Up</button>
         </form>
+        
         <a href="/login" class="register-link">Already have an account? Login</a>
     </div>
+    
 </body>
 </html>
