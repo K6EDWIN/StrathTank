@@ -5,6 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login Page</title>
     <link rel="stylesheet" href="styles.css">
+    <script src="auth.js"></script>
+<script>
+  // Attach listeners
+  document.querySelector("form").addEventListener("submit", handleLogin); // for login.html
+  // or handleSignup, handleForgotPassword depending on page
+</script>
+
 </head>
 <body>
     <div class="login-container">
@@ -26,7 +33,7 @@
             </button>
           
         </div>
-    </div>
+   
         <form action="/login" method="POST">
             <div class="form-group">
                 <label for="Email">Email</label>
@@ -38,8 +45,12 @@
                 <input type="password" id="password" name="password" required>
             </div>
             <button type="submit" class="login-btn">Login</button>
+             <div class="forgot-password">
+        <a href="/forgot-password">Forgot Password?</a>
+        </div>
         </form>
         <a href="/register" class="register-link">Don't have an account? Register</a>
     </div>
+   
 </body>
 </html>

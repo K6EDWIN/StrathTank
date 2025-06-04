@@ -5,6 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Homepage</title>
      <link rel="stylesheet" href="styles.css">
+     <script>
+    const user = JSON.parse(localStorage.getItem("user"));
+    if (user) {
+        document.querySelector(".navbar-right").innerHTML = `
+            <span>Welcome, ${user.username}</span>
+            <button onclick="logout()">Logout</button>
+        `;
+    }
+
+    function logout() {
+        localStorage.removeItem("user");
+        window.location.reload();
+    }
+</script>
+
 </head>
 <body>
     <!--navigation bar with logo and authentication buttons-->
@@ -18,9 +33,9 @@
         </div>
     </nav>
     <div class="hero-section">
-        <img class="hero-image" src="strath.png" alt="image of strathmore" />
+        <img class="hero-image" src="images\su.png" alt="image of strathmore" />
         <div class="hero-content">
-            <p class="hero-title">
+            <p class="hero-title" style="color: rgb(0, 0, 0);">
                 Welcome to StrathTank<br>
                 ‘’YOUR PROJECTS DESERVE MORE THAN JUST A GRADE’’
             </p>
@@ -61,11 +76,11 @@
 
     <div class="join-section">
         <h1 class="join-title">Join Us</h1>
-        <p class="join-description">This platform was made for creators like you. 
+        <p class="join-description" style="color: aliceblue;">This platform was made for creators like you. 
             Whether you've got a finished project or just an idea come build with us.</p>
             <div class="join-buttons">
-            <button class="create-account-btn">Create Account</button>
-            <button class="login-btn">Login to your account</button>
+            <button class="register-btn" id="openSignUpPage">Create Account</button>
+            <button class="login-btn" id="openLoginPage">Login to your account</button>
             </div>
     </div>
 </body>

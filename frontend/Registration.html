@@ -5,12 +5,34 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registration Page</title>
     <link rel="stylesheet" href="styles.css">
+    <script src="auth.js"></script>
+<script>
+  // Attach listeners
+  document.querySelector("form").addEventListener("submit", handleLogin); // for login.html
+  // or handleSignup, handleForgotPassword depending on page
+</script>
+
 </head>
 
 <body>
     <div class="registration-container">
         <h2>Create Account</h2>
-        
+         <!--social media logins-->
+        <div class="social-login">
+            <button class="linkedIn">
+                <i class="fab fa-linkedIn"></i>
+                In
+            </button>
+            <button class="GitHub">
+                <i class="fab fa-GitHub"></i>
+                <img src="images\githubIcon.png" alt="GitHub Icon" class="github-logo">
+            </button>
+            <button class="google">
+                <i class="fab fa-google"></i>
+                G+
+            </button>
+          
+        </div>
         <form action="/registration" method="POST">
             <div class="form-group">
                 <label for="username">Username</label>
@@ -35,7 +57,9 @@
                     <option value="admin">Admin</option>
                 </select>
         </form>
+        
         <a href="/login" class="register-link">Already have an account? Login</a>
     </div>
+    
 </body>
 </html> 
