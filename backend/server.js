@@ -11,6 +11,7 @@ const PORT = process.env.PORT || 3000;
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+
 // MySQL connection
 const db = mysql.createConnection({
   host: process.env.DB_HOST,
@@ -47,6 +48,12 @@ app.get('/signup', (req, res) => {
 
 app.get('/login', (req, res) => {
   res.sendFile(path.join(__dirname, 'frontend', 'Login.html'));
+});
+app.get('/scripts/login.js', (req, res) => {
+  res.sendFile(path.join(__dirname, 'frontend', 'scripts', 'login.js'));
+});
+app.get('/scripts/verify.js', (req, res) => {
+  res.sendFile(path.join(__dirname, 'frontend', 'scripts', 'verify.js'));
 });
 
 app.get('/verify-email', (req, res) => {
@@ -162,6 +169,32 @@ app.post('/resend-code', (req, res) => {
   });
 });
 
+// ✅ LOGIN ROUTE
+app.post('/login', (req, res) => {
+  const { email, password } = req.body;
+  const query = `SELECT * FROM Users WHERE email = ?`;
+  db.query(query, [email], async (err, results) => {
+    if (err) return res.status(500).json({ success: false, message: 'Login failed due to server error.' });
+
+    if (results.length === 0) {
+      return res.status(404).json({ success: false, message: 'No user found with that email.' });
+    }
+
+    const user = results[0];
+
+    if (!user.verified) {
+      return res.status(401).json({ success: false, message: 'Please verify your email before logging in.' });
+    }
+
+    const isMatch = await bcrypt.compare(password, user.password);
+
+    if (!isMatch) {
+      return res.status(401).json({ success: false, message: 'Incorrect password.' });
+    }
+
+    return res.status(200).json({ success: true, message: 'Login successful.' });
+  });
+});
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
 });

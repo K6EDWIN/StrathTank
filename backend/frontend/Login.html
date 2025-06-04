@@ -1,45 +1,44 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login Page</title>
-    <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login Page</title>
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div class="login-container">
-        <h2>Welcome Back</h2>
-        <p>Login using your social networks</p>
-        <!--social media logins-->
-        <div class="social-login">
-            <button class="linkedIn">
-                <i class="fab fa-linkedIn"></i>
-                In
-            </button>
-            <button class="GitHub">
-                <i class="fab fa-GitHub"></i>
-                <img src="images\githubIcon.png" alt="GitHub Icon" class="github-logo">
-            </button>
-            <button class="google">
-                <i class="fab fa-google"></i>
-                G+
-            </button>
-          
-        </div>
+  <div class="login-container">
+    <h2>Welcome Back</h2>
+    <p>Login using your social networks</p>
+    
+    <!-- Social login buttons -->
+    <div class="social-login">
+      <button class="linkedIn">In</button>
+      <button class="GitHub">
+        <img src="images/githubIcon.png" alt="GitHub Icon" class="github-logo">
+      </button>
+      <button class="google">G+</button>
     </div>
-        <form action="/login" method="POST">
-            <div class="form-group">
-                <label for="username">Username</label>
-                <input type="text" id="username" name="username" required>
-            </div>
-        
-            <div class="form-group">
-                <label for="password">Password</label>
-                <input type="password" id="password" name="password" required>
-            </div>
-            <button type="submit" class="login-btn">Login</button>
-        </form>
-        <a href="/register" class="register-link">Don't have an account? Register</a>
-    </div>
+
+    <!-- Login form -->
+    <form id="loginForm">
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" required />
+      </div>
+
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" required />
+      </div>
+
+      <button type="submit" class="login-btn">Login</button>
+    </form>
+
+    <a href="/signup" class="register-link">Don't have an account? Register</a>
+    <div id="login-message"></div>
+  </div>
+
+  <script src="scripts/login.js"></script>
 </body>
 </html>
