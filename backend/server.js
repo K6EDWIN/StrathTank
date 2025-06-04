@@ -1,62 +1,165 @@
-require('dotenv').config(); 
+require('dotenv').config();
 const express = require('express');
 const mysql = require('mysql2');
-const app = express();
+const bcrypt = require('bcrypt');
+const nodemailer = require('nodemailer');
 const path = require('path');
+const app = express();
 const PORT = process.env.PORT || 3000;
+
+// Middleware
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// MySQL connection
 const db = mysql.createConnection({
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
   password: process.env.DB_PASS,
   database: process.env.DB_NAME
 });
-// Connect to MySQL
+
 db.connect((err) => {
   if (err) {
     console.error('❌ DB connection error:', err.message);
   } else {
-    console.log('✅ Connected bruh');
+    console.log('✅ Connected to database');
   }
 });
 
+// Email setup
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS
+  }
+});
+
+// Serve frontend files
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'frontend', 'Registration.html'));
+  res.sendFile(path.join(__dirname, 'frontend', 'Registration.html'));
 });
+
 app.get('/signup', (req, res) => {
-    res.sendFile(path.join(__dirname, 'frontend', 'Registration.html'));
+  res.sendFile(path.join(__dirname, 'frontend', 'Registration.html'));
 });
+
+app.get('/login', (req, res) => {
+  res.sendFile(path.join(__dirname, 'frontend', 'Login.html'));
+});
+
+app.get('/verify-email', (req, res) => {
+  res.sendFile(path.join(__dirname, 'frontend', 'Verify.html'));
+});
+
+// Register with verification email
 app.post('/submit', async (req, res) => {
-    const {
-        username, email, password,role
-    } = req.body;
+  const { username, email, password, role } = req.body;
 
-    try {
-        // Hash the password before storing it
-        const hashedPassword = await bcrypt.hash(password, 10);
+  try {
+    const checkQuery = `SELECT * FROM Users WHERE name = ? OR email = ?`;
+    db.query(checkQuery, [username, email], async (err, results) => {
+      if (err) {
+        return res.status(500).json({ success: false, message: 'Error checking user' });
+      }
 
-        // SQL query to insert form data into the personal_information table
-        const query = `
-            INSERT INTO Users (
-                name,email,password,role)
-            ) VALUES (?, ?, ?,?)
-        `;
+      if (results.length > 0) {
+        return res.status(409).json({ success: false, message: 'Account already exists. Please sign in.' });
+      }
 
-        // Insert data into the database
-        pool.query(query, [
-             username, email, hashedPassword,role
-        ], (err, results) => {
-            if (err) {
-                console.error('Error inserting data into the database:', err);
-                res.status(500).json({ message: 'An error occurred while saving your information.' });
-                return;
-            }
-            // Send a success response
-            res.status(200).json({ message: 'Signing up successful. Welcome to strathtank' });
+      const hashedPassword = await bcrypt.hash(password, 10);
+      const verificationCode = Math.floor(100000 + Math.random() * 900000);
+
+      const insertQuery = `
+        INSERT INTO Users (name, email, password, role, verification_code, verified)
+        VALUES (?, ?, ?, ?, ?, ?)`;
+
+      db.query(insertQuery, [username, email, hashedPassword, role, verificationCode, false], (err) => {
+        if (err) {
+          return res.status(500).json({ success: false, message: 'Error saving user' });
+        }
+
+        // Send verification email
+        const mailOptions = {
+          from: process.env.EMAIL_USER,
+          to: email,
+          subject: 'Strathtank Verification Code',
+          text: `Hi ${username},\n\nYour Strathtank verification code is: ${verificationCode}`
+        };
+
+        transporter.sendMail(mailOptions, (error) => {
+          if (error) {
+            return res.status(500).json({ success: false, message: 'Failed to send verification email.' });
+          }
+
+          return res.redirect(`/verify-email?email=${encodeURIComponent(email)}`);
         });
-    } catch (error) {
-        console.error('Error processing request:', error);
-        res.status(500).json({ message: 'An error occurred while processing your request.' });
+      });
+    });
+  } catch (error) {
+    return res.status(500).json({ success: false, message: 'Unexpected error' });
+  }
+});
+
+// Verify code
+app.post('/verify', (req, res) => {
+  const { email, verificationCode } = req.body;
+
+  const query = `SELECT * FROM Users WHERE email = ? AND verification_code = ?`;
+  db.query(query, [email, verificationCode], (err, results) => {
+    if (err) return res.status(500).json({ success: false, message: 'Verification failed.' });
+
+    if (results.length === 0) {
+      return res.status(400).json({ success: false, message: 'Invalid code or email.' });
     }
+
+    const updateQuery = `UPDATE Users SET verified = true, verification_code = NULL WHERE email = ?`;
+    db.query(updateQuery, [email], (err) => {
+      if (err) return res.status(500).json({ success: false, message: 'Failed to update user verification.' });
+
+      return res.status(200).json({ success: true, message: 'Email verified. You may now log in.' });
+    });
+  });
+});
+
+// Resend code
+app.post('/resend-code', (req, res) => {
+  const { email } = req.body;
+
+  const checkQuery = `SELECT * FROM Users WHERE email = ?`;
+  db.query(checkQuery, [email], (err, results) => {
+    if (err) return res.status(500).json({ success: false, message: 'Database error.' });
+
+    if (results.length === 0) {
+      return res.status(404).json({ success: false, message: 'No account found for this email.' });
+    }
+
+    const user = results[0];
+    if (user.verified) {
+      return res.status(400).json({ success: false, message: 'This account is already verified.' });
+    }
+
+    const newCode = Math.floor(100000 + Math.random() * 900000);
+    const updateQuery = `UPDATE Users SET verification_code = ? WHERE email = ?`;
+
+    db.query(updateQuery, [newCode, email], (err) => {
+      if (err) return res.status(500).json({ success: false, message: 'Failed to update code.' });
+
+      const mailOptions = {
+        from: process.env.EMAIL_USER,
+        to: email,
+        subject: 'Resent Strathtank Verification Code',
+        text: `Hello,\n\nYour new verification code is: ${newCode}`
+      };
+
+      transporter.sendMail(mailOptions, (error) => {
+        if (error) return res.status(500).json({ success: false, message: 'Failed to resend email.' });
+
+        return res.status(200).json({ success: true, message: 'Verification code resent successfully.' });
+      });
+    });
+  });
 });
 
 app.listen(PORT, () => {

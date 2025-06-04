@@ -1,40 +1,57 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registration Page</title>
-    <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Registration Page</title>
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div class="registration-container">
-        <h2>Create Account</h2>
-        
-        <form action="/registration" method="POST">
-            <div class="form-group">
-                <label for="username">Username</label>
-                <input type="text" id="username" name="username" required>
-            </div>
+  <div class="registration-container">
+    <h2>Create Account</h2>
 
-              <div class="form-group">
-                <label for="email">Email</label>
-                <input type="email" id="email" name="email" required>
-            </div>
-        
-            <div class="form-group">
-                <label for="password">Password</label>
-                <input type="password" id="password" name="password" required>
-            </div>
-            <button type="submit" class="registration-btn">Sign Up</button>
-            <div class="Role">
-                <label for="role">Role</label>
-                <select id="role" name="role" required>
-                    <option value="student">Student</option>
-                    <option value="mentor">Mentor</option>"
-                    <option value="admin">Admin</option>
-                </select>
-        </form>
-        <a href="/login" class="register-link">Already have an account? Login</a>
+    <div class="social-login">
+      <button class="linkedIn">In</button>
+      <button class="GitHub">
+        <img src="images/githubIcon.png" alt="GitHub Icon" class="github-logo">
+      </button>
+      <button class="google">G+</button>
     </div>
+
+    <!-- 📌 Message placeholder -->
+    <div id="message" class="form-message"></div>
+
+    <form action="/submit" method="POST" id="registerForm">
+      <div class="form-group">
+        <label for="username">Username</label>
+        <input type="text" id="username" name="username" required />
+      </div>
+
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" required />
+      </div>
+
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" required />
+      </div>
+
+      <div class="form-group">
+        <label for="role">Role</label>
+        <select id="role" name="role" required>
+          <option value="student">Student</option>
+          <option value="mentor">Mentor</option>
+          <option value="admin">Admin</option>
+        </select>
+      </div>
+
+      <button type="submit" class="registration-btn">Sign Up</button>
+    </form>
+
+    <a href="/login" class="register-link">Already have an account? Login</a>
+  </div>
+
+  <script src="scripts/auth.js"></script>
 </body>
-</html> 
+</html>
