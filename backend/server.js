@@ -41,11 +41,10 @@ const transporter = nodemailer.createTransport({
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'frontend', 'Homepage.html'));
 });
-app.get('/styles/homepage.css', (req, res) => {
-  res.sendFile(path.join(__dirname,'frontend', 'styles', 'homepage.css'));
-});
-// ✅ Serve assets folder directly
+
+app.use('/styles', express.static(path.join(__dirname, 'frontend', 'styles')));
 app.use('/assets', express.static(path.join(__dirname, 'frontend', 'assets')));
+app.use('/scripts', express.static(path.join(__dirname, 'frontend', 'scripts')));
 
 app.get('/signup', (req, res) => {
   res.sendFile(path.join(__dirname, 'frontend', 'Registration.html'));
@@ -62,17 +61,7 @@ app.get('/reset-password', (req, res) => {
   res.sendFile(path.join(__dirname, 'frontend', 'resetpassword.html'));
   
 });
-app.use('/scripts', express.static(path.join(__dirname, 'frontend', 'scripts')));
 
-app.get('/scripts/login.js', (req, res) => {
-  res.sendFile(path.join(__dirname, 'frontend', 'scripts', 'login.js'));
-});
-app.get('/scripts/verify.js', (req, res) => {
-  res.sendFile(path.join(__dirname, 'frontend', 'scripts', 'verify.js'));
-});
-app.get('/scripts/homepage.js', (req, res) => {
-  res.sendFile(path.join(__dirname, 'frontend', 'scripts', 'homepage.js')); 
-  });
 
 app.get('/verify-email', (req, res) => {
   res.sendFile(path.join(__dirname, 'frontend', 'Verify.html'));
