@@ -53,7 +53,17 @@ app.get('/signup', (req, res) => {
 
 app.get('/login', (req, res) => {
   res.sendFile(path.join(__dirname, 'frontend', 'Login.html'));
+  
 });
+app.get('/forgot-password', (req, res) => {
+  res.sendFile(path.join(__dirname, 'frontend', 'forgotpassword.html')); 
+  });
+app.get('/reset-password', (req, res) => {
+  res.sendFile(path.join(__dirname, 'frontend', 'resetpassword.html'));
+  
+});
+app.use('/scripts', express.static(path.join(__dirname, 'frontend', 'scripts')));
+
 app.get('/scripts/login.js', (req, res) => {
   res.sendFile(path.join(__dirname, 'frontend', 'scripts', 'login.js'));
 });
@@ -202,6 +212,64 @@ app.post('/login', (req, res) => {
     return res.status(200).json({ success: true, message: 'Login successful.' });
   });
 });
+
+
+//forgot password
+app.post('/forgot-password', (req, res) => {
+  const { email } = req.body;
+  const resetCode = Math.floor(100000 + Math.random() * 900000).toString();
+
+  const findUserQuery = 'SELECT * FROM Users WHERE email = ?';
+  db.query(findUserQuery, [email], (err, results) => {
+    if (err || results.length === 0) {
+      return res.status(404).send('User not found.');
+    }
+
+    const updateCodeQuery = 'UPDATE Users SET reset_code = ? WHERE email = ?';
+    db.query(updateCodeQuery, [resetCode, email], (err) => {
+      if (err) return res.status(500).send('Error saving reset code.');
+
+      // Send email
+      const mailOptions = {
+        from: process.env.EMAIL_USER,
+        to: email,
+        subject: 'Password Reset Code',
+        text: `Your password reset code is: ${resetCode}`
+      };
+
+      transporter.sendMail(mailOptions, (error) => {
+        if (error) return res.status(500).send('Email failed to send.');
+
+        // redirect user to reset-password form
+        res.redirect(`/reset-password?email=${encodeURIComponent(email)}`);
+      });
+    });
+  });
+});
+//set new password
+app.post('/reset-password', async (req, res) => {
+  const { email, resetCode, newPassword } = req.body;
+
+  const findQuery = 'SELECT * FROM Users WHERE email = ? AND reset_code = ?';
+  db.query(findQuery, [email, resetCode], async (err, results) => {
+    if (err || results.length === 0) {
+      return res.status(400).send('Invalid reset code or email.');
+    }
+
+    try {
+      const hashedPassword = await bcrypt.hash(newPassword, 10);
+      const updateQuery = 'UPDATE Users SET password = ?, reset_code = NULL WHERE email = ?';
+      db.query(updateQuery, [hashedPassword, email], (err) => {
+        if (err) return res.status(500).send('Failed to reset password.');
+        res.send('Password successfully reset!');
+      });
+    } catch (error) {
+      res.status(500).send('Server error.');
+    }
+  });
+});
+
+
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
 });
