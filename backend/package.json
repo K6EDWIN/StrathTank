@@ -4,7 +4,7 @@
     "description": "Backend for StrathTank",
     "main": "pilot.js",
     "scripts": {
-        "start": "node pilot.js",
+        "start": "start http://localhost:3000 && node server.js",
         "test": "echo \"Error: no test specified\" && exit 1",
         "dev": "nodemon pilot.js"
     },

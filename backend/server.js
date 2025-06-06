@@ -39,8 +39,13 @@ const transporter = nodemailer.createTransport({
 
 // Serve frontend files
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'frontend', 'Registration.html'));
+  res.sendFile(path.join(__dirname, 'frontend', 'Homepage.html'));
 });
+app.get('/styles/homepage.css', (req, res) => {
+  res.sendFile(path.join(__dirname,'frontend', 'styles', 'homepage.css'));
+});
+// ✅ Serve assets folder directly
+app.use('/assets', express.static(path.join(__dirname, 'frontend', 'assets')));
 
 app.get('/signup', (req, res) => {
   res.sendFile(path.join(__dirname, 'frontend', 'Registration.html'));
@@ -55,6 +60,9 @@ app.get('/scripts/login.js', (req, res) => {
 app.get('/scripts/verify.js', (req, res) => {
   res.sendFile(path.join(__dirname, 'frontend', 'scripts', 'verify.js'));
 });
+app.get('/scripts/homepage.js', (req, res) => {
+  res.sendFile(path.join(__dirname, 'frontend', 'scripts', 'homepage.js')); 
+  });
 
 app.get('/verify-email', (req, res) => {
   res.sendFile(path.join(__dirname, 'frontend', 'Verify.html'));
@@ -77,7 +85,6 @@ app.post('/submit', async (req, res) => {
 
       const hashedPassword = await bcrypt.hash(password, 10);
       const verificationCode = Math.floor(100000 + Math.random() * 900000);
-
       const insertQuery = `
         INSERT INTO Users (name, email, password, role, verification_code, verified)
         VALUES (?, ?, ?, ?, ?, ?)`;

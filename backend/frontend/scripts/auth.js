@@ -2,7 +2,7 @@
 
 document.addEventListener('DOMContentLoaded', () => {
     const loginForm = document.querySelector('form[action="/login"]');
-    const signupForm = document.querySelector('form[action="/submit"]'); // Updated to match backend
+    const signupForm = document.querySelector('form[action="/submit"]');
     const forgotForm = document.querySelector('form[action="/forgot-password"]');
 
     if (loginForm) {
