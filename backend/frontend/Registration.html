@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Registration Page</title>
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles/registration.css">
 </head>
 <body>
   <div class="registration-container">
@@ -18,35 +18,48 @@
       <button class="google">G+</button>
     </div>
 
-    <!-- 📌 Message placeholder -->
     <div id="message" class="form-message"></div>
 
-    <form action="/submit" method="POST" id="registerForm">
-      <div class="form-group">
-        <label for="username">Username</label>
-        <input type="text" id="username" name="username" required />
+    <form id="registerForm" method="POST" action="/submit">
+      <!-- Step 1 -->
+      <div id="step1">
+        <div class="form-group">
+          <label for="username">Username</label>
+          <input type="text" id="username" name="username" required />
+        </div>
+
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input type="email" id="email" name="email" required />
+        </div>
+
+        <button type="button" class="next-btn" onclick="goToStep2()">👉🏽</button>
       </div>
 
-      <div class="form-group">
-        <label for="email">Email</label>
-        <input type="email" id="email" name="email" required />
-      </div>
+      <!-- Step 2 -->
+      <div id="step2" style="display: none;">
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" name="password" required />
+        </div>
 
-      <div class="form-group">
-        <label for="password">Password</label>
-        <input type="password" id="password" name="password" required />
-      </div>
+        <div class="form-group">
+          <label for="confirmPassword">Confirm Password</label>
+          <input type="password" id="confirmPassword" required />
+        </div>
 
-      <div class="form-group">
-        <label for="role">Role</label>
-        <select id="role" name="role" required>
-          <option value="student">Student</option>
-          <option value="mentor">Mentor</option>
-          <option value="admin">Admin</option>
-        </select>
-      </div>
+        <div class="form-group">
+          <label for="role">Role</label>
+          <select id="role" name="role" required>
+            <option value="student">Student</option>
+            <option value="mentor">Mentor</option>
+            <option value="admin">Admin</option>
+          </select>
+        </div>
 
-      <button type="submit" class="registration-btn">Sign Up</button>
+        <button type="button" class="back-btn" onclick="goToStep1()">👈🏽</button>
+        <button type="submit" class="registration-btn">Sign Up</button>
+      </div>
     </form>
 
     <a href="/login" class="register-link">Already have an account? Login</a>

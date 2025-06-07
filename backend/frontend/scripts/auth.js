@@ -1,5 +1,3 @@
-// auth.js
-
 document.addEventListener('DOMContentLoaded', () => {
     const loginForm = document.querySelector('form[action="/login"]');
     const signupForm = document.querySelector('form[action="/submit"]');
@@ -16,7 +14,27 @@ document.addEventListener('DOMContentLoaded', () => {
     if (forgotForm) {
         forgotForm.addEventListener('submit', handleForgotPassword);
     }
+
+    // Optional: clear error message on confirm password input
+    const confirmPasswordInput = document.getElementById('confirmPassword');
+    if (confirmPasswordInput) {
+        confirmPasswordInput.addEventListener('input', () => {
+            document.getElementById('message').innerText = "";
+        });
+    }
 });
+
+// Go to step 2 of form
+function goToStep2() {
+    document.getElementById('step1').style.display = 'none';
+    document.getElementById('step2').style.display = 'block';
+}
+
+// Go back to step 1 of form
+function goToStep1() {
+    document.getElementById('step2').style.display = 'none';
+    document.getElementById('step1').style.display = 'block';
+}
 
 // Handle Login
 function handleLogin(event) {
@@ -30,11 +48,10 @@ function handleLogin(event) {
     }
 
     console.log("Logging in:", { username, password });
-
     window.location.href = "homepage.html";
 }
 
-// Handle Signup
+// Handle Signup (with confirm password check)
 function handleSignup(event) {
     event.preventDefault();
 
@@ -42,14 +59,24 @@ function handleSignup(event) {
     const username = form.username.value.trim();
     const email = form.email.value.trim();
     const password = form.password.value.trim();
+    const confirmPassword = document.getElementById('confirmPassword').value.trim();
     const role = form.role.value;
 
-    if (!username || !email || !password || !role) {
-        alert("Please fill in all fields.");
+    const messageBox = document.getElementById('message');
+
+    if (!username || !email || !password || !confirmPassword || !role) {
+        messageBox.innerText = "Please fill in all fields.";
+        messageBox.style.color = "red";
         return;
     }
 
-    // Send POST request to server
+    if (password !== confirmPassword) {
+        messageBox.innerText = "Passwords do not match.";
+        messageBox.style.color = "red";
+        return;
+    }
+
+    // POST to server
     fetch("/submit", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -58,15 +85,17 @@ function handleSignup(event) {
     .then(res => res.json())
     .then(data => {
         if (data.message) {
-            alert(data.message); // Show welcome message
-            window.location.href = "/login"; // Redirect to login page
+            alert(data.message);
+            window.location.href = "/login";
         } else {
-            alert("Something went wrong.");
+            messageBox.innerText = "Something went wrong.";
+            messageBox.style.color = "red";
         }
     })
     .catch(err => {
         console.error("Signup error:", err);
-        alert("Server error occurred.");
+        messageBox.innerText = "Server error occurred.";
+        messageBox.style.color = "red";
     });
 }
 
