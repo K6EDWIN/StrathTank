@@ -11,10 +11,11 @@ const PORT = process.env.PORT || 3000;
 
 // Middleware
 app.use(session({
-  secret: 'ohwell', 
+  secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: false
 }));
+
 
 app.use(passport.initialize());
 app.use(passport.session());
@@ -288,12 +289,18 @@ app.post('/reset-password', async (req, res) => {
 });
 
 //google authentication
+app.get('/auth/google',
+  passport.authenticate('google', { scope: ['profile', 'email'] })
+);
 
-app.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
 app.get('/auth/google/callback',
   passport.authenticate('google', { failureRedirect: '/login' }),
   (req, res) => {
-  res.redirect('/signup?showRoleModal=true');
+    if (req.user._isNewUser) {
+      res.redirect('/signup?showRoleModal=true');
+    } else {
+      res.redirect('/dashboard');
+    }
   }
 );
 app.post('/set-role', (req, res) => {
@@ -313,6 +320,22 @@ app.post('/set-role', (req, res) => {
     res.json({ message: 'Role updated' });
   });
 });
+
+//github signup
+app.get('/auth/github',
+  passport.authenticate('github', { scope: ['user:email'] })
+);
+app.get('/auth/github/callback',
+  passport.authenticate('github', { failureRedirect: '/login' }),
+  (req, res) => {
+    if (req.user._isNewUser) {
+      res.redirect('/signup?showRoleModal=true');
+    } else {
+      res.redirect('/dashboard'); // or homepage
+    }
+  }
+);
+
 
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);

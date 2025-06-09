@@ -18,9 +18,9 @@ loginForm.addEventListener('submit', async function(e) {
   if (data.success) {
     messageDiv.textContent = '✅ Successful! Welcome to Dashboard.';
     messageDiv.style.color = 'green';
-    // Redirect after 2 seconds, customize as needed
+    // Redirect after 2 seconds, 
     setTimeout(() => {
-      window.location.href = '/dashboard'; // Change to your actual dashboard route
+      window.location.href = '/dashboard';
     }, 2000);
   } else {
     messageDiv.textContent = data.message;
@@ -28,7 +28,23 @@ loginForm.addEventListener('submit', async function(e) {
   }
 });
 
-// Optional: Clear messages when user starts typing
+// Clear messages when user starts typing
 loginForm.addEventListener('input', () => {
   messageDiv.textContent = '';
 });
+
+// Social Login Redirects
+const googleBtn = document.getElementById('Google');
+const githubBtn = document.getElementById('Github');
+
+if (googleBtn) {
+  googleBtn.addEventListener('click', () => {
+    window.location.href = '/auth/google';
+  });
+}
+
+if (githubBtn) {
+  githubBtn.addEventListener('click', () => {
+    window.location.href = '/auth/github';
+  });
+}
