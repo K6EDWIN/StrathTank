@@ -5,14 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registration Page</title>
     <link rel="stylesheet" href="styles.css">
-    <script src="auth.js"></script>
-<script>
-  // Attach listeners
-  document.querySelector("form").addEventListener("submit", handleLogin); // for login.html
-  // or handleSignup, handleForgotPassword depending on page
-</script>
-
+    <script src="scripts/auth.js"></script>
 </head>
+
 <body>
     <div class="registration-container">
         <h2>Create Account</h2>
@@ -48,10 +43,16 @@
                 <input type="password" id="password" name="password" required>
             </div>
             <button type="submit" class="registration-btn">Sign Up</button>
+            <div class="Role">
+                <label for="role">Role</label>
+                <select id="role" name="role" required>
+                    <option value="student">Student</option>
+                    <option value="mentor">Mentor</option>"
+                    <option value="admin">Admin</option>
+                </select>
         </form>
         
         <a href="/login" class="register-link">Already have an account? Login</a>
     </div>
-    
 </body>
-</html>
+</html> 
