@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>StrathTank</title>
+  <link rel="stylesheet" href="styles/homepage.css">
+  <script src="scripts/homepage.js" defer></script>
+</head>
+<body>
+<section id="hero">
+  <video autoplay muted loop id="heroVideo">
+    <source src="assets/background 2.mp4" type="video/mp4" />
+  </video>
+  <div class="overlay">
+    <h1>Welcome to STRATHTANK</h1>
+    <p>"YOUR PROJECTS DESERVE MORE THAN JUST A GRADE"</p>
+  </div>
+
+  <div class="paragraph">
+    <p>
+      StrathTank is a platform where student innovation finds a second life. 
+      Whether it's a web app, a hardware prototype, or a green initiative, this is your space to showcase what you've built, connect with other creators, and grow your portfolio for the real world. 
+      Don’t just let your projects collect dust, turn them into conversation starters, career boosters, or even future startups.
+      Because here, every idea deserves the spotlight.
+    </p>
+    <div class="explore">
+      <p>Explore</p>
+      <div class="arrow-down">&#8595;</div>
+    </div>
+  </div>
+
+  <div class="auth-buttons">
+    <button id="signinbtn">Sign In</button>
+    <button id="signupbtn">Sign Up</button>
+  </div>
+</section>
+
+  <!-- Projects Section -->
+  <section id="projects">
+    <video autoplay muted loop id="projectsVideo">
+      <source src="assets/background 2.mp4" type="video/mp4">
+    </video>
+    <div class="overlay">
+      <h2>Featured Projects</h2>
+      <p>These projects didn’t stop at the classroom... Who knows yours might be next</p>
+      <div class="cards">
+        <div class="card">
+          <div class="thumb"></div>
+          <h3>Peer Skills Exchange Platform</h3>
+          <p>A platform where students can learn from and exchange ideas with their peers.</p>
+          <div class="meta">Author: Kyle <button>View</button></div>
+        </div>
+        <div class="card">
+          <div class="thumb"></div>
+          <h3>Travel Buddy App</h3>
+          <p>An app for travelers who would like to meet fellow travel enthusiasts.</p>
+          <div class="meta">Author: Denzel <button>View</button></div>
+        </div>
+        <div class="card">
+          <div class="thumb"></div>
+          <h3>Expense Tracker App</h3>
+          <p>An app to aid in the tracking and management of expenses.</p>
+          <div class="meta">Author: Kyle <button>View</button></div>
+        </div>
+        <div class="card">
+          <div class="thumb"></div>
+          <h3>Events Coordination App</h3>
+          <p>An app for planning, managing and coordination of events.</p>
+          <div class="meta">Author: Denzel <button>View</button></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Join Us CTA -->
+  <section id="cta">
+    <h2>Join us</h2>
+    <p>This platform was made for creators like you... come build with us.</p>
+    <div class="cta-buttons">
+      <button id="signinbtnbottom">log in to your account</button>
+      <button id="signupbtnbottom">Create account</button>
+    </div>
+  </section>
+
+<!--role selection-->
+<div id="roleModal" class="modal" style="display: none;">
+  <div class="modal-content">
+    <h3>Select Your Role</h3>
+    <button onclick="submitRole('Student')">Student</button>
+    <button onclick="submitRole('Mentor')">Mentor</button>
+    <button onclick="submitRole('Admin')">Admin</button>
+  </div>
+</div>
+
+
+</body>
+</html>

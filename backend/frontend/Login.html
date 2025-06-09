@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login Page</title>
+  <link rel="stylesheet" href="styles/login.css">
+</head>
+<body>
+  <div class="login-container">
+    <h2>Welcome Back</h2>
+    <p>Login using your social networks</p>
+    
+    <!-- Social login buttons -->
+    <div class="social-login">
+      <button id="Github" class="GitHub">
+        <img src="assets/githubIcon.png" alt="GitHub Icon" class="github-logo">
+      </button>
+      <button id="Google" class="google">G+</button>
+    </div>
+
+    <!-- Login form -->
+    <form id="loginForm">
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" required />
+      </div>
+
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" required />
+      </div>
+
+      <a href="/forgot-password" class="forgot-link">Forgot Password?</a>
+
+      <button type="submit" class="login-btn">Login</button>
+    </form>
+
+    <a href="/signup" class="register-link">Don't have an account? Register</a>
+    <div id="login-message"></div>
+  </div>
+
+  <script src="scripts/login.js"></script>
+</body>
+</html>

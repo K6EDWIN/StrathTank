@@ -1,0 +1,137 @@
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f2f4f7;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.login-container {
+  background-color: white;
+  padding: 30px 25px;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
+}
+
+h2 {
+  margin-bottom: 10px;
+  color: #333;
+}
+
+p {
+  margin-bottom: 20px;
+  color: #555;
+  font-size: 14px;
+}
+
+/* Social Buttons */
+.social-login {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.social-login button {
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 50%;
+  font-size: 16px;
+  cursor: pointer;
+  color: white;
+}
+
+.GitHub {
+  background-color: #333;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.github-logo {
+  width: 20px;
+  height: 20px;
+}
+
+.google {
+  background-color: #db4437;
+}
+
+/* Form Styling */
+.form-group {
+  text-align: left;
+  margin-bottom: 15px;
+}
+
+label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: bold;
+  color: #444;
+}
+
+input {
+  width: 100%;
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 14px;
+}
+
+input:focus {
+  border-color: #ff758c;
+  outline: none;
+  box-shadow: 0 0 5px #ff758c88;
+}
+
+/* Login Button */
+button.login-btn {
+  width: 100%;
+  padding: 10px;
+  background-color: #000000;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+button.login-btn:hover {
+  background-color: #e9486d;
+}
+
+/* Links */
+.register-link,
+.forgot-link {
+  display: block;
+  margin-top: 15px;
+  font-size: 14px;
+  color: #0077b5;
+  text-decoration: none;
+  text-align: center;
+}
+
+.register-link:hover,
+.forgot-link:hover {
+  text-decoration: underline;
+}
+
+/* Message */
+#login-message {
+  margin-top: 10px;
+  font-size: 14px;
+  color: red;
+}
