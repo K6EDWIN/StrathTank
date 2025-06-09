@@ -4,22 +4,24 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Registration Page</title>
-  <link rel="stylesheet" href="styles/registration.css">
+  <link rel="stylesheet" href="/styles/registration.css">
 </head>
 <body>
   <div class="registration-container">
     <h2>Create Account</h2>
 
+    <!-- Social login buttons -->
     <div class="social-login">
-      <button class="linkedIn">In</button>
-      <button class="GitHub">
+      <button class="linkedIn" onclick="location.href='/auth/linkedin'">In</button>
+      <button class="GitHub" onclick="location.href='/auth/github'">
         <img src="images/githubIcon.png" alt="GitHub Icon" class="github-logo">
       </button>
-      <button class="google">G+</button>
+      <button class="google" onclick="location.href='/auth/google'">G+</button>
     </div>
 
     <div id="message" class="form-message"></div>
 
+    <!-- Registration form -->
     <form id="registerForm" method="POST" action="/submit">
       <!-- Step 1 -->
       <div id="step1">
@@ -51,6 +53,7 @@
         <div class="form-group">
           <label for="role">Role</label>
           <select id="role" name="role" required>
+            <option value="">-- Select Role --</option>
             <option value="student">Student</option>
             <option value="mentor">Mentor</option>
             <option value="admin">Admin</option>
@@ -65,6 +68,15 @@
     <a href="/login" class="register-link">Already have an account? Login</a>
   </div>
 
+  <!-- Modal for role selection after social login -->
+  <div id="roleModal" class="modal" style="display: none;">
+    <div class="modal-content">
+      <h3>Select Your Role</h3>
+      <button onclick="submitRole('student')">Student</button>
+      <button onclick="submitRole('mentor')">Mentor</button>
+      <button onclick="submitRole('admin')">Admin</button>
+    </div>
+  </div>
   <script src="scripts/auth.js"></script>
 </body>
 </html>

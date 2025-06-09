@@ -1,5 +1,7 @@
 require('dotenv').config();
 const express = require('express');
+const session = require('express-session');
+const passport = require('./middleware/passport');
 const mysql = require('mysql2');
 const bcrypt = require('bcrypt');
 const nodemailer = require('nodemailer');
@@ -8,6 +10,14 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Middleware
+app.use(session({
+  secret: 'ohwell', 
+  resave: false,
+  saveUninitialized: false
+}));
+
+app.use(passport.initialize());
+app.use(passport.session());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -178,27 +188,46 @@ app.post('/resend-code', (req, res) => {
 // ✅ LOGIN ROUTE
 app.post('/login', (req, res) => {
   const { email, password } = req.body;
-  const query = `SELECT * FROM Users WHERE email = ?`;
-  db.query(query, [email], async (err, results) => {
-    if (err) return res.status(500).json({ success: false, message: 'Login failed due to server error.' });
+
+  if (!email || !password) {
+    return res.status(400).json({ success: false, message: 'Email and password are required.' });
+  }
+
+  const sql = 'SELECT * FROM users WHERE email = ?';
+
+  db.query(sql, [email], (err, results) => {
+    if (err) {
+      console.error('Database error:', err);
+      return res.status(500).json({ success: false, message: 'Database error' });
+    }
 
     if (results.length === 0) {
-      return res.status(404).json({ success: false, message: 'No user found with that email.' });
+      return res.status(401).json({ success: false, message: 'Invalid email or password' });
     }
 
     const user = results[0];
 
-    if (!user.verified) {
-      return res.status(401).json({ success: false, message: 'Please verify your email before logging in.' });
+    // Check if it's a social login (e.g., password is NULL)
+    if (!user.password) {
+      return res.status(400).json({
+        success: false,
+        message: 'This account was registered via Google or another social login. Please log in using that method.',
+      });
     }
 
-    const isMatch = await bcrypt.compare(password, user.password);
+    // If password exists, continue with bcrypt compare
+    bcrypt.compare(password, user.password, (err, isMatch) => {
+      if (err) {
+        console.error('Bcrypt error:', err);
+        return res.status(500).json({ success: false, message: 'Error checking password' });
+      }
 
-    if (!isMatch) {
-      return res.status(401).json({ success: false, message: 'Incorrect password.' });
-    }
-
-    return res.status(200).json({ success: true, message: 'Login successful.' });
+      if (isMatch) {
+        return res.json({ success: true, message: 'Login successful' });
+      } else {
+        return res.status(401).json({ success: false, message: 'Invalid email or password' });
+      }
+    });
   });
 });
 
@@ -258,6 +287,32 @@ app.post('/reset-password', async (req, res) => {
   });
 });
 
+//google authentication
+
+app.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
+app.get('/auth/google/callback',
+  passport.authenticate('google', { failureRedirect: '/login' }),
+  (req, res) => {
+  res.redirect('/signup?showRoleModal=true');
+  }
+);
+app.post('/set-role', (req, res) => {
+  if (!req.isAuthenticated()) {
+    return res.status(401).json({ message: 'Not authenticated' });
+  }
+
+  const { role } = req.body;
+  const userId = req.user.id;
+
+  const sql = 'UPDATE Users SET role = ? WHERE id = ?';
+  db.query(sql, [role, userId], (err) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ message: 'DB error' });
+    }
+    res.json({ message: 'Role updated' });
+  });
+});
 
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);

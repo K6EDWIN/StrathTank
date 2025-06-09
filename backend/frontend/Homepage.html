@@ -78,9 +78,21 @@
     <h2>Join us</h2>
     <p>This platform was made for creators like you... come build with us.</p>
     <div class="cta-buttons">
-      <button id="signinbtnbottom">Create account</button>
-      <button id="signupbtnbottom">Log in to your account</button>
+      <button id="signinbtnbottom">log in to your account</button>
+      <button id="signupbtnbottom">Create account</button>
     </div>
   </section>
+
+<!--role selection-->
+<div id="roleModal" class="modal" style="display: none;">
+  <div class="modal-content">
+    <h3>Select Your Role</h3>
+    <button onclick="submitRole('Student')">Student</button>
+    <button onclick="submitRole('Mentor')">Mentor</button>
+    <button onclick="submitRole('Admin')">Admin</button>
+  </div>
+</div>
+
+
 </body>
 </html>

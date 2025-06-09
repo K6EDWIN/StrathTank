@@ -2,41 +2,37 @@ document.addEventListener('DOMContentLoaded', () => {
     const loginForm = document.querySelector('form[action="/login"]');
     const signupForm = document.querySelector('form[action="/submit"]');
     const forgotForm = document.querySelector('form[action="/forgot-password"]');
-
-    if (loginForm) {
-        loginForm.addEventListener('submit', handleLogin);
-    }
-
-    if (signupForm) {
-        signupForm.addEventListener('submit', handleSignup);
-    }
-
-    if (forgotForm) {
-        forgotForm.addEventListener('submit', handleForgotPassword);
-    }
-
-    // Optional: clear error message on confirm password input
     const confirmPasswordInput = document.getElementById('confirmPassword');
+
+    if (loginForm) loginForm.addEventListener('submit', handleLogin);
+    if (signupForm) signupForm.addEventListener('submit', handleSignup);
+    if (forgotForm) forgotForm.addEventListener('submit', handleForgotPassword);
+
     if (confirmPasswordInput) {
         confirmPasswordInput.addEventListener('input', () => {
             document.getElementById('message').innerText = "";
         });
     }
+
+    // Role modal after social login
+    if (window.location.search.includes('showRoleModal=true')) {
+        const modal = document.getElementById('roleModal');
+        if (modal) modal.style.display = 'flex';
+    }
 });
 
-// Go to step 2 of form
+// Multi-step form navigation
 function goToStep2() {
     document.getElementById('step1').style.display = 'none';
     document.getElementById('step2').style.display = 'block';
 }
 
-// Go back to step 1 of form
 function goToStep1() {
     document.getElementById('step2').style.display = 'none';
     document.getElementById('step1').style.display = 'block';
 }
 
-// Handle Login
+// Handle login
 function handleLogin(event) {
     event.preventDefault();
     const username = event.target.username.value.trim();
@@ -51,7 +47,7 @@ function handleLogin(event) {
     window.location.href = "homepage.html";
 }
 
-// Handle Signup (with confirm password check)
+// Handle signup
 function handleSignup(event) {
     event.preventDefault();
 
@@ -76,7 +72,6 @@ function handleSignup(event) {
         return;
     }
 
-    // POST to server
     fetch("/submit", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -99,7 +94,7 @@ function handleSignup(event) {
     });
 }
 
-// Handle Forgot Password
+// Handle forgot password
 function handleForgotPassword(event) {
     event.preventDefault();
     const email = event.target.email.value.trim();
@@ -112,4 +107,19 @@ function handleForgotPassword(event) {
     console.log("Password reset requested for:", email);
     alert("If this email exists, a reset link has been sent.");
     window.location.href = "login.html";
+}
+
+// Social login role modal
+function submitRole(role) {
+    fetch('/set-role', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ role })
+    }).then(res => {
+        if (res.ok) {
+            window.location.href = '/dashboard';
+        } else {
+            alert("Failed to set role. Try again.");
+        }
+    });
 }
