@@ -28,8 +28,9 @@
             <a href="#" class="logo">StrathTank</a>
         </div>
         <div class="navbar-right">
-            <button class="registration-btn">Sign Up</button>
-          <button class="login-btn">Login</button>
+            <!--Auth buttons for alternative signup and login-->
+            <button class="registration-btn" id="openSignUpPage" onclick="window.location.href='Registration.html'" >Sign Up</button>
+          <button class="login-btn" id="openLoginPage" onclick="window.location.href='Login.html'" >Login</button>
         </div>
     </nav>
     <div class="hero-section">
@@ -79,9 +80,18 @@
         <p class="join-description" style="color: aliceblue;">This platform was made for creators like you. 
             Whether you've got a finished project or just an idea come build with us.</p>
             <div class="join-buttons">
-            <button class="register-btn" id="openSignUpPage">Create Account</button>
-            <button class="login-btn" id="openLoginPage">Login to your account</button>
+            <button class="register-btn" id="openSignUpPage" onclick="window.location.href='Registration.html'">Create Account</button>
+            <button class="login-btn" id="openLoginPage" onclick="window.location.href='Login.html'">Login to your account</button>
             </div>
     </div>
+    <script>
+        document.getElementById("openSignUpPage").addEventListener("click", function() {
+            window.location.href = "Registration.html";
+        });
+
+        document.getElementById("openLoginPage").addEventListener("click", function() {
+            window.location.href = "Login.html";
+        });
+    </script>
 </body>
 </html>
