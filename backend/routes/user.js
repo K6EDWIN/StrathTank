@@ -25,7 +25,14 @@ router.post('/submit', async (req, res) => {
           text: `Hi ${username}, your verification code is: ${code}`
         }, error => {
           if (error) return res.status(500).json({ success: false });
-          res.redirect(`/verify-email?email=${encodeURIComponent(email)}`);
+        
+res.status(200).json({
+  success: true,
+  message: "Registration successful. Please verify your email.",
+  redirect: `/verify-email?email=${encodeURIComponent(email)}`
+});
+
+
         });
       });
   });
@@ -34,15 +41,35 @@ router.post('/submit', async (req, res) => {
 // POST /user/verify
 router.post('/verify', (req, res) => {
   const { email, verificationCode } = req.body;
-  db.query('SELECT * FROM Users WHERE email = ? AND verification_code = ?', [email, verificationCode], (err, results) => {
-    if (results.length === 0) return res.status(400).json({ success: false });
 
-    db.query('UPDATE Users SET verified = true, verification_code = NULL WHERE email = ?', [email], err => {
+  db.query(
+    'SELECT * FROM Users WHERE email = ? AND verification_code = ?',
+    [email, verificationCode],
+    (err, results) => {
       if (err) return res.status(500).json({ success: false });
-      res.json({ success: true });
-    });
-  });
+
+      if (results.length === 0) {
+        return res.status(400).json({ success: false, message: 'Invalid verification code' });
+      }
+
+      const user = results[0];
+
+      db.query(
+        'UPDATE Users SET verified = true, verification_code = NULL WHERE email = ?',
+        [email],
+        err => {
+          if (err) return res.status(500).json({ success: false });
+
+          // ✅ Automatically log the user in by saving to session
+          req.session.user = user;
+
+          res.json({ success: true, message: 'Verification successful' });
+        }
+      );
+    }
+  );
 });
+
 
 // POST /user/resend-code
 router.post('/resend-code', (req, res) => {

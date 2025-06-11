@@ -12,5 +12,5 @@ router.get('/dashboard', (req, res) => {
   if (!req.isAuthenticated()) return res.redirect('/login');
   res.sendFile(path.join(__dirname, '../frontend/userDashboard.html'));
 });
-
+router.get('/explore-projects', (_, res) => res.sendFile(path.join(__dirname, '../frontend/exploreProjects.html')));
 module.exports = router;

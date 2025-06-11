@@ -9,7 +9,7 @@ document.getElementById('verifyForm').addEventListener('submit', async function 
   const email = document.getElementById('email').value;
   const code = document.getElementById('code').value;
 
-  const res = await fetch('/verify', {
+  const res = await fetch('/user/verify', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email, verificationCode: code })
@@ -23,7 +23,7 @@ document.getElementById('verifyForm').addEventListener('submit', async function 
   if (data.success) {
     // Delay redirect to login
     setTimeout(() => {
-      window.location.href = '/login';
+      window.location.href = '/dashboard';
     }, 2000); // 2 seconds delay
   }
 });
@@ -35,7 +35,7 @@ document.getElementById('resendBtn').addEventListener('click', async () => {
     return;
   }
 
-  const res = await fetch('/resend-code', {
+  const res = await fetch('/user/resend-code', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email })

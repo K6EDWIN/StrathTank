@@ -1,195 +1,31 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Explore Projects</title>
-    <link rel="stylesheet" href="\styles\exploreProjects.css">
+  <meta charset="UTF-8">
+  <title>Project Showcase</title>
+  <link rel="stylesheet" href="/styles/exploreProjects.css">
 </head>
 <body>
-    <div class="sidebar">
-        <h2>Filters</h2>
-        <h4>Categories</h4>
-        <ul>
-            <li>Smart Cities</li>
-            <li>Environment</li>
-            <li>Education</li>
-            <li>Healthcare</li>
-            <li>Technology</li>
-        </ul>
-        <h4>Technologies</h4>
-        <ul>
-            <li>AI</li>
-            <li>AR/VR</li>
-            <li>Blockchain</li>
-            <li>IoT</li>
-            <li>Data Analytics</li>
-        </ul>
-    </div>
-    <div class="main-content">
-        <div class="header">
-            <h1>Explore Projects</h1>
-            <button>Upload New Project</button>
-        </div>
-        <p>Welcome! Browse through innovative academic projects below.</p>
-        <div class="project-grid">
+  <div class="sidebar">
+    <h3>Categories</h3>
+    <ul id="category-list"></ul>
 
-            <div class="project-card">
-                <h3>Smart City Initiative</h3>
-                <p><strong>Author:</strong> Lucy Sharma</p>
-                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer nec odio.</p>
-                <button>View Project</button>
-                
-                 <!-- Likes and Comments Section -->
-                 <div class="interactions">
-                 <span>❤️ 128</span>
-                 <span>💬 34</span>
-                   </div>
+    <h4>Sort By</h4>
+    <select id="sort-options">
+        <option value="default">Default</option>
+      <option value="newest">Newest</option>
+      <option value="most-liked">Most Liked</option>
+      <option value="most-commented">Most Commented</option>
+    </select>
+  </div>
 
-            </div>
-    
-            <div class="project-card">
-                <h3>Eco-Friendly Packaging</h3>
-                <p><strong>Author:</strong> Ben Carter</p>
-                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer nec odio.</p>
-                <button>View Project</button>
-                <!-- Likes and Comments Section -->
-                 <div class="interactions">
-                 <span>❤️ 128</span>
-                 <span>💬 34</span>
-               
-                   </div>
-            </div>
-    
-            <div class="project-card">
-                <h3>Interactive Learning Platform</h3>
-                <p><strong>Author:</strong> Chloe Kim</p>
-                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer nec odio.</p>
-                <button>View Project</button>
-                <!-- Likes and Comments Section -->
-                 <div class="interactions">
-                 <span>❤️ 128</span>
-                 <span>💬 34</span>
-             
-                   </div>
-            </div>
-    
-            <div class="project-card">
-                <h3>Robotics for Disaster Relief</h3>
-                <p><strong>Author:</strong> David Lee</p>
-                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer nec odio.</p>
-                <button>View Project</button>
-                <!-- Likes and Comments Section -->
-                 <div class="interactions">
-                 <span>❤️ 128</span>
-                 <span>💬 34</span>
-                   </div>
-            </div>
-    
-            <div class="project-card">
-                <h3>Healthcare Data Analytics</h3>
-                <p><strong>Author:</strong> Eva Rodriguez</p>
-                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer nec odio.</p>
-                <button>View Project</button>
-                <!-- Likes and Comments Section -->
-                 <div class="interactions">
-                 <span>❤️ 128</span>
-                 <span>💬 34</span>
-                   </div>
-            </div>
-    
-            <div class="project-card">
-                <h3>Augmented Reality Museum Guide</h3>
-                <p><strong>Author:</strong> Frank Chen</p>
-                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer nec odio.</p>
-                <button>View Project</button>
-                <!-- Likes and Comments Section -->
-                 <div class="interactions">
-                 <span>❤️ 128</span>
-                 <span>💬 34</span>
-  
-                   </div>
-            </div>
-    
-            <div class="project-card">
-                <h3>Sustainable Agriculture Sensor</h3>
-                <p><strong>Author:</strong> Grace O'Connell</p>
-                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer nec odio.</p>
-                <button>View Project</button>
-                <!-- Likes and Comments Section -->
-                 <div class="interactions">
-                 <span>❤️ 128</span>
-                 <span>💬 34</span>
-              
-                   </div>
-            </div>
-    
-            <div class="project-card">
-                <h3>Blockchain for Supply Chain</h3>
-                <p><strong>Author:</strong> Harry Wilson</p>
-                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer nec odio.</p>
-                <button>View Project</button>
-                <!-- Likes and Comments Section -->
-                 <div class="interactions">
-                 <span>❤️ 128</span>
-                 <span>💬 34</span>
-              
-                   </div>
-            </div>
-    
-            <div class="project-card">
-                <h3>Personalized Fitness AI</h3>
-                <p><strong>Author:</strong> Rachel Scott</p>
-                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer nec odio.</p>
-                <button>View Project</button>
-                <!-- Likes and Comments Section -->
-                 <div class="interactions">
-                 <span>❤️ 128</span>
-                 <span>💬 34</span>
-              
-                   </div>
-            </div>
-    
-            <div class="project-card">
-                <h3>Neuro-feedback Brain Trainer</h3>
-                <p><strong>Author:</strong> Jason Mills</p>
-                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer nec odio.</p>
-                <button>View Project</button>
-                <!-- Likes and Comments Section -->
-                 <div class="interactions">
-                 <span>❤️ 128</span>
-                 <span>💬 34</span>
-              
-                   </div>
-            </div>
-    
-            <div class="project-card">
-                <h3>Smart Home Energy Management System</h3>
-                <p><strong>Author:</strong> Mia Brown</p>
-                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer nec odio.</p>
-                <button>View Project</button>
-                <!-- Likes and Comments Section -->
-                 <div class="interactions">
-                 <span>❤️ 128</span>
-                 <span>💬 34</span>
-              
-                   </div>
-            </div>
-    
-            <div class="project-card">
-                <h3>Virtual Reality Language Learning Platform</h3>
-                <p><strong>Author:</strong> Noah Green</p>
-                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer nec odio.</p>
-                <button>View Project</button>
-                <!-- Likes and Comments Section -->
-                 <div class="interactions">
-                 <span>❤️ 128</span>
-                 <span>💬 34</span>
-              
-                   </div>
-            </div>
-    
-        </div>
+  <div class="main-content">
+    <div class="header">
+      <h2>Projects</h2>
     </div>
+    <div class="project-grid" id="project-grid"></div>
+  </div>
+
+  <script src="\scripts/exploreProjects.js"></script>
 </body>
 </html>

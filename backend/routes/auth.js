@@ -43,3 +43,27 @@ router.get('/github/callback',
 );
 
 module.exports = router;
+
+// Local (email/password) login
+router.post('/login', (req, res, next) => {
+  passport.authenticate('local', (err, user, info) => {
+    if (err) return next(err);
+    if (!user) {
+      return res.status(401).json({ success: false, message: info.message || 'Login failed' });
+    }
+
+    // Log the user in
+    req.login(user, (err) => {
+      if (err) return next(err);
+
+      req.session.user = {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role
+      };
+
+      res.json({ success: true, user: req.session.user });
+    });
+  })(req, res, next);
+});

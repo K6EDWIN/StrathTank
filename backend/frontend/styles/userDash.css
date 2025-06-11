@@ -193,6 +193,39 @@
   color: #95a5a6;
   margin-bottom: 0.5rem;
 }
+.empty-project-card {
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  padding: 20px;
+  background-color: #f9f9f9;
+  text-align: center;
+  margin-top: 20px;
+  position: relative;
+}
+
+.empty-project-card h3 {
+  font-size: 1.3em;
+  margin-bottom: 10px;
+}
+
+.empty-project-card .close-btn {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  border: none;
+  background: none;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.upload-btn {
+  background-color: #333;
+  color: #fff;
+  padding: 10px 20px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+}
 
 /* Interactions */
 .interactions {
