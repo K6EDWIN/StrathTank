@@ -81,7 +81,7 @@ function handleSignup(event) {
     .then(data => {
         if (data.message) {
             alert(data.message);
-            window.location.href = "/login";
+            window.location.href = "/verify-email";
         } else {
             messageBox.innerText = "Something went wrong.";
             messageBox.style.color = "red";
