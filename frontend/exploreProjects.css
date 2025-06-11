@@ -46,3 +46,24 @@
         .project-card button:hover {
             background-color: #0056b3;
         }
+        /*interactions likes, comments, shares*/
+.interactions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.9rem;
+    color: #7f8c8d;
+    margin-top: auto;
+    padding-top: 0.5rem;
+    border-top: 1px solid #ecf0f1;
+}
+
+.interactions span {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+}
+.interactions span:hover {
+    color: #2c3e50;
+}
