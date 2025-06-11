@@ -35,7 +35,7 @@
     <div class="banner">
     <h1>Transforming Academic Vision into Real-World Impact</h1>
     <button>Upload Your Project</button>
-    <button>Explore Projects</button>
+    <button id="exploreProjectsButton" onclick="window.location.href='exploreProjects.html'">Explore Projects</button>
 </div>
     <div class="section">
         <h2>Recent Projects</h2>
@@ -123,5 +123,10 @@
         </div>
     </div>
     </div>
+    <script>
+       document.getElementById("exploreProjectsButton").addEventListener("click", function() {
+            window.location.href = "exploreProjects.html"; // Redirect to the explore projects page
+        });
+    </script>
 </body>
 </html>
