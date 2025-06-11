@@ -32,13 +32,33 @@
       <input class="search-bar" type="text" placeholder="Search..." />
     </nav>
      
-    <div class="banner">
+   <div class="banner">
     <h1>Transforming Academic Vision into Real-World Impact</h1>
+    <p>
+      Welcome, User! Upload your academic projects, explore others' work, and connect with fellow researchers tackling similar challenges. This is your space to grow, learn, and make an impact beyond the classroom.
+    </p>
     <button>Upload Your Project</button>
-    <button id="exploreProjectsButton" onclick="window.location.href='exploreProjects.html'">Explore Projects</button>
+    <button onclick="window.location.href='exploreProjects.html'">Explore Projects</button>
+  
 </div>
+
     <div class="section">
         <h2>Recent Projects</h2>
+         <div class="search-section">
+    <input type="text" class="search-input" placeholder="Search projects, categories, or topics...">
+    <select class="dropdown">
+        <option>Category</option>
+        <option>Smart Cities</option>
+        <option>Education</option>
+        <option>Healthcare</option>
+        <!-- Add more categories -->
+    </select>
+    <select class="dropdown">
+        <option>Sort by</option>
+        <option>Most Recent</option>
+        <option>Most Popular</option>
+    </select>
+</div>
         <div class="projects">
             <div class="card">
                 <img src="#" alt="Project Image">
@@ -49,7 +69,7 @@
                 <div class="interactions" id="interactionsUserDash">
                     <span>❤️ 128</span>
                     <span>💬 34</span>
-                    <span>🔁 30</span>
+                   
                     </div>
             </div>
              <div class="card">
@@ -61,7 +81,7 @@
                 <div class="interactions" id="interactionsUserDash">
                     <span>❤️ 128</span>
                     <span>💬 34</span>
-                    <span>🔁 30</span>
+                  
                     </div>
             </div>
              <div class="card">
@@ -73,7 +93,7 @@
                 <div class="interactions" id="interactionsUserDash">
                     <span>❤️ 128</span>
                     <span>💬 34</span>
-                    <span>🔁 30</span>
+                    
                     </div>
             </div>
             <!-- More project cards -->
@@ -92,7 +112,7 @@
                 <div class="interactions" id="interactionsUserDash">
                     <span>❤️ 128</span>
                     <span>💬 34</span>
-                    <span>🔁 30</span>
+                   
                     </div>
             </div>
              <div class="card">
@@ -104,7 +124,7 @@
                 <div class="interactions" id="interactionsUserDash">
                     <span>❤️ 128</span>
                     <span>💬 34</span>
-                    <span>🔁 30</span>
+                   
                     </div>
             </div>
              <div class="card">
@@ -116,7 +136,7 @@
                 <div class="interactions" id="interactionsUserDash">
                     <span>❤️ 128</span>
                     <span>💬 34</span>
-                    <span>🔁 30</span>
+                   
                     </div>
             </div>
             <!-- More user project cards -->
@@ -127,6 +147,25 @@
        document.getElementById("exploreProjectsButton").addEventListener("click", function() {
             window.location.href = "exploreProjects.html"; // Redirect to the explore projects page
         });
+       
+let sidebar = document.querySelector('.sidebar');
+let lastScrollTop = 0;
+
+window.addEventListener('scroll', function () {
+    let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+
+    if (scrollTop > lastScrollTop) {
+        // Scrolling down
+        sidebar.classList.add('visible');
+    } else {
+        // Scrolling up
+        sidebar.classList.remove('visible');
+    }
+
+    lastScrollTop = scrollTop <= 0 ? 0 : scrollTop; // For Mobile or negative scrolling
+});
+
+
     </script>
 </body>
 </html>

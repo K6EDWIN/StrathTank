@@ -71,16 +71,40 @@
 
 /* Banner */
 .banner {
-    background: linear-gradient(to right, #3498db, #9b59b6);
-    color: white;
-    text-align: center;
-    padding: 3rem 1rem;
+  position: relative;
+  margin-left: 250px;
+  padding: 4rem 2rem;
+  min-height: 60vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  color: white;
+
+  background-image: linear-gradient(to right, rgba(52, 152, 219), rgba(155, 89, 182)), url('/frontend/images/su.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-blend-mode: overlay;
+
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
 }
 
+
+
 .banner h1 {
-  font-size: 2rem;
-  margin-bottom: 1.5rem;
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
 }
+
+.banner p {
+  font-size: 1.2rem;
+  margin-bottom: 1rem;
+  line-height: 1.6;
+}
+
 .banner button {
   background-color: white;
   color: #3498db;
@@ -95,6 +119,54 @@
 .banner button:hover {
   background-color: #ecf0f1;
 }
+/*Search bar*/
+.search-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: center;
+  margin: 1rem 0;
+}
+
+.search-input {
+  padding: 0.6rem 1rem;
+  width: 250px;
+  border: 1px solid #ccc;
+  border-radius: 25px;
+  font-size: 1rem;
+  outline: none;
+  background-color: #f9f9f9;
+  color: #2c3e50;
+  transition: all 0.3s ease;
+}
+
+.search-input::placeholder {
+  color: #95a5a6;
+}
+
+.search-input:focus {
+  border-color: #3498db;
+  box-shadow: 0 0 8px rgba(52, 152, 219, 0.3);
+  background-color: #fff;
+}
+
+.dropdown {
+  padding: 0.6rem 1rem;
+  border: 1px solid #ccc;
+  border-radius: 25px;
+  font-size: 1rem;
+  background-color: #f9f9f9;
+  color: #2c3e50;
+  outline: none;
+  transition: all 0.3s ease;
+}
+
+.dropdown:focus {
+  border-color: #3498db;
+  box-shadow: 0 0 8px rgba(52, 152, 219, 0.3);
+  background-color: #fff;
+}
+
 
 /* Section */
 .section {
@@ -150,7 +222,7 @@
   margin-bottom: 0.5rem;
 }
 
-/* Interactions */
+/* Interactions like the likes and comments*/
 .interactions {
   display: flex;
   justify-content: space-between;
