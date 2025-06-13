@@ -37,20 +37,46 @@ function handleLogin(event) {
     event.preventDefault();
     const username = event.target.username.value.trim();
     const password = event.target.password.value.trim();
+    const messageBox = document.getElementById('login-message'); // Add this in your HTML
+
+    messageBox.innerText = "";
 
     if (!username || !password) {
-        alert("Please fill in all fields.");
+        messageBox.innerText = "Please fill in all fields.";
+        messageBox.style.color = "red";
         return;
     }
 
-    console.log("Logging in:", { username, password });
-    window.location.href = "homepage.html";
+    fetch("/user/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password })
+    })
+    .then(async res => {
+        const data = await res.json();
+
+        if (!res.ok || !data.success) {
+            messageBox.innerText = data.message || "Invalid username or password.";
+            messageBox.style.color = "red";
+            return;
+        }
+
+        // Login successful
+        alert("Welcome, " + data.user.name + "!");
+        window.location.href = "/dashboard"; // Redirect to dashboard
+        messageBox.innerText = "Login successful!";
+    })
+    .catch(err => {
+        console.error("Login error:", err);
+        messageBox.innerText = "Server error. Please try again.";
+        messageBox.style.color = "red";
+    });
 }
+
 
 // Handle signup
 function handleSignup(event) {
     event.preventDefault();
-
     const form = event.target;
     const username = form.username.value.trim();
     const email = form.email.value.trim();
@@ -59,6 +85,7 @@ function handleSignup(event) {
     const role = form.role.value;
 
     const messageBox = document.getElementById('message');
+    messageBox.innerHTML = ""; // Clear any previous messages
 
     if (!username || !email || !password || !confirmPassword || !role) {
         messageBox.innerText = "Please fill in all fields.";
@@ -72,16 +99,27 @@ function handleSignup(event) {
         return;
     }
 
-    fetch("/submit", {
+    fetch("/user/submit", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, email, password, role })
     })
-    .then(res => res.json())
-    .then(data => {
-        if (data.message) {
+    .then(async res => {
+        if (res.status === 409) {
+            // Show user-friendly message and sign-in link
+            messageBox.style.color = "red";
+            messageBox.innerHTML = `
+                Username or email already exists. Please 
+                <a href="/login" style="color: blue; text-decoration: underline;">sign in</a>.
+            `;
+            return;
+        }
+
+        const data = await res.json();
+
+        if (data.success) {
             alert(data.message);
-            window.location.href = "/login";
+            window.location.href = data.redirect; // Redirect to verification
         } else {
             messageBox.innerText = "Something went wrong.";
             messageBox.style.color = "red";
@@ -93,6 +131,7 @@ function handleSignup(event) {
         messageBox.style.color = "red";
     });
 }
+
 
 // Handle forgot password
 function handleForgotPassword(event) {
@@ -106,18 +145,18 @@ function handleForgotPassword(event) {
 
     console.log("Password reset requested for:", email);
     alert("If this email exists, a reset link has been sent.");
-    window.location.href = "login.html";
+    window.location.href = "/login"; // Redirect to login page
 }
 
 // Social login role modal
 function submitRole(role) {
-    fetch('/set-role', {
+    fetch('/user/set-role', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ role })
     }).then(res => {
         if (res.ok) {
-            window.location.href = '/dashboard';
+            window.location.href = '/user/dashboard';
         } else {
             alert("Failed to set role. Try again.");
         }

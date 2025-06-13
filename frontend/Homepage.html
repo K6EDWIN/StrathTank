@@ -28,8 +28,9 @@
             <a href="#" class="logo">StrathTank</a>
         </div>
         <div class="navbar-right">
-            <button class="registration-btn">Sign Up</button>
-          <button class="login-btn">Login</button>
+            <!--Auth buttons for alternative signup and login-->
+            <button class="registration-btn" id="openSignUpPage" onclick="window.location.href='Registration.html'" >Sign Up</button>
+          <button class="login-btn" id="openLoginPage" onclick="window.location.href='Login.html'" >Login</button>
         </div>
     </nav>
     <div class="hero-section">
@@ -50,38 +51,58 @@
             <h3 class="about-cta">Explore</h3>
     </div>
 
-    <div class="featured-projects-section">
-        <h2 class="featured-projects-title">Featured Projects</h2>
-        <p class="featured-projects-description">Featured Projects
-            These projects didn’t stop at the classroom. 
-            our featured projects showcase the best of student creativity. 
-            Who knows yours might be next
-            </p>
-            <!--card containers holding the featured projects-->
-            <div class="featured-projects-container">
-                <div class="featured-project-card" id="featured-project-1">
-                    <div class="featured-project-image#"></div>
-                </div>
-                <div class="featured-project-card" id="featured-project-2">
-                    <div class="featured-project-image#"></div>
-                </div>
-                <div class="featured-project-card" id="featured-project-3">
-                    <div class="featured-project-image#"></div>
-                </div>
-                <div class="featured-project-card" id="featured-project-4">
-                    <div class="featured-project-image#"></div>
-                </div>
-            </div>
+   <div class="featured-projects-section">
+    <h2 class="featured-projects-title">Featured Projects</h2>
+    <p class="featured-projects-description">
+        These projects didn’t stop at the classroom. Our featured projects showcase the best of student creativity. Who knows—yours might be next!
+    </p>
+
+    <!-- Card container holding the featured projects -->
+    <div class="featured-projects-container">
+        <div class="featured-project-card">
+            <div class="featured-project-image" style="background-image: url('project1.jpg');"></div>
+            <h3>AI-Powered 3D Mapping</h3>
+            <p>Advanced mapping using AI/VR to create detailed 3D models.</p>
         </div>
+
+        <div class="featured-project-card">
+            <div class="featured-project-image" style="background-image: url('project2.jpg');"></div>
+            <h3>Smart Hydroponic Garden</h3>
+            <p>Automated indoor gardening system for sustainable living.</p>
+        </div>
+
+        <div class="featured-project-card">
+            <div class="featured-project-image" style="background-image: url('project3.jpg');"></div>
+            <h3>VR Therapy for Anxiety</h3>
+            <p>Using virtual reality to treat anxiety disorders effectively.</p>
+        </div>
+
+        <div class="featured-project-card">
+            <div class="featured-project-image" style="background-image: url('project4.jpg');"></div>
+            <h3>Quantum Learning Platform</h3>
+            <p>Interactive platform for learning quantum physics through games.</p>
+        </div>
+    </div>
+</div>
+
 
     <div class="join-section">
         <h1 class="join-title">Join Us</h1>
         <p class="join-description" style="color: aliceblue;">This platform was made for creators like you. 
             Whether you've got a finished project or just an idea come build with us.</p>
             <div class="join-buttons">
-            <button class="register-btn" id="openSignUpPage">Create Account</button>
-            <button class="login-btn" id="openLoginPage">Login to your account</button>
+            <button class="register-btn" id="openSignUpPage" onclick="window.location.href='Registration.html'">Create Account</button>
+            <button class="login-btn" id="openLoginPage" onclick="window.location.href='Login.html'">Login to your account</button>
             </div>
     </div>
+    <script>
+        document.getElementById("openSignUpPage").addEventListener("click", function() {
+            window.location.href = "Registration.html";
+        });
+
+        document.getElementById("openLoginPage").addEventListener("click", function() {
+            window.location.href = "Login.html";
+        });
+    </script>
 </body>
 </html>

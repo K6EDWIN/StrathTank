@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>StrathTank Dashboard</title>
+  <link rel="stylesheet" href="/styles/userDash.css" />
+  <script src="/scripts/Dashboard.js" defer></script>
+</head>
+<body>
+  <div class="layout">
+    <!-- Sidebar -->
+    <aside class="sidebar visible" id="sidebar">
+      <h2>Navigation</h2>
+      <ul>
+        <li><a href="#">Home</a></li>
+        <li><a href="#">Your Projects</a></li>
+        <li><a href="#">Upload Projects</a></li>
+        <li><a href="#">Mentorship Hub</a></li>
+      </ul>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content" id="mainContent">
+      <!-- Navigation Bar -->
+      <nav class="navbar">
+       <a href="#" class="logo">
+  <img src="\assets/logo.png" alt="StrathTank Logo" class="logo-img" />
+</a>
+        <div class="nav-links">
+          <a href="#">Home</a>
+          <a href="#">Upload</a>
+          <a href="/explore-projects">Explore</a>
+          <a href="#">Mentorship</a>
+          <a href="#">Collaboration</a>
+        </div>
+     <div class="search-section">
+  <input id="searchBar" class="search-bar" type="text" placeholder="Search by title or author..." />
+  <div id="search-results" class="results-container"></div>
+</div>
+      </nav>
+
+      <!-- Banner -->
+     <header class="banner">
+      <div class="overlay">
+        <h1>Transforming Academic Vision into<br><span class="highlight">Real-World Impact</span></h1>
+       <h1 id="welcome-text">Welcome, User!</h1>
+        <p> Upload your academic projects, explore others' work, and connect with fellow students tackling similar challenges. This is your space to grow, build, and make an impact beyond the classroom.</p>
+        <div class="banner-buttons">
+          <button class="primary-btn">Upload Your Project</button>
+          <button class="secondary-btn">Explore Projects</button>
+        </div>
+      </div>
+    </header>
+      <!-- Recent Projects Section -->
+      <section class="section">
+        <h2>Recent Projects</h2>
+        <div class="projects" id="recent-projects">
+          <!-- Projects will be injected by JS -->
+        </div>
+      </section>
+
+
+      <!-- Your Projects Section -->
+<section class="section">
+  <h2>Your Projects</h2>
+  
+  <!-- No projects message -->
+  <div id="no-projects-message" style="display: none;">
+    <div class="empty-project-card">
+      <button class="close-btn" onclick="document.getElementById('no-projects-message').style.display='none'">×</button>
+      <h3>Oops 😢 It looks like you haven’t uploaded a project yet.</h3>
+      <p>Want to change that and show the world what you’ve been working on?</p>
+      <button class="upload-btn" onclick="window.location.href='#'">Upload project</button>
+    </div>
+  </div>
+
+  <div class="projects" id="user-projects">
+    <!-- User-specific projects will be injected by JS -->
+  </div>
+</section>
+
+    </main>
+  </div>
+</body>
+</html>

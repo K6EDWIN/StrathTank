@@ -7,16 +7,17 @@ loginForm.addEventListener('submit', async function(e) {
   const email = document.getElementById('email').value;
   const password = document.getElementById('password').value;
 
-  const response = await fetch('/login', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email, password })
-  });
+  const response = await fetch('/auth/login', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ email, password })
+});
+
 
   const data = await response.json();
 
   if (data.success) {
-    messageDiv.textContent = '✅ Successful! Welcome to Dashboard.';
+    messageDiv.textContent = '✅ Successful! Welcome to your Dashboard.';
     messageDiv.style.color = 'green';
     // Redirect after 2 seconds, 
     setTimeout(() => {
