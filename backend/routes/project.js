@@ -4,22 +4,43 @@ const db = require('../config/db');
 
 // GET /api/projects
 router.get('/projects', (req, res) => {
+  const sort = req.query.sort || 'newest';
+
+  let orderBy = 'p.created_at DESC'; // Default: newest
+  if (sort === 'most-liked') {
+    orderBy = 'likes DESC';
+  } else if (sort === 'most-commented') {
+    orderBy = 'comments DESC';
+  }
+
   const sql = `
     SELECT p.id, p.title, p.description, p.category, p.created_at, 
            COALESCE(l.like_count, 0) AS likes,
            COALESCE(c.comment_count, 0) AS comments,
            p.file_path AS image
     FROM projects p
-    LEFT JOIN (SELECT project_id, COUNT(*) AS like_count FROM likes GROUP BY project_id) l ON p.id = l.project_id
-    LEFT JOIN (SELECT project_id, COUNT(*) AS comment_count FROM comments GROUP BY project_id) c ON p.id = c.project_id
-    ORDER BY p.created_at DESC
+    LEFT JOIN (
+      SELECT project_id, COUNT(*) AS like_count 
+      FROM likes 
+      GROUP BY project_id
+    ) l ON p.id = l.project_id
+    LEFT JOIN (
+      SELECT project_id, COUNT(*) AS comment_count 
+      FROM comments 
+      GROUP BY project_id
+    ) c ON p.id = c.project_id
+    ORDER BY ${orderBy}
   `;
 
   db.query(sql, (err, results) => {
-    if (err) return res.status(500).json({ error: 'Database error' });
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ error: 'Database error' });
+    }
     res.json(results);
   });
 });
+
 
 // GET /api/homepageprojects
 router.get('/homepageprojects', (req, res) => {

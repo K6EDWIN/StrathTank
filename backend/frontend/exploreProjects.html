@@ -6,26 +6,48 @@
   <link rel="stylesheet" href="/styles/exploreProjects.css">
 </head>
 <body>
-  <div class="sidebar">
-    <h3>Categories</h3>
-    <ul id="category-list"></ul>
 
-    <h4>Sort By</h4>
-    <select id="sort-options">
-        <option value="default">Default</option>
-      <option value="newest">Newest</option>
-      <option value="most-liked">Most Liked</option>
-      <option value="most-commented">Most Commented</option>
-    </select>
-  </div>
-
-  <div class="main-content">
-    <div class="header">
-      <h2>Projects</h2>
+  <!-- Top Navigation Bar -->
+  <nav class="navbar">
+    <a href="#" class="logo">
+      <img src="/assets/logo.png" alt="StrathTank Logo" class="logo-img" />
+    </a>
+    <div class="nav-links">
+      <a href="/dashboard">Home</a>
+      <a href="#">Upload</a>
+      <a href="/explore-projects">Explore</a>
+      <a href="#">Mentorship</a>
+      <a href="#">Collaboration</a>
     </div>
-    <div class="project-grid" id="project-grid"></div>
+    <div class="search-section">
+      <input id="searchBar" class="search-bar" type="text" placeholder="Search by title ..." />
+      <div id="search-results" class="results-container"></div>
+    </div>
+  </nav>
+
+  <!-- Sidebar + Main Content Container -->
+  <div class="main-wrapper">
+    <div class="sidebar">
+      <h3>Categories</h3>
+      <ul id="category-list"></ul>
+
+      <h4>Sort By</h4>
+      <select id="sort-options">
+        <option value="default">Default</option>
+        <option value="newest">Newest</option>
+        <option value="most-liked">Most Liked</option>
+        <option value="most-commented">Most Commented</option>
+      </select>
+    </div>
+
+    <div class="main-content">
+      <div class="header">
+        <h2>Projects</h2>
+      </div>
+      <div class="project-grid" id="project-grid"></div>
+    </div>
   </div>
 
-  <script src="\scripts/exploreProjects.js"></script>
+  <script src="/scripts/exploreProjects.js"></script>
 </body>
 </html>

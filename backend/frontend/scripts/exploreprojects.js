@@ -1,10 +1,13 @@
 const categoryList = document.getElementById('category-list');
 const sortOptions = document.getElementById('sort-options');
 const projectGrid = document.getElementById('project-grid');
+const searchBar = document.getElementById('searchBar');
 
 let currentCategory = '';
 let currentSort = 'newest';
+let currentSearchTerm = '';
 
+// Fetch and display categories
 function fetchCategories() {
   fetch('/api/categories')
     .then(res => res.json())
@@ -17,7 +20,7 @@ function fetchCategories() {
           document.querySelectorAll('#category-list li').forEach(el => el.classList.remove('selected'));
           li.classList.add('selected');
           currentCategory = cat.category;
-          fetchProjects();
+          fetchProjects(currentSearchTerm);  // include searchTerm when fetching
         });
         categoryList.appendChild(li);
       });
@@ -27,20 +30,33 @@ function fetchCategories() {
     });
 }
 
-function fetchProjects() {
+// Fetch and display projects based on filters
+function fetchProjects(searchTerm = '') {
   let endpoint = '';
 
   if (currentCategory) {
     endpoint = `/api/projects/by-category?category=${encodeURIComponent(currentCategory)}&sort=${currentSort}`;
   } else {
-    endpoint = `/api/projects`; // ← Your existing API for all projects
+    endpoint = `/api/projects?sort=${currentSort}`;
   }
 
   fetch(endpoint)
     .then(res => res.json())
     .then(data => {
+      // Apply client-side filtering by title or author
+      const filtered = data.filter(project => {
+        const term = searchTerm.toLowerCase();
+        return (
+          project.title.toLowerCase().includes(term) ||
+          (project.author && project.author.toLowerCase().includes(term))
+        );
+      });
+
+      // Clear the grid
       projectGrid.innerHTML = '';
-      data.forEach(project => {
+
+      // Render filtered projects
+      filtered.forEach(project => {
         const card = document.createElement('div');
         card.className = 'project-card';
 
@@ -68,9 +84,16 @@ function fetchProjects() {
     });
 }
 
+// Handle sorting change
 sortOptions.addEventListener('change', () => {
   currentSort = sortOptions.value;
-  fetchProjects();
+  fetchProjects(currentSearchTerm);
+});
+
+// Handle search input
+searchBar.addEventListener('input', (e) => {
+  currentSearchTerm = e.target.value.trim();
+  fetchProjects(currentSearchTerm);
 });
 
 // Initial load
