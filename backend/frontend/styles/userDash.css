@@ -226,6 +226,9 @@
   border: none;
   cursor: pointer;
 }
+.upload-btn:hover {
+  background-color: #e9486d;
+}
 
 /* Interactions */
 .interactions {

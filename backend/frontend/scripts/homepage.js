@@ -3,20 +3,26 @@ document.querySelector('.explore').addEventListener('click', function () {
   document.querySelector('#projects').scrollIntoView({ behavior: 'smooth' });
 });
 
-// Automatically scroll to CTA when bottom of Projects is visible
-let ctaTriggered = false;
-
-window.addEventListener('scroll', function () {
-  if (ctaTriggered) return;
-
-  const projects = document.querySelector('#projects');
+// Smooth scroll from #projects to #cta when #projects is visible
+document.addEventListener("DOMContentLoaded", function () {
   const cta = document.querySelector('#cta');
-  const projectsRect = projects.getBoundingClientRect();
+  const projects = document.querySelector('#projects');
 
-  if (projectsRect.bottom <= window.innerHeight + 50) {
-    ctaTriggered = true;
-    cta.scrollIntoView({ behavior: 'smooth' });
-  }
+  const observer = new IntersectionObserver(
+    entries => {
+      if (entries[0].isIntersecting) {
+        setTimeout(() => {
+          cta.scrollIntoView({ behavior: 'smooth' });
+        }, 5000); // small delay to feel more natural
+        observer.disconnect(); // only scroll once
+      }
+    },
+    {
+      threshold: 0.9 // trigger when 90% of projects is visible
+    }
+  );
+
+  observer.observe(projects);
 });
 
 // Handle button clicks
@@ -40,10 +46,10 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 });
 
-//fetch projects and display them
+// Fetch projects and display them
 let offset = 0;
 const limit = 3;
-const intervalTime = 5000; // 5 seconds
+const intervalTime = 5000;
 
 async function fetchAndDisplayProjects() {
   try {
@@ -54,7 +60,7 @@ async function fetchAndDisplayProjects() {
     container.innerHTML = ''; // Clear existing cards
 
     if (data.length === 0) {
-      offset = 0; // Reset if no results (e.g., DB was cleared)
+      offset = 0; // Reset if no results
       return;
     }
 
@@ -62,7 +68,7 @@ async function fetchAndDisplayProjects() {
       const card = document.createElement('div');
       card.className = 'card';
       card.innerHTML = `
-        <div class="thumb" style="background-image: url('${p.image || ''}'); background-size: cover; background-position: center;"></div>
+        <img class="thumb" src="${p.image || '/assets/placeholder.jpg'}" alt="${p.title}" onerror="this.src='/assets/placeholder.jpg'" loading="lazy" />
         <h3>${p.title}</h3>
         <p>${p.description}</p>
         <div class="meta">Author: ${p.author || 'Unknown'} <button>View</button></div>
@@ -72,7 +78,7 @@ async function fetchAndDisplayProjects() {
 
     // Update offset for next batch
     if (data.length < limit) {
-      offset = 0; // Reset if last page
+      offset = 0;
     } else {
       offset += limit;
     }

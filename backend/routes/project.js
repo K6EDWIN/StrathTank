@@ -6,6 +6,9 @@ const db = require('../config/db');
 router.get('/projects', (req, res) => {
   const sort = req.query.sort || 'newest';
 
+  // Get logged-in user ID
+  const currentUserId = req.user?.id || null;
+
   let orderBy = 'p.created_at DESC'; // Default: newest
   if (sort === 'most-liked') {
     orderBy = 'likes DESC';
@@ -14,10 +17,12 @@ router.get('/projects', (req, res) => {
   }
 
   const sql = `
-    SELECT p.id, p.title, p.description, p.category, p.created_at, 
-           COALESCE(l.like_count, 0) AS likes,
-           COALESCE(c.comment_count, 0) AS comments,
-           p.file_path AS image
+    SELECT 
+      p.id, p.title, p.description, p.category, p.created_at, 
+      COALESCE(l.like_count, 0) AS likes,
+      COALESCE(c.comment_count, 0) AS comments,
+      p.file_path AS image,
+      p.user_id
     FROM projects p
     LEFT JOIN (
       SELECT project_id, COUNT(*) AS like_count 
@@ -37,7 +42,14 @@ router.get('/projects', (req, res) => {
       console.error(err);
       return res.status(500).json({ error: 'Database error' });
     }
-    res.json(results);
+
+    // Mark if the project belongs to the current user
+    const projects = results.map(project => ({
+      ...project,
+      is_owner: currentUserId !== null && project.user_id === currentUserId
+    }));
+
+    res.json(projects);
   });
 });
 

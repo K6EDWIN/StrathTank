@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>StrathTank</title>
   <link rel="stylesheet" href="styles/homepage.css">
-  <script src="scripts/homepage.js" defer></script>
+  <script defer src="scripts/homepage.js" ></script>
 </head>
 <body>
 <section id="hero">
@@ -53,23 +53,17 @@
 
   <!-- Join Us CTA -->
   <section id="cta">
-    <h2>Join us</h2>
-    <p>This platform was made for creators like you... come build with us.</p>
-    <div class="cta-buttons">
-      <button id="signinbtnbottom">log in to your account</button>
-      <button id="signupbtnbottom">Create account</button>
-    </div>
-  </section>
-
-<!--role selection-->
-<div id="roleModal" class="modal" style="display: none;">
-  <div class="modal-content">
-    <h3>Select Your Role</h3>
-    <button onclick="submitRole('Student')">Student</button>
-    <button onclick="submitRole('Mentor')">Mentor</button>
-    <button onclick="submitRole('Admin')">Admin</button>
+  <video autoplay muted loop id="heroVideo2">
+    <source src="assets/background 3.mp4" type="video/mp4" />
+  </video>
+  <div class="overlay"></div>
+  <h2>Join us</h2>
+  <p>This platform was made for creators like you... come build with us.</p>
+  <div class="cta-buttons">
+    <button id="signinbtnbottom">log in to your account</button>
+    <button id="signupbtnbottom">Create account</button>
   </div>
-</div>
+</section>
 
 
 </body>

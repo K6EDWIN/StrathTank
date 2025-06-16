@@ -11,6 +11,7 @@ body, html {
   overflow-x: hidden;
   color: white;
   overflow: scroll;
+  scroll-behavior: smooth;
 }
 
 section {
@@ -34,7 +35,6 @@ video {
   z-index: 1;
   padding: 3rem;
   text-align: center;
-
 }
 
 /* Hero Section */
@@ -66,7 +66,7 @@ video {
   cursor: pointer;
 }
 
-#heroVideo {
+#heroVideo2 {
   position: absolute;
   top: 0;
   left: 0;
@@ -74,8 +74,18 @@ video {
   height: 100%;
   object-fit: cover;
   z-index: 0;
+  opacity: 0.6;
+  pointer-events: none;
 }
 
+#heroVideo{ position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 0;
+}
 .paragraph {
   position: relative;
   top: 80px;
@@ -175,10 +185,11 @@ video {
 
 .thumb {
   width: 100%;
-  height: 120px;
+  height: 180px;
   background: #ddd;
-  border-radius: 5px;
+  border-radius: 8px;
   margin-bottom: 1rem;
+  object-fit: cover;
 }
 
 .card h3 {
@@ -207,11 +218,46 @@ video {
   cursor: pointer;
 }
 
-/* CTA Section */
+/* CTA Section with video */
 #cta {
-  background: #000000;
+  position: relative;
+  height: 500px;
   text-align: center;
-  padding: 15rem 2rem;
+  color: white;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+#cta video {
+  position: absolute;
+  top: 0;
+  left: 0;
+  min-width: 100%;
+  min-height: 100%;
+  object-fit: cover;
+  z-index: 0;
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+#cta .overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 1;
+}
+
+#cta h2,
+#cta p,
+.cta-buttons {
+  position: relative;
+  z-index: 2;
 }
 
 #cta h2 {
@@ -257,6 +303,7 @@ video {
     right: 0.5rem;
   }
 }
+
 *::-webkit-scrollbar {
   display: none;
 }
