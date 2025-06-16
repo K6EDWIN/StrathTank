@@ -29,7 +29,7 @@ app.use('/api', require('./routes/project'));
 app.use('/styles', express.static(path.join(__dirname, 'frontend/styles')));
 app.use('/assets', express.static(path.join(__dirname, 'frontend/assets')));
 app.use('/scripts', express.static(path.join(__dirname, 'frontend/scripts')));
-
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
 });
