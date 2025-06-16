@@ -50,6 +50,7 @@ passport.use(new GoogleStrategy({
 }, (accessToken, refreshToken, profile, done) => {
   const email = profile.emails?.[0]?.value;
   const name = profile.displayName || 'Google User';
+  const image = profile.photos?.[0]?.value || null;
 
   if (!email) return done(null, false, { message: 'No email provided by Google' });
 
@@ -62,8 +63,8 @@ passport.use(new GoogleStrategy({
       return done(null, results[0]);
     }
 
-    const insertQuery = 'INSERT INTO Users (name, email, verified) VALUES (?, ?, ?)';
-    db.query(insertQuery, [name, email, true], (insertErr, insertResult) => {
+    const insertQuery = 'INSERT INTO Users (name, email, profile_image, verified) VALUES (?, ?, ?, ?)';
+    db.query(insertQuery, [name, email, image, true], (insertErr, insertResult) => {
       if (insertErr) return done(insertErr);
 
       db.query('SELECT * FROM Users WHERE id = ?', [insertResult.insertId], (fetchErr, newUser) => {
@@ -85,6 +86,7 @@ passport.use(new GitHubStrategy({
   try {
     const email = profile.emails && profile.emails[0] && profile.emails[0].value;
     const name = profile.displayName || profile.username || 'GitHub User';
+    const image = profile.photos?.[0]?.value || null;
 
     if (!email) {
       return done(null, false, { message: 'Email is required from GitHub. Please make your email public or use another method.' });
@@ -99,8 +101,8 @@ passport.use(new GitHubStrategy({
         return done(null, results[0]);
       }
 
-      const insertQuery = 'INSERT INTO Users (name, email, verified) VALUES (?, ?, ?)';
-      db.query(insertQuery, [name, email, true], (insertErr, insertResult) => {
+      const insertQuery = 'INSERT INTO Users (name, email, profile_image, verified) VALUES (?, ?, ?, ?)';
+      db.query(insertQuery, [name, email, image, true], (insertErr, insertResult) => {
         if (insertErr) return done(insertErr);
 
         db.query('SELECT * FROM Users WHERE id = ?', [insertResult.insertId], (fetchErr, newUser) => {
