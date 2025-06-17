@@ -13,4 +13,6 @@ router.get('/dashboard', (req, res) => {
   res.sendFile(path.join(__dirname, '../frontend/userDashboard.html'));
 });
 router.get('/explore-projects', (_, res) => res.sendFile(path.join(__dirname, '../frontend/exploreProjects.html')));
+router.get('/project-view', (_, res) => res.sendFile(path.join(__dirname, '../frontend/individualProjectsViewIT.html')));
+router.get('/individualProjectsViewnonIT', (_, res) => res.sendFile(path.join(__dirname, '../frontend/individualProjectsViewnonIT.html')));
 module.exports = router;

@@ -20,13 +20,12 @@ function fetchCategories() {
           document.querySelectorAll('#category-list li').forEach(el => el.classList.remove('selected'));
           li.classList.add('selected');
           currentCategory = cat.category;
-          fetchProjects(currentSearchTerm);  // include searchTerm when fetching
+          fetchProjects(currentSearchTerm);
         });
         categoryList.appendChild(li);
       });
 
-      // Fetch all projects initially
-      fetchProjects();
+      fetchProjects(); // Load all projects initially
     });
 }
 
@@ -43,19 +42,17 @@ function fetchProjects(searchTerm = '') {
   fetch(endpoint)
     .then(res => res.json())
     .then(data => {
-      // Apply client-side filtering by title or author
+      const term = searchTerm.toLowerCase();
+
       const filtered = data.filter(project => {
-        const term = searchTerm.toLowerCase();
         return (
           project.title.toLowerCase().includes(term) ||
           (project.author && project.author.toLowerCase().includes(term))
         );
       });
 
-      // Clear the grid
       projectGrid.innerHTML = '';
 
-      // Render filtered projects
       filtered.forEach(project => {
         const card = document.createElement('div');
         card.className = 'project-card';
@@ -76,8 +73,20 @@ function fetchProjects(searchTerm = '') {
             <span>👍 ${project.likes}</span>
             <span>💬 ${project.comments}</span>
           </div>
-          <button>View Details</button>
+          <button class="view-button" data-id="${project.id}">View Details</button>
         `;
+
+       const button = card.querySelector('.view-button');
+   button.addEventListener('click', () => {
+  const type = (project.project_type || '').toLowerCase().trim();
+
+  const file = type === 'it'
+    ? 'project-view'
+    : 'individualProjectsViewnonIT';
+
+  window.location.href = `/${file}?projectId=${button.dataset.id}`;
+});
+
 
         projectGrid.appendChild(card);
       });
