@@ -6,7 +6,27 @@ async function loadProjectData() {
   const project = await projectRes.json();
 
   const heroSection = document.querySelector(".hero");
-  heroSection.style.backgroundImage = `url('/${project.file_path}')`;
+  const fallbackImage = '/assets/strath.png';
+
+  const rawPath = project.file_path?.trim();
+  if (rawPath) {
+    const normalizedPath = rawPath.replace(/\\/g, '/');
+    const fullImagePath = normalizedPath.startsWith('/') ? normalizedPath : `/${normalizedPath}`;
+
+    const testImage = new Image();
+    testImage.onload = () => {
+      console.log("✅ Loaded background image:", fullImagePath);
+      heroSection.style.backgroundImage = `url('${fullImagePath}')`;
+    };
+    testImage.onerror = () => {
+      console.warn("⚠️ Failed to load image:", fullImagePath);
+      heroSection.style.backgroundImage = `url('${fallbackImage}')`;
+    };
+    testImage.src = fullImagePath;
+  } else {
+    console.warn("⚠️ No file_path provided. Using fallback.");
+    heroSection.style.backgroundImage = `url('${fallbackImage}')`;
+  }
 
   document.getElementById("project-title").textContent = project.title;
   document.getElementById("project-short-description").textContent = project.short_description;
@@ -56,22 +76,23 @@ async function loadProjectData() {
   });
 
   const docRow = document.getElementById("documents");
-docRow.innerHTML = '';
-project.documents.forEach((doc, i) => {
-  const ext = doc.split('.').pop().toLowerCase();
- const fileUrl = doc.replace(/^\/?uploads\//, '/uploads/');
+  docRow.innerHTML = '';
+  project.documents.forEach((doc, i) => {
+    const ext = doc.split('.').pop().toLowerCase();
+    const fileUrl = doc.replace(/^\/?uploads\//, '/uploads/');
 
-  docRow.innerHTML += `
-    <div class="card">
-      <div class="icon">📄</div>
-      <div class="doc-info">
-        <p>${doc}</p>
-        <button class="view-doc-btn" data-src="${fileUrl}">View</button>
+    docRow.innerHTML += `
+      <div class="card">
+        <div class="icon">📄</div>
+        <div class="doc-info">
+          <p>${doc}</p>
+          <button class="view-doc-btn" data-src="${fileUrl}">View</button>
+        </div>
       </div>
-    </div>
-  `;
-});
+    `;
+  });
 }
+
 async function loadTeam() {
   try {
     const res = await fetch(`/api/projects/${projectId}/team`);
@@ -81,18 +102,15 @@ async function loadTeam() {
     const teamContainer = document.getElementById("team-members");
     teamContainer.innerHTML = '';
     team.forEach(member => {
-const rawPhoto = (member.profile_photo || '').trim();
+      const rawPhoto = (member.profile_photo || '').trim();
+      const normalizedPhoto = rawPhoto
+        .replace(/\\/g, '/')
+        .replace(/\s+/g, '')
+        .replace(/^\/?uploads\//, '');
 
-// Normalize path: convert backslashes to slashes, remove spaces, and clean uploads path
-const normalizedPhoto = rawPhoto
-  .replace(/\\/g, '/')         // \ to /
-  .replace(/\s+/g, '')         // remove any space
-  .replace(/^\/?uploads\//, ''); // remove leading/trailing slashes
-
-const profileImage = normalizedPhoto
-  ? `/uploads/${normalizedPhoto}`
-  : '/assets/noprofile.jpg';
-
+      const profileImage = normalizedPhoto
+        ? `/uploads/${normalizedPhoto}`
+        : '/assets/noprofile.jpg';
 
       teamContainer.innerHTML += `
         <div class="card">
@@ -171,7 +189,6 @@ document.getElementById("like-section").addEventListener("click", async () => {
   }
 });
 
-// ✅ Overlay viewer logic
 document.addEventListener("click", (e) => {
   if (e.target.classList.contains("view-doc-btn")) {
     const src = e.target.getAttribute("data-src");
@@ -191,7 +208,6 @@ document.addEventListener("click", (e) => {
   }
 });
 
-// Initial load
 document.addEventListener('DOMContentLoaded', () => {
   loadProjectData();
   loadTeam();

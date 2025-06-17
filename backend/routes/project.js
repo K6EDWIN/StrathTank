@@ -165,13 +165,14 @@ router.get('/projects/:id/details', (req, res) => {
   const { id } = req.params;
 
   const sql = `
-    SELECT 
-      p.id, p.title, p.Short_description AS short_description,
-      p.description AS overview, p.tags, p.technical_details,
-      p.status, p.launch_date, p.project_lead, p.team_size,
-      p.Project_profile_picture AS profile_picture,
-      p.screenshots, p.documents, p.version, p.project_type, p.category,
-      COALESCE(l.like_count, 0) AS likes
+      SELECT 
+  p.id, p.title, p.Short_description AS short_description,
+  p.description AS overview, p.tags, p.technical_details,
+  p.status, p.launch_date, p.project_lead, p.team_size,
+  p.Project_profile_picture AS profile_picture,
+  p.screenshots, p.documents, p.version, p.project_type, p.category,
+  p.file_path,
+  COALESCE(l.like_count, 0) AS likes
     FROM projects p
     LEFT JOIN (SELECT project_id, COUNT(*) AS like_count FROM likes GROUP BY project_id) l ON p.id = l.project_id
     WHERE p.id = ?

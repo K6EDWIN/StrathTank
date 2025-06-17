@@ -9,6 +9,7 @@ body {
 }
 
 .hero {
+  background-color: transparent; 
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -16,6 +17,7 @@ body {
   position: relative;
   color: white;
 }
+
 
 .overlay {
   background-color: rgba(0, 0, 0, 0.5);
@@ -25,7 +27,16 @@ body {
   justify-content: center;
   padding: 2rem;
 }
+#hero .overlay h1 {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+  color:white;
+}
 
+#hero .overlay p {
+  font-size: 1.5rem;
+  font-weight: 300;
+}
 .container {
   margin: auto;
   padding: 2rem;
