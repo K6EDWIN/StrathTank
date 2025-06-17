@@ -310,3 +310,49 @@ button {
   gap: 0.5rem;
   margin-top: 0.5rem;
 }
+/* Overlay Viewer Styles */
+.overlay-viewer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0,0,0,0.85);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.overlay-viewer.hidden {
+  display: none;
+}
+
+.overlay-content {
+  position: relative;
+  width: 90%;
+  height: 90%;
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+}
+
+#doc-frame {
+  width: 100%;
+  height: 100%;
+}
+
+#close-overlay {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: #c0392b;
+  color: white;
+  border: none;
+  font-size: 1.2rem;
+  padding: 0.3rem 0.6rem;
+  border-radius: 4px;
+  cursor: pointer;
+  z-index: 10;
+}

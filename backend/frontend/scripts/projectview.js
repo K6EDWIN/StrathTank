@@ -5,18 +5,13 @@ async function loadProjectData() {
   const projectRes = await fetch(`/api/projects/${projectId}/details`);
   const project = await projectRes.json();
 
-  // ✅ Set hero background image from file_path
- const heroSection = document.querySelector(".hero");
-heroSection.style.backgroundImage = `url('/${project.file_path}')`;
+  const heroSection = document.querySelector(".hero");
+  heroSection.style.backgroundImage = `url('/${project.file_path}')`;
 
-
-
-  // ✅ Basic Info
   document.getElementById("project-title").textContent = project.title;
   document.getElementById("project-short-description").textContent = project.short_description;
   document.getElementById("project-overview").textContent = project.overview;
 
-  // ✅ Tags
   const tagContainer = document.getElementById("tag-container");
   tagContainer.innerHTML = '';
   project.tags.forEach(tag => {
@@ -25,29 +20,21 @@ heroSection.style.backgroundImage = `url('/${project.file_path}')`;
     tagContainer.appendChild(span);
   });
 
-  // ✅ Technical Details
-const techList = document.getElementById("technical-details");
-techList.innerHTML = ''; // Clear previous content
+  const techList = document.getElementById("technical-details");
+  techList.innerHTML = '';
+  const techDetails = project.technical_details;
+  const headings = ['Programming', 'Frameworks', 'Database', 'Deployment'];
+  const sections = techDetails.split(new RegExp(`(?=${headings.join('|')}:)`, 'g'));
+  sections.forEach(section => {
+    const [heading, content] = section.split(":");
+    if (heading && content) {
+      const lines = content.split(/[\.,]/).map(s => s.trim()).filter(line => line.length > 0);
+      techList.innerHTML += `
+        <li><strong>${heading.trim()}:</strong><br/>${lines.join("<br/>")}</li>
+      `;
+    }
+  });
 
-const techDetails = project.technical_details;
-
-// Match only the known headings followed by colon
-const headings = ['Programming', 'Frameworks', 'Database', 'Deployment'];
-const sections = techDetails.split(new RegExp(`(?=${headings.join('|')}:)`, 'g'));
-
-sections.forEach(section => {
-  const [heading, content] = section.split(":");
-  if (heading && content) {
-    // Split content by full stops or commas
-    const lines = content.split(/[\.,]/).map(s => s.trim()).filter(line => line.length > 0);
-    techList.innerHTML += `
-      <li><strong>${heading.trim()}:</strong><br/>${lines.join("<br/>")}</li>
-    `;
-  }
-});
-
-
-  // ✅ Project Info
   const infoList = document.getElementById("project-info");
   infoList.innerHTML = `
     <li><strong>Status:</strong> ${project.status}</li>
@@ -55,10 +42,8 @@ sections.forEach(section => {
     <li><strong>Project Lead:</strong> ${project.project_lead}</li>
     <li><strong>Team Size:</strong> ${project.team_size}</li>
   `;
-
   document.getElementById("like-count").textContent = project.likes;
 
-  // ✅ Screenshots
   const screenGrid = document.getElementById("screenshots");
   screenGrid.innerHTML = '';
   project.screenshots.forEach((src, i) => {
@@ -70,41 +55,48 @@ sections.forEach(section => {
     `;
   });
 
-  // ✅ Documents
   const docRow = document.getElementById("documents");
-  docRow.innerHTML = '';
-  project.documents.forEach((doc, i) => {
-    docRow.innerHTML += `
-      <div class="card">
-        <div class="icon">📄</div>
-        <div class="doc-info">
-          <p>${doc}</p>
-          <button>View</button>
-        </div>
+docRow.innerHTML = '';
+project.documents.forEach((doc, i) => {
+  const ext = doc.split('.').pop().toLowerCase();
+ const fileUrl = doc.replace(/^\/?uploads\//, '/uploads/');
+
+  docRow.innerHTML += `
+    <div class="card">
+      <div class="icon">📄</div>
+      <div class="doc-info">
+        <p>${doc}</p>
+        <button class="view-doc-btn" data-src="${fileUrl}">View</button>
       </div>
-    `;
-  });
+    </div>
+  `;
+});
 }
-// ✅ Team Members
 async function loadTeam() {
   try {
     const res = await fetch(`/api/projects/${projectId}/team`);
     const team = await res.json();
-
-    console.log("🔍 Team data:", team);
-
-    if (!Array.isArray(team)) {
-      throw new Error("Team is not an array");
-    }
+    if (!Array.isArray(team)) throw new Error("Team is not an array");
 
     const teamContainer = document.getElementById("team-members");
     teamContainer.innerHTML = '';
-
     team.forEach(member => {
-      const profileImage = member.profile_photo || '/assets/noprofile.jpg';
+const rawPhoto = (member.profile_photo || '').trim();
+
+// Normalize path: convert backslashes to slashes, remove spaces, and clean uploads path
+const normalizedPhoto = rawPhoto
+  .replace(/\\/g, '/')         // \ to /
+  .replace(/\s+/g, '')         // remove any space
+  .replace(/^\/?uploads\//, ''); // remove leading/trailing slashes
+
+const profileImage = normalizedPhoto
+  ? `/uploads/${normalizedPhoto}`
+  : '/assets/noprofile.jpg';
+
+
       teamContainer.innerHTML += `
         <div class="card">
-          <img src="${profileImage}" alt="${member.name}" />
+          <img src="${profileImage}" alt="${member.name}" onerror="this.src='/assets/noprofile.jpg'" />
           <div class="doc-info">
             <p>${member.name}</p>
             <p>${member.role}</p>
@@ -117,9 +109,6 @@ async function loadTeam() {
     console.error("❌ loadTeam failed:", err.message);
   }
 }
-
-
-// ✅ Comments Section
 
 async function loadComments() {
   try {
@@ -146,10 +135,8 @@ async function loadComments() {
   }
 }
 
-
 async function submitComment() {
   const content = document.getElementById("comment-text").value;
-  
   if (!content) return;
 
   await fetch(`/api/projects/${projectId}/comment`, {
@@ -162,41 +149,51 @@ async function submitComment() {
   loadComments();
 }
 
-// ✅ Like handler
 document.getElementById("like-section").addEventListener("click", async () => {
   try {
     const res = await fetch(`/api/projects/${projectId}/like`, {
       method: "POST",
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'include' // ✅ ensures session is sent
+      headers: { 'Content-type': 'application/json' },
+      credentials: 'include'
     });
 
     const data = await res.json();
-
     if (!res.ok) {
       alert(data.error || "Something went wrong.");
       return;
     }
 
-    // ✅ Update like count and status
     document.getElementById("like-count").textContent = data.newLikeCount;
     document.getElementById("like-status").textContent = data.status === "liked" ? "❤️ Liked" : "🤍 Like";
-
   } catch (err) {
     console.error("💥 Like toggle error:", err);
     alert("Something went wrong.");
   }
 });
 
+// ✅ Overlay viewer logic
+document.addEventListener("click", (e) => {
+  if (e.target.classList.contains("view-doc-btn")) {
+    const src = e.target.getAttribute("data-src");
+    const overlay = document.getElementById("documentOverlay");
+    const frame = document.getElementById("doc-frame");
 
+    frame.src = src;
+    overlay.classList.remove("hidden");
+  }
 
-// Initial data load
-loadProjectData();
-loadTeam();
+  if (e.target.id === "close-overlay") {
+    const overlay = document.getElementById("documentOverlay");
+    const frame = document.getElementById("doc-frame");
 
+    frame.src = "";
+    overlay.classList.add("hidden");
+  }
+});
 
-
-
+// Initial load
 document.addEventListener('DOMContentLoaded', () => {
-  loadComments();  // Load comments on page load
+  loadProjectData();
+  loadTeam();
+  loadComments();
 });

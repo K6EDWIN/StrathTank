@@ -211,7 +211,7 @@ router.get('/projects/:projectId/team', (req, res) => {
 
   db.query(sql, [projectId], (err, results) => {
     if (err) {
-      console.error('🔥 SQL Error:', err); // Log full error
+      console.error('🔥 SQL Error:', err); 
       return res.status(500).json({ error: 'Database error', details: err.message });
     }
 
@@ -311,6 +311,33 @@ router.post('/projects/:id/like', (req, res) => {
     }
   });
 });
+//view document
+router.get('/uploads/documents/:filename', (req, res) => {
+  const file = path.join(__dirname, '../uploads/documents', req.params.filename);
+  const ext = path.extname(file).toLowerCase();
 
+  // Set appropriate MIME type
+  let contentType = 'application/octet-stream';
+
+  if (ext === '.pdf') {
+    contentType = 'application/pdf';
+  } else if (ext === '.txt') {
+    contentType = 'text/plain';
+  } else if (ext === '.docx') {
+    contentType = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+  } else if (ext === '.doc') {
+    contentType = 'application/msword';
+  } else if (ext === '.png') {
+    contentType = 'image/png';
+  } else if (ext === '.jpg' || ext === '.jpeg') {
+    contentType = 'image/jpeg';
+  }
+
+  // Set headers for inline viewing
+  res.setHeader('Content-Type', contentType);
+  res.setHeader('Content-Disposition', 'inline'); // Forces browser to open, not download
+
+  res.sendFile(file);
+});
 
 module.exports = router;
