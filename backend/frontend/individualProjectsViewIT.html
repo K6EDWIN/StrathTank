@@ -56,7 +56,9 @@
           <button class="contact">📧 Contact Project Lead</button>
           <button class="collaborate">🤝 Collaborate</button>
         </div>
-        <div class="heart" id="like-section">❤️ <span id="like-count">0</span></div>
+        <div class="heart" id="like-section">
+          ❤️ <span id="like-count">0</span> <span id="like-status">🤍 Like</span>
+        </div>
       </div>
     </section>
 
@@ -78,13 +80,13 @@
       <div class="card-row" id="team-members"></div>
     </section>
 
- <!-- Comments -->
-<section class="comments">
-  <h2>Comments</h2>
-  <textarea id="comment-text" placeholder="Add a comment..."></textarea>
-  <button onclick="submitComment()">Add Comment</button>
-  <div id="comments-list"></div>
-</section>
+    <!-- Comments -->
+    <section class="comments">
+      <h2>Comments</h2>
+      <textarea id="comment-text" placeholder="Add a comment..."></textarea>
+      <button onclick="submitComment()">Add Comment</button>
+      <div id="comments-list"></div>
+    </section>
 
   </main>
 </body>

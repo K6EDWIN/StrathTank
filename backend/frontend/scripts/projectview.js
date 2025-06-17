@@ -164,23 +164,31 @@ async function submitComment() {
 
 // ✅ Like handler
 document.getElementById("like-section").addEventListener("click", async () => {
-  const user_id = 1; // TODO: Replace with real logged-in user ID
-
   try {
     const res = await fetch(`/api/projects/${projectId}/like`, {
       method: "POST",
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ user_id })
+      credentials: 'include' // ✅ ensures session is sent
     });
 
     const data = await res.json();
-    if (data.newLikeCount !== undefined) {
-      document.getElementById("like-count").textContent = data.newLikeCount;
+
+    if (!res.ok) {
+      alert(data.error || "Something went wrong.");
+      return;
     }
+
+    // ✅ Update like count and status
+    document.getElementById("like-count").textContent = data.newLikeCount;
+    document.getElementById("like-status").textContent = data.status === "liked" ? "❤️ Liked" : "🤍 Like";
+
   } catch (err) {
-    alert("Already liked or an error occurred.");
+    console.error("💥 Like toggle error:", err);
+    alert("Something went wrong.");
   }
 });
+
+
 
 // Initial data load
 loadProjectData();

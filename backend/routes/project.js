@@ -272,27 +272,45 @@ router.post('/projects/:id/comment', (req, res) => {
 });
 
 // ✅ POST /api/projects/:id/like
+// ✅ Toggle like / unlike
 router.post('/projects/:id/like', (req, res) => {
-  const { id } = req.params;
-  const { user_id } = req.body;
+  const { id: project_id } = req.params;
+  const user_id = req.session?.user?.id;
 
-  if (!user_id) return res.status(400).json({ error: 'user_id required' });
+  if (!user_id) {
+    return res.status(401).json({ error: 'User not logged in' });
+  }
 
-  const sql = `INSERT INTO likes (user_id, project_id) VALUES (?, ?)`;
+  const checkSql = `SELECT id FROM likes WHERE project_id = ? AND user_id = ?`;
+  db.query(checkSql, [project_id, user_id], (err, results) => {
+    if (err) return res.status(500).json({ error: 'Database error (check)' });
 
-  db.query(sql, [user_id, id], (err) => {
-    if (err) {
-      if (err.code === 'ER_DUP_ENTRY') {
-        return res.status(400).json({ error: 'Already liked' });
-      }
-      return res.status(500).json({ error: 'Database error' });
+    if (results.length > 0) {
+      // ✅ Unlike
+      const deleteSql = `DELETE FROM likes WHERE project_id = ? AND user_id = ?`;
+      db.query(deleteSql, [project_id, user_id], (err2) => {
+        if (err2) return res.status(500).json({ error: 'Database error (delete)' });
+
+        // ✅ Get new like count
+        db.query(`SELECT COUNT(*) AS like_count FROM likes WHERE project_id = ?`, [project_id], (err3, countRes) => {
+          if (err3) return res.status(500).json({ error: 'Count error after unlike' });
+          res.json({ status: "unliked", newLikeCount: countRes[0].like_count });
+        });
+      });
+    } else {
+      // ✅ Like
+      const insertSql = `INSERT INTO likes (project_id, user_id, created_at) VALUES (?, ?, NOW())`;
+      db.query(insertSql, [project_id, user_id], (err2) => {
+        if (err2) return res.status(500).json({ error: 'Database error (insert)' });
+
+        db.query(`SELECT COUNT(*) AS like_count FROM likes WHERE project_id = ?`, [project_id], (err3, countRes) => {
+          if (err3) return res.status(500).json({ error: 'Count error after like' });
+          res.json({ status: "liked", newLikeCount: countRes[0].like_count });
+        });
+      });
     }
-
-    db.query('SELECT COUNT(*) AS like_count FROM likes WHERE project_id = ?', [id], (err, results) => {
-      if (err) return res.status(500).json({ error: 'Failed to fetch likes' });
-      res.json({ newLikeCount: results[0].like_count });
-    });
   });
 });
+
 
 module.exports = router;

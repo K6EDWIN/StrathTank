@@ -146,6 +146,16 @@ window.addEventListener('scroll', function () {
   lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
 });
 
+// Explore button functionality
+document.addEventListener("DOMContentLoaded", () => {
+  const exploreBtn = document.getElementById("explore-btn");
+  if (exploreBtn) {
+    exploreBtn.addEventListener("click", () => {
+      window.location.href = "/explore-projects";
+    });
+  }
+});
+
 // Initialize dashboard
 document.addEventListener("DOMContentLoaded", () => {
   loadProjects();
