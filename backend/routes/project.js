@@ -272,7 +272,6 @@ router.post('/projects/:id/comment', (req, res) => {
   });
 });
 
-// ✅ POST /api/projects/:id/like
 // ✅ Toggle like / unlike
 router.post('/projects/:id/like', (req, res) => {
   const { id: project_id } = req.params;

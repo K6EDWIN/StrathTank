@@ -3,127 +3,107 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Horizon Analytics Dashboard</title>
-  <link rel="stylesheet" href="individualProjectsView.css" />
+  <title>Project View</title>
+  <link rel="stylesheet" href="/styles/individualProjectsView.css" />
+  <script defer src="/scripts/projectviewnonit.js"></script>
 </head>
 <body>
-  <header class="hero">
+  <!-- ✅ Navigation Bar -->
+  <nav class="navbar">
+    <a href="/" class="logo">
+      <img src="/assets/logo.png" alt="StrathTank Logo" class="logo-img" />
+    </a>
+    <div class="nav-links">
+      <a href="/">Home</a>
+      <a href="#">Upload</a>
+      <a href="/explore-projects">Explore</a>
+      <a href="#">Mentorship</a>
+      <a href="#">Collaboration</a>
+    </div>
+    <div class="search-section">
+      <input id="searchBar" class="search-bar" type="text" placeholder="Search by title or author..." />
+      <div id="search-results" class="results-container"></div>
+    </div>
+  </nav>
+
+  <!-- ✅ Hero Section -->
+  <header id="hero" class="hero">
     <div class="overlay">
-      <h1>Horizon Analytics Dashboard</h1>
-      <p>Empowering businesses with real-time data insights and interactive visualizations.</p>
+      <h1 id="project-title">Loading...</h1>
+      <p id="project-short-description">Please wait...</p>
     </div>
   </header>
 
   <main class="container">
+    <!-- Overview -->
     <section class="overview">
       <h2>Project Overview</h2>
-      <p>Horizon Analytics Dashboard is a comprehensive solution designed to empower businesses with real-time data insights. It transforms raw data into interactive charts and reports, enabling stakeholders to make informed decisions swiftly. The platform emphasizes user experience, providing a clean, intuitive interface that simplifies complex data analysis. Its modular architecture ensures scalability and easy integration with existing systems.</p>
-      <div class="tags">
-        <span>Data Visualization</span>
-        <span>Business Intelligence</span>
-        <span>Real-time Analytics</span>
-        <span>Scalable Architecture</span>
-      </div>
+      <p id="project-overview">Loading...</p>
+      <div id="tag-container" class="tags"></div>
     </section>
 
+    <!-- General Details -->
     <section class="details-grid">
       <div class="technical">
-        <h2>Technical Details</h2>
-        <ul>
-          <li><strong>Project Focus:</strong> Clean Energy Adoption</li>
-          <li><strong>Target Beneficiaries:</strong> Rural Households</li>
-          <li><strong>Methodology:</strong> Field Deployment, Workshops, Data Collection, Training Programs</li>
-          <li><strong>Impact Goals:</strong> Improve energy access, Reduce indoor air pollution, Enhance literacy rates</li>
+        <h2>Project Details</h2>
+        <ul id="project-details">
+          <!-- Filled dynamically: e.g. Focus Area, Beneficiaries, Methodology -->
         </ul>
       </div>
-
       <div class="info">
         <h2>Project Information</h2>
-        <ul>
-          <li><strong>Status:</strong> Completed</li>
-          <li><strong>Launch Date:</strong> October 26, 2023</li>
-          <li><strong>Project Lead:</strong> Jane Doe</li>
-          <li><strong>Team Size:</strong> 6 people</li>
+        <ul id="project-info">
+          <!-- Filled dynamically: e.g. Status, Date, Lead -->
         </ul>
         <div class="buttons">
-          <button class="contact"><span>📧</span> Contact Project Lead</button>
-          <button class="collaborate">Collaborate</button>
+          <button class="contact">📧 Contact Project Lead</button>
+          <button class="collaborate">🤝 Collaborate</button>
         </div>
-        <div class="heart">❤️</div>
+        <div class="heart" id="like-section">
+          ❤️ <span id="like-count">0</span> <span id="like-status">🤍 Like</span>
+        </div>
       </div>
     </section>
 
-     <section class="designs">
-  <h2>Designs</h2>
-  <div class="design-grid">
-    <div class="design-card">
-      <img src="https://via.placeholder.com/200x150" alt="Design 1" />
-      <p>Design 1</p>
-    </div>
-    <div class="design-card">
-      <img src="https://via.placeholder.com/200x150" alt="Design 2" />
-      <p>Design 2</p>s
-    </div>
-    <div class="design-card">
-      <img src="https://via.placeholder.com/200x150" alt="Design 3" />
-      <p>Design 3</p>
-    </div>
-  </div>
-</section>
-   <section class="documents">
-  <h2>Documents Uploaded</h2>
-  <div class="card-row">
-    <div class="card">
-      <div class="icon">📄</div>
-      <div class="doc-info">
-        <p>Q4 2023 Financial Report</p>
-        <button>View</button>
+    <!-- Designs / Visuals -->
+    <section class="designs">
+      <h2>Project Visuals</h2>
+      <div class="design-grid" id="screenshots">
+        <!-- Placeholder images added via JS or backend -->
       </div>
-    </div>
-    <div class="card">
-      <div class="icon">📄</div>
-      <div class="doc-info">
-        <p>Project Phoenix Proposal v2</p>
-        <button>View</button>
-      </div>
-    </div>
-  </div>
-</section>
+    </section>
 
-<section class="team">
-  <h2>The Team</h2>
-  <div class="card-row">
-    <div class="card">
-      <img src="https://via.placeholder.com/80" alt="Dr. Anya Sharma" />
-      <div class="doc-info">
-        <p>Dr. Anya Sharma</p>
-        <button>View Profile</button>
+    <!-- Documents -->
+    <section class="documents">
+      <h2>Documents Uploaded</h2>
+      <div class="card-row" id="documents">
+        <!-- Documents loaded dynamically -->
       </div>
-    </div>
-    <div class="card">
-      <img src="https://via.placeholder.com/80" alt="Dr. Anya Sharma" />
-      <div class="doc-info">
-        <p>Dr. Anya Sharma</p>
-        <button>View Profile</button>
-      </div>
-    </div>
-    <div class="card">
-      <img src="https://via.placeholder.com/80" alt="Dr. Anya Sharma" />
-      <div class="doc-info">
-        <p>Dr. Anya Sharma</p>
-        <button>View Profile</button>
-      </div>
-    </div>
-  </div>
-</section>
+    </section>
 
+    <!-- Team -->
+    <section class="team">
+      <h2>The Team</h2>
+      <div class="card-row" id="team-members">
+        <!-- Team member cards inserted here -->
+      </div>
+    </section>
 
+    <!-- Comments -->
     <section class="comments">
       <h2>Comments</h2>
-      <textarea placeholder="Add a comment..."></textarea>
-      <button>Add Comment</button>
-      <p>No comments yet.</p>
+      <textarea id="comment-text" placeholder="Add a comment..."></textarea>
+      <button onclick="submitComment()">Add Comment</button>
+      <div id="comments-list"></div>
     </section>
   </main>
+
+  <!-- Document Overlay Viewer -->
+  <div id="documentOverlay" class="overlay-viewer hidden">
+    <div class="overlay-content">
+      <button id="close-overlay" onclick="closeDocumentOverlay()">×</button>
+      <iframe id="doc-frame" src="" frameborder="0"></iframe>
+    </div>
+  </div>
 </body>
 </html>
