@@ -3,7 +3,7 @@ const router = express.Router();
 const bcrypt = require('bcrypt');
 const db = require('../config/db');
 const transporter = require('../config/mailer');
-
+const upload = require('../config/multer');
 // POST /user/submit
 router.post('/submit', async (req, res) => {
   const { username, email, password, role } = req.body;
@@ -220,7 +220,78 @@ router.post('/projects/:id/like', (req, res) => {
   });
 });
 
+// ✅ POST /user/upload-project
+router.post('/upload-project', upload.single('project_profile_picture'), (req, res) => {
+  if (!req.session.user || !req.session.user.id) {
+    return res.status(401).json({ success: false, message: 'Unauthorized. Please log in.' });
+  }
 
+  const {
+    title,
+    Short_description,
+    category = 'General',
+    description,
+    version = '1.0',
+    project_type = 'it',
+    launch_date,
+    project_lead,
+    team_size,
+    tags,
+    technical_details,
+    screenshots = null,
+    documents = null
+  } = req.body;
+
+  const user_id = req.session.user.id;
+
+  const Project_profile_picture = req.file
+    ? `/uploads/${req.file.filename}`
+    : '/uploads/default image project.png';
+
+  const file_path = Project_profile_picture; 
+  const status = 'pending'; 
+
+  const sql = `
+    INSERT INTO projects (
+      user_id, title, Short_description, Project_profile_picture, category, description,
+      file_path, version, status, project_type, launch_date, project_lead, team_size,
+      tags, technical_details, screenshots, documents, created_at
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
+  `;
+
+  const values = [
+    user_id,
+    title,
+    Short_description,
+    Project_profile_picture,
+    category,
+    description,
+    file_path,
+    version,
+    status,
+    project_type,
+    launch_date,
+    project_lead,
+    team_size,
+    tags,
+    technical_details,
+    screenshots,
+    documents
+  ];
+
+  db.query(sql, values, (err, result) => {
+    if (err) {
+      console.error('❌ Upload Error:', err);
+      return res.status(500).json({ success: false, message: 'Database insert failed' });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: '✅ Project uploaded successfully and pending approval',
+      projectId: result.insertId
+    });
+  });
+});
 
 
 module.exports = router;

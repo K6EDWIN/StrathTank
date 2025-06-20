@@ -15,4 +15,7 @@ router.get('/dashboard', (req, res) => {
 router.get('/explore-projects', (_, res) => res.sendFile(path.join(__dirname, '../frontend/exploreProjects.html')));
 router.get('/project-view', (_, res) => res.sendFile(path.join(__dirname, '../frontend/individualProjectsViewIT.html')));
 router.get('/individualProjectsViewnonIT', (_, res) => res.sendFile(path.join(__dirname, '../frontend/individualProjectsViewnonIT.html')));
+router.get('/upload-project', (req, res) => {
+  if (!req.isAuthenticated()) return res.redirect('/login');
+  res.sendFile(path.join(__dirname, '../frontend/uploadprojects.html')); });
 module.exports = router;

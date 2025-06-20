@@ -8,18 +8,25 @@
 </head>
 <body>
    
- <nav class="navbar">
-    <div class="nav-left">
-      <a href="#">Home</a>
-      <a href="#">Upload</a>
-      <a href="#">Explore</a>
-      <a href="#">Mentorship</a>
-      <a href="#">Collaboration</a>
-    </div>
-    <div class="nav-right">
-      <input type="text" placeholder="Search...">
-    </div>
-  </nav>
+    <!-- Main Content -->
+    <main class="main-content" id="mainContent">
+      <!-- Navigation Bar -->
+      <nav class="navbar">
+       <a href="#" class="logo">
+  <img src="\assets/logo.png" alt="StrathTank Logo" class="logo-img" />
+</a>
+        <div class="nav-links">
+          <a href="#">Home</a>
+          <a href="#">Upload</a>
+          <a href="/explore-projects">Explore</a>
+          <a href="#">Mentorship</a>
+          <a href="#">Collaboration</a>
+        </div>
+     <div class="search-section">
+  <input id="searchBar" class="search-bar" type="text" placeholder="Search by title or author..." />
+  <div id="search-results" class="results-container"></div>
+</div>
+      </nav>
   
         
   <div class="container">

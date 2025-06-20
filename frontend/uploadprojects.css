@@ -10,38 +10,38 @@ body {
   font-family: Arial, sans-serif;
 }
 
+/* Navigation */
 .navbar {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  background-color: white;
-  padding: 10px 20px;
-  border-bottom: 1px solid #ccc;
-}
-
-.nav-left a {
-  margin-right: 20px;
-  text-decoration: none;
-  color: black;
-  font-weight: 500;
-}
-
-.nav-left a:hover {
-  text-decoration: underline;
-}
-
-.nav-right input[type="text"] {
-  padding: 6px 10px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-}
-.nav-right button {
-  padding: 6px 12px;
-  border: none;
-  border-radius: 4px;
-  background-color: #007acc;
+  justify-content: space-between;
+  background-color: #2c3e50;
+  padding: 1rem 2rem;
   color: white;
-  cursor: pointer;
+}
+.nav-links a {
+  margin: 0 0.75rem;
+  color: white;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.logo-img {
+  height: 60px;
+  width: 60px;
+  object-fit: cover;
+  border-radius: 50%; 
+  border: 2px solid #f39c12; 
+  background-color: white;   
+  padding: 5px;              
+}
+
+
+.search-bar {
+  padding: 0.5rem;
+  border-radius: 4px;
+  border: none;
+  margin-left: auto;
 }
 
 .container {

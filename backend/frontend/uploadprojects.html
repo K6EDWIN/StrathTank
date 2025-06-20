@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Upload Your Project</title>
+  <link rel="stylesheet" href="styles/upload.css" />
+  <script src="scripts/upload.js" defer></script>
+</head>
+<body>
+
+  <nav class="navbar">
+    <a href="#" class="logo">
+      <img src="assets/logo.png" alt="StrathTank Logo" class="logo-img" />
+    </a>
+    <div class="nav-links">
+      <a href="#">Home</a>
+      <a href="#">Upload</a>
+      <a href="/explore-projects">Explore</a>
+      <a href="#">Mentorship</a>
+      <a href="#">Collaboration</a>
+    </div>
+    <div class="search-section">
+      <input id="searchBar" class="search-bar" type="text" placeholder="Search by title or author..." />
+      <div id="search-results" class="results-container"></div>
+    </div>
+  </nav>
+
+  <div class="container">
+    <header>
+      <h1 class="animated-heading">Show Us What You’ve Cooked Up</h1>
+      <p>Turn your school project into something bigger. Share your innovation with the world.</p>
+    </header>
+
+    <form>
+      <div class="form-columns">
+        <!-- Left Column -->
+        <div class="left-column">
+          <section>
+            <h2>Project Details</h2>
+            <label for="title">Project Title
+              <input id="title" type="text" required placeholder="e.g., Smart Waste Bin System" />
+            </label>
+            <label for="shortDesc">Short Description
+              <input id="shortDesc" type="text" required placeholder="Add a short description about your project" />
+            </label>
+            <label for="lead">Project Lead
+              <input id="lead" type="text" placeholder="e.g., John Dim" />
+            </label>
+            <label>
+              <input type="checkbox" id="isITProject" onchange="toggleITFields(this)" />
+              Is this project an IT or Coding Project?
+            </label>
+            <label for="abstract">Project Abstract
+              <textarea id="abstract" required placeholder="Summary of the project..."></textarea>
+            </label>
+            <label for="tags">Tags
+              <input id="tags" type="text" placeholder="e.g., AI, IoT, Sustainability (separate by comma🙂)" />
+            </label>
+            <label for="launchDate">Launch Date
+              <input id="launchDate" type="date" />
+            </label>
+            <label for="status">Status
+              <select id="status">
+                <option>In Progress</option>
+                <option>Completed</option>
+                <option>On Hold</option>
+              </select>
+            </label>
+          </section>
+
+          <section>
+            <h2>Project Media</h2>
+            <input type="file" accept=".png,.jpg,.jpeg,.pdf,.doc,.docx,.mp4" />
+            <small>Max 50MB. Images, videos, PDFs, docs supported.</small>
+          </section>
+
+          <section>
+            <h2>Team Members</h2>
+            <div id="teamMembers">
+              <input type="text" placeholder="e.g., Alice Smith" />
+            </div>
+            <button type="button" onclick="addTeamMemberInput()">+ Add More</button>
+          </section>
+        </div>
+
+        <!-- Right Column -->
+        <div class="right-column">
+          <section>
+            <div class="project-motivation">
+              <img src="assets/strath.png" alt="Project motivation" />
+              <p class="selectionCaption">
+                Every great project starts with an idea. We provide the tools to make it a reality.
+              </p>
+            </div>
+          </section>
+
+          <section>
+            <h2>Project Profile Image</h2>
+            <input type="file" accept="image/png, image/jpeg" />
+          </section>
+
+          <!-- Conditional Fields for IT Projects -->
+          <div id="itFields" style="display: none;">
+            <section>
+              <h2>GitHub Repository</h2>
+              <input type="url" placeholder="https://github.com/your-repo" />
+              <button type="button">View GitHub</button>
+            </section>
+
+            <section>
+              <h2>Technical Stack</h2>
+              <input type="text" placeholder="Programming Language (e.g., Python)" />
+              <input type="text" placeholder="Framework (e.g., Django)" />
+              <input type="text" placeholder="Database (e.g., MySQL)" />
+              <input type="text" placeholder="Deployment (e.g., Heroku, AWS)" />
+            </section>
+          </div>
+
+          <!-- Conditional Fields for Non-IT Projects -->
+          <div id="nonItFields">
+            <section>
+              <h2>Project Details</h2>
+              <label for="focus">Project Focus
+                <input id="focus" type="text" placeholder="e.g., Clean Energy Access" />
+              </label>
+              <label for="methodology">Approach Methodology
+                <input id="methodology" type="text" placeholder="e.g., Field Deployment" />
+              </label>
+              <label for="beneficiaries">Target Beneficiaries
+                <input id="beneficiaries" type="text" placeholder="e.g., Rural Communities" />
+              </label>
+              <label for="goals">Impact Goals
+                <input id="goals" type="text" placeholder="e.g., Reduce Waste, Improve Access" />
+              </label>
+              
+            </section>
+          </div>
+          <!-- After Impact Goals or IT Stack section -->
+<div id="thumbsGif" class="thumbs-animation">
+  <img src="assets/thumbsup.gif" alt="Good job thumbs up" />
+</div>
+
+        </div>
+      </div>
+
+      <div class="actions">
+        <button type="button" class="draft">Save Draft</button>
+        <button type="submit" class="submit">Upload Project for Approval</button>
+      </div>
+    </form>
+  </div>
+
+</body>
+</html>
