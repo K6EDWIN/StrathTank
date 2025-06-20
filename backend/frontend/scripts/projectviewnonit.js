@@ -101,7 +101,7 @@ sections.forEach(section => {
     `;
   });
 }
-
+//load team
 async function loadTeam() {
   try {
     const res = await fetch(`/api/projects/${projectId}/team`);
@@ -128,7 +128,7 @@ async function loadTeam() {
     console.error("❌ Error loading team:", err.message);
   }
 }
-
+//load comments
 async function loadComments() {
   try {
     const res = await fetch(`/api/projects/${projectId}/comments`);
@@ -146,7 +146,7 @@ async function loadComments() {
     document.getElementById("comments-list").innerHTML = "<p>Failed to fetch comments.</p>";
   }
 }
-
+//submit comment
 async function submitComment() {
   const content = document.getElementById("comment-text").value;
   if (!content) return;
@@ -160,7 +160,7 @@ async function submitComment() {
   document.getElementById("comment-text").value = '';
   loadComments();
 }
-
+// Like functionality
 document.getElementById("like-section").addEventListener("click", async () => {
   try {
     const res = await fetch(`/api/projects/${projectId}/like`, {

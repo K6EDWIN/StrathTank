@@ -15,7 +15,6 @@ async function loadProjectData() {
 
     const testImage = new Image();
     testImage.onload = () => {
-      console.log("✅ Loaded background image:", fullImagePath);
       heroSection.style.backgroundImage = `url('${fullImagePath}')`;
     };
     testImage.onerror = () => {
@@ -24,7 +23,7 @@ async function loadProjectData() {
     };
     testImage.src = fullImagePath;
   } else {
-    console.warn("⚠️ No file_path provided. Using fallback.");
+
     heroSection.style.backgroundImage = `url('${fallbackImage}')`;
   }
 
