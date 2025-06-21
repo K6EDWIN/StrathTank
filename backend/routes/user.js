@@ -221,77 +221,76 @@ router.post('/projects/:id/like', (req, res) => {
 });
 
 // ✅ POST /user/upload-project
-router.post('/upload-project', upload.single('project_profile_picture'), (req, res) => {
-  if (!req.session.user || !req.session.user.id) {
-    return res.status(401).json({ success: false, message: 'Unauthorized. Please log in.' });
-  }
+router.post(
+  '/upload-project',
+  upload.fields([
+    { name: 'project_profile_picture', maxCount: 1 },
+    { name: 'screenshots[]', maxCount: 10 },
+    { name: 'documents[]', maxCount: 10 }
+  ]),
+  (req, res) => {
+    try {
+      console.log("Files:", req.files);
+      console.log("Body:", req.body);
 
-  const {
-    title,
-    Short_description,
-    category = 'General',
-    description,
-    version = '1.0',
-    project_type = 'it',
-    launch_date,
-    project_lead,
-    team_size,
-    tags,
-    technical_details,
-    screenshots = null,
-    documents = null
-  } = req.body;
+      const {
+        user_id, title, Short_description, project_lead, description,
+        tags, launch_date, status, team_size, project_type,
+        category = "General", version = "1.0", technical_details
+      } = req.body;
 
-  const user_id = req.session.user.id;
+      // 🧠 Format the technical_details based on project type
+      let formattedTechnicalDetails = '';
+      const details = technical_details.split(' | ');
 
-  const Project_profile_picture = req.file
-    ? `/uploads/${req.file.filename}`
-    : '/uploads/default image project.png';
+      if (project_type === 'it') {
+        formattedTechnicalDetails =
+          `Programming: ${details[0] || 'N/A'}\n` +
+          `Frameworks: ${details[1] || 'N/A'}\n` +
+          `Database: ${details[2] || 'N/A'}\n` +
+          `Deployment: ${details[3] || 'N/A'}`;
+      } else {
+        formattedTechnicalDetails =
+          `Project Focus: ${details[0] || 'N/A'}\n` +
+          `Methodology: ${details[1] || 'N/A'}\n` +
+          `Target Beneficiaries: ${details[2] || 'N/A'}\n` +
+          `Impact Goals: ${details[3] || 'N/A'}`;
+      }
 
-  const file_path = Project_profile_picture; 
-  const status = 'pending'; 
+      const project = {
+        user_id,
+        title,
+        short_description: Short_description,
+        project_lead,
+        description,
+        tags,
+        launch_date,
+        status,
+        team_size,
+        project_type,
+        category,
+        version,
+        technical_details: formattedTechnicalDetails,
+        project_profile_picture: req.files?.['project_profile_picture']?.[0]?.path || null,
+        screenshots: req.files?.['screenshots[]']?.map(f => f.path).join(',') || null,
+        documents: req.files?.['documents[]']?.map(f => f.path).join(',') || null,
+        created_at: new Date()
+      };
 
-  const sql = `
-    INSERT INTO projects (
-      user_id, title, Short_description, Project_profile_picture, category, description,
-      file_path, version, status, project_type, launch_date, project_lead, team_size,
-      tags, technical_details, screenshots, documents, created_at
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
-  `;
+      db.query('INSERT INTO projects SET ?', project, (err, results) => {
+        if (err) {
+          console.error("❌ Upload error:", err);
+          return res.status(500).json({ success: false, message: "Upload failed", error: err.message });
+        }
 
-  const values = [
-    user_id,
-    title,
-    Short_description,
-    Project_profile_picture,
-    category,
-    description,
-    file_path,
-    version,
-    status,
-    project_type,
-    launch_date,
-    project_lead,
-    team_size,
-    tags,
-    technical_details,
-    screenshots,
-    documents
-  ];
-
-  db.query(sql, values, (err, result) => {
-    if (err) {
-      console.error('❌ Upload Error:', err);
-      return res.status(500).json({ success: false, message: 'Database insert failed' });
+        return res.json({ success: true, message: "✅ Project uploaded successfully!" });
+      });
+    } catch (err) {
+      console.error("❌ Unexpected error:", err);
+      res.status(500).json({ success: false, message: "Unexpected error", error: err.message });
     }
-
-    res.status(200).json({
-      success: true,
-      message: '✅ Project uploaded successfully and pending approval',
-      projectId: result.insertId
-    });
-  });
-});
+  }
+);
 
 
 module.exports = router;

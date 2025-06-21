@@ -1,7 +1,5 @@
-// === Inject user_id from session (Ensure this is injected in HTML too) ===
 let sessionUserId = window.currentUserId || null;
 
-// === Toggle IT-specific fields ===
 function toggleITFields(checkbox) {
   const itFields = document.getElementById('itFields');
   const nonItFields = document.getElementById('nonItFields');
@@ -9,7 +7,6 @@ function toggleITFields(checkbox) {
   nonItFields.style.display = checkbox.checked ? 'none' : 'block';
 }
 
-// === Add additional team member input ===
 function addTeamMemberInput() {
   const container = document.getElementById('teamMembers');
   const input = document.createElement('input');
@@ -18,93 +15,111 @@ function addTeamMemberInput() {
   container.appendChild(input);
 }
 
-// === Show and smoothly fade the thumbs-up GIF ===
 function showAndHideThumbsGif() {
   const gif = document.getElementById("thumbsGif");
   gif.style.display = "flex";
   gif.style.opacity = "1";
   gif.classList.remove("fade-out");
-
-  setTimeout(() => gif.classList.add("fade-out"), 1000); // start fading
-  setTimeout(() => gif.style.display = "none", 3000);    // hide after fade
+  setTimeout(() => gif.classList.add("fade-out"), 1000);
+  setTimeout(() => gif.style.display = "none", 3000);
 }
 
-// === Get all form data ===
-function getFormData() {
-  const isIT = document.getElementById("isITProject").checked;
+function gatherFormData() {
+  const form = new FormData();
+
+  form.append("user_id", sessionUserId);
+  form.append("title", document.getElementById("title").value);
+  form.append("Short_description", document.getElementById("shortDesc").value);
+  form.append("project_lead", document.getElementById("lead").value);
+  form.append("description", document.getElementById("abstract").value);
+  form.append("tags", document.getElementById("tags").value);
+  form.append("launch_date", document.getElementById("launchDate").value);
+  form.append("status", "pending");
+
   const teamInputs = document.querySelectorAll("#teamMembers input");
-  const tags = document.getElementById("tags").value;
+  form.append("team_size", teamInputs.length);
 
-  const techOrNonITFields = isIT
-    ? {
-        technical_details: [
-          document.querySelector('#itFields input[placeholder*="Programming"]')?.value,
-          document.querySelector('#itFields input[placeholder*="Framework"]')?.value,
-          document.querySelector('#itFields input[placeholder*="Database"]')?.value,
-          document.querySelector('#itFields input[placeholder*="Deployment"]')?.value
-        ].filter(Boolean).join(" | ")
-      }
-    : {
-        focus: document.getElementById("focus")?.value,
-        methodology: document.getElementById("methodology")?.value,
-        beneficiaries: document.getElementById("beneficiaries")?.value,
-        goals: document.getElementById("goals")?.value
-      };
+  // Project type
+  const isIT = document.getElementById("isITProject").checked;
+  form.append("project_type", isIT ? "it" : "non-it");
 
-  return {
-    user_id: sessionUserId,
-    title: document.getElementById("title").value,
-    short_description: document.getElementById("shortDesc").value,
-    project_lead: document.getElementById("lead").value,
-    description: document.getElementById("abstract").value,
-    project_type: isIT ? "it" : "non-it",
-    tags,
-    team_size: teamInputs.length,
-    launch_date: document.getElementById("launchDate").value,
-    status: "pending",
-    ...techOrNonITFields
-  };
-}
+  // Category fallback
+  form.append("category", "General");
 
-// === Send project to backend ===
-async function submitProjectToServer(formData) {
-  try {
-    const res = await fetch("/user/upload-project", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(formData)
-    });
-    return res.ok;
-  } catch (err) {
-    console.error("Error sending project:", err);
-    return false;
+  // Version default
+  form.append("version", "1.0");
+
+  // Technical or non-IT details
+  if (isIT) {
+    const techDetails = [
+      document.querySelector('#itFields input[placeholder*="Programming"]')?.value,
+      document.querySelector('#itFields input[placeholder*="Framework"]')?.value,
+      document.querySelector('#itFields input[placeholder*="Database"]')?.value,
+      document.querySelector('#itFields input[placeholder*="Deployment"]')?.value
+    ].filter(Boolean).join(" | ");
+    form.append("technical_details", techDetails);
+  } else {
+    const nonItDetails = [
+      document.getElementById("focus")?.value,
+      document.getElementById("methodology")?.value,
+      document.getElementById("beneficiaries")?.value,
+      document.getElementById("goals")?.value
+    ].filter(Boolean).join(" | ");
+    form.append("technical_details", nonItDetails);
   }
+
+  // Files: profile image
+  const profileInput = document.querySelector('input[type="file"][name="project_profile_picture"]');
+  if (profileInput?.files[0]) {
+    form.append("project_profile_picture", profileInput.files[0]);
+  }
+
+  // Screenshots (multiple)
+  const screenshotsInput = document.querySelector('input[type="file"][name="screenshots[]"]');
+  if (screenshotsInput?.files) {
+    [...screenshotsInput.files].forEach(file => form.append("screenshots[]", file));
+  }
+
+  // Documents (multiple)
+  const docsInput = document.querySelector('input[type="file"][name="documents[]"]');
+  if (docsInput?.files) {
+    [...docsInput.files].forEach(file => form.append("documents[]", file));
+  }
+
+  return form;
 }
 
-// === Handle project upload with thumbs animation ===
-async function handleProjectUpload(e, isDraft = false) {
+async function submitProject(e) {
   e.preventDefault();
   showAndHideThumbsGif();
 
-  const data = getFormData();
-  data.status = "pending"; // always mark as pending
+  const formData = gatherFormData();
 
-  const success = await submitProjectToServer(data);
-  if (success) {
-    console.log("✅ Project submitted successfully.");
-  } else {
-    alert("⚠️ Failed to submit project. Please try again.");
+  try {
+    const res = await fetch("/user/upload-project", {
+      method: "POST",
+      body: formData 
+    });
+
+    const result = await res.json();
+    if (res.ok && result.success) {
+      alert("✅ Project submitted successfully!");
+      window.location.href = "/explore-projects";
+    } else {
+      alert("❌ Upload failed: " + (result.message || "Unknown error"));
+    }
+  } catch (err) {
+    console.error("Error submitting project:", err);
+    alert("❌ Upload failed due to network error.");
   }
 }
 
-// === Attach events once DOM is ready ===
 document.addEventListener("DOMContentLoaded", () => {
   sessionUserId = window.currentUserId || null;
 
-  document.querySelector(".draft")?.addEventListener("click", (e) =>
-    handleProjectUpload(e, true)
-  );
-  document.querySelector(".submit")?.addEventListener("click", (e) =>
-    handleProjectUpload(e, false)
-  );
+  document.querySelector(".submit")?.addEventListener("click", submitProject);
+  document.querySelector(".draft")?.addEventListener("click", (e) => {
+    e.preventDefault();
+    alert("📝 Draft saving is not yet implemented.");
+  });
 });

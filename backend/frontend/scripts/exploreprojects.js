@@ -59,7 +59,7 @@ function fetchProjects(searchTerm = '') {
 
         if (project.image) {
           const img = document.createElement('img');
-          img.src = project.image;
+          img.src = project.image ;
           img.alt = project.title;
           img.style.width = '100%';
           img.style.borderRadius = '4px';

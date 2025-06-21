@@ -9,6 +9,11 @@
 </head>
 <body>
 
+  <!-- Inject user ID from server -->
+  <script>
+    window.currentUserId = 2; // 🔁 Replace this dynamically from server/session
+  </script>
+
   <nav class="navbar">
     <a href="#" class="logo">
       <img src="assets/logo.png" alt="StrathTank Logo" class="logo-img" />
@@ -32,36 +37,36 @@
       <p>Turn your school project into something bigger. Share your innovation with the world.</p>
     </header>
 
-    <form>
+    <form method="POST" enctype="multipart/form-data">
       <div class="form-columns">
         <!-- Left Column -->
         <div class="left-column">
           <section>
             <h2>Project Details</h2>
             <label for="title">Project Title
-              <input id="title" type="text" required placeholder="e.g., Smart Waste Bin System" />
+              <input id="title" name="title" type="text" required placeholder="e.g., Smart Waste Bin System" />
             </label>
             <label for="shortDesc">Short Description
-              <input id="shortDesc" type="text" required placeholder="Add a short description about your project" />
+              <input id="shortDesc" name="short_description" type="text" required placeholder="Add a short description about your project" />
             </label>
             <label for="lead">Project Lead
-              <input id="lead" type="text" placeholder="e.g., John Dim" />
+              <input id="lead" name="project_lead" type="text" placeholder="e.g., John Dim" />
             </label>
             <label>
               <input type="checkbox" id="isITProject" onchange="toggleITFields(this)" />
               Is this project an IT or Coding Project?
             </label>
             <label for="abstract">Project Abstract
-              <textarea id="abstract" required placeholder="Summary of the project..."></textarea>
+              <textarea id="abstract" name="description" required placeholder="Summary of the project..."></textarea>
             </label>
             <label for="tags">Tags
-              <input id="tags" type="text" placeholder="e.g., AI, IoT, Sustainability (separate by comma🙂)" />
+              <input id="tags" name="tags" type="text" placeholder="e.g., AI, IoT, Sustainability (separate by comma🙂)" />
             </label>
             <label for="launchDate">Launch Date
-              <input id="launchDate" type="date" />
+              <input id="launchDate" name="launch_date" type="date" />
             </label>
             <label for="status">Status
-              <select id="status">
+              <select id="status" name="status">
                 <option>In Progress</option>
                 <option>Completed</option>
                 <option>On Hold</option>
@@ -71,7 +76,12 @@
 
           <section>
             <h2>Project Media</h2>
-            <input type="file" accept=".png,.jpg,.jpeg,.pdf,.doc,.docx,.mp4" />
+            <label>Project Documents (PDF/DOC)
+              <input type="file" name="documents[]" multiple accept=".pdf,.doc,.docx" />
+            </label>
+            <label>Project Screenshots (Images)
+              <input type="file" name="screenshots[]" multiple accept=".jpg,.jpeg,.png" />
+            </label>
             <small>Max 50MB. Images, videos, PDFs, docs supported.</small>
           </section>
 
@@ -97,7 +107,7 @@
 
           <section>
             <h2>Project Profile Image</h2>
-            <input type="file" accept="image/png, image/jpeg" />
+            <input type="file" name="project_profile_picture" accept="image/png, image/jpeg" />
           </section>
 
           <!-- Conditional Fields for IT Projects -->
@@ -133,14 +143,13 @@
               <label for="goals">Impact Goals
                 <input id="goals" type="text" placeholder="e.g., Reduce Waste, Improve Access" />
               </label>
-              
             </section>
           </div>
-          <!-- After Impact Goals or IT Stack section -->
-<div id="thumbsGif" class="thumbs-animation">
-  <img src="assets/thumbsup.gif" alt="Good job thumbs up" />
-</div>
 
+          <!-- Thumbs Up Animation -->
+          <div id="thumbsGif" class="thumbs-animation" style="display: none;">
+            <img src="assets/thumbsup.gif" alt="Good job thumbs up" />
+          </div>
         </div>
       </div>
 
@@ -150,6 +159,5 @@
       </div>
     </form>
   </div>
-
 </body>
 </html>
