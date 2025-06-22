@@ -15,7 +15,7 @@
       <ul>
         <li><a href="#">Home</a></li>
         <li><a href="#">Your Projects</a></li>
-        <li><a href="#">Upload Projects</a></li>
+        <li><a href="/upload-project">Upload Projects</a></li>
         <li><a href="#">Mentorship Hub</a></li>
         <li><a href="#">My Profile</a></li>
       </ul>
@@ -49,7 +49,7 @@
        <h1 id="welcome-text">Welcome, User!</h1>
         <p> Upload your academic projects, explore others' work, and connect with fellow students tackling similar challenges. This is your space to grow, build, and make an impact beyond the classroom.</p>
         <div class="banner-buttons">
-          <button class="primary-btn">Upload Your Project</button>
+          <button onclick="window.location.href='/upload-project'" class="primary-btn">Upload Your Project</button>
           <button  id="explore-btn" class="secondary-btn">Explore Projects</button>
         </div>
       </div>
@@ -73,7 +73,7 @@
       <button class="close-btn" onclick="document.getElementById('no-projects-message').style.display='none'">×</button>
       <h3>Oops 😢 It looks like you haven’t uploaded a project yet.</h3>
       <p>Want to change that and show the world what you’ve been working on?</p>
-      <button class="upload-btn" onclick="window.location.href='#'">Upload project</button>
+      <button class="upload-btn" onclick="window.location.href='/upload-project'">Upload project</button>
     </div>
   </div>
 
