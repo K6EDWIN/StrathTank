@@ -7,6 +7,18 @@
     <link rel="stylesheet" href="/frontend/requestMentorship.css">
 </head>
 <body>
+     <nav class="navbar">
+    <div class="nav-left">
+      <a href="#">Home</a>
+      <a href="#">Upload</a>
+      <a href="#">Explore</a>
+      <a href="#">Mentorship</a>
+      <a href="#">Collaboration</a>
+    </div>
+    <div class="nav-right">
+      <input type="text" placeholder="Search...">
+    </div>
+  </nav>
     <div class="container">
         <header class="header">
             <h1>Request Mentorship: Elevate Your Project</h1>
@@ -37,6 +49,12 @@
                     <label for="skills-expertise">Preferred Mentor Skills/Expertise</label>
                     <input type="text" id="skills-expertise" name="skills-expertise" placeholder="e.g., Python, Marketing">
 
+                    <label for="LinkToProject">Link to Your Project</label>
+                    <input type="url" id="LinkToProject" name="LinkToProject" placeholder="e.g. https://yourproject.com">
+
+                    <label for="availability">Your Availability</label>
+                    <input type="text" id="availability" name="availability" placeholder="e.g., Weekdays after 5 PM, Weekends">
+
                     <button type="submit">Submit Request</button>
                 </form>
             </section>
@@ -44,7 +62,13 @@
             <!-- Mentorship Info Section -->
             <section class="info-section">
                 <h2>Why Mentorship Matters</h2>
-                <p>Mentorship bridges the gap between potential and achievement. Whether you're navigating a new field or refining your skills, a mentor can provide the insights and encouragement you need to succeed.</p>
+                <p style="padding:10px">Mentorship bridges the gap between potential and achievement. Whether you're navigating a new field or refining your skills, a mentor can provide the insights and encouragement you need to succeed.</p>
+                <ul>
+                    <li><strong>Accelerated Growth:</strong> Gain insights and strategies from experienced professionals to fast-track your learning.</li>
+                    <li><strong>Expert Guidance:</strong> Navigate complex challenges with personalized advice tailored to your project or career goals.</li>
+                    <li><strong>Expand your Network:</strong>Connect with leaders and innovators, opening doors to new opportunities</li>
+                    <li><strong>Accelerated Growth:</strong> Receive encouragement and validation that empowers you to push boundaries.</li>
+                </ul>
             </section>
         </main>
     </div>
