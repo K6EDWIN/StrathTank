@@ -1,8 +1,10 @@
 const express = require('express');
 const router = express.Router();
+const path = require('path');
 const db = require('../config/db');
 
-// ✅ GET /api/projects
+
+// ✅ GET all projects
 router.get('/projects', (req, res) => {
   const sort = req.query.sort || 'newest';
   const currentUserId = req.user?.id || null;
@@ -16,7 +18,7 @@ router.get('/projects', (req, res) => {
       p.id, p.title, p.description, p.category, p.created_at, p.project_type,
       COALESCE(l.like_count, 0) AS likes,
       COALESCE(c.comment_count, 0) AS comments,
-      p.project_profile_picture  AS image,
+      p.project_profile_picture AS image,
       p.user_id
     FROM projects p
     LEFT JOIN (SELECT project_id, COUNT(*) AS like_count FROM likes GROUP BY project_id) l ON p.id = l.project_id
@@ -36,7 +38,8 @@ router.get('/projects', (req, res) => {
   });
 });
 
-// ✅ GET /api/homepageprojects
+
+// ✅ GET homepage projects
 router.get('/homepageprojects', (req, res) => {
   const limit = parseInt(req.query.limit) || 3;
   const offset = parseInt(req.query.offset) || 0;
@@ -47,7 +50,7 @@ router.get('/homepageprojects', (req, res) => {
       u.name AS author,
       COALESCE(l.like_count, 0) AS likes,
       COALESCE(c.comment_count, 0) AS comments,
-      p.project_profile_picture  AS image
+      p.project_profile_picture AS image
     FROM projects p
     LEFT JOIN users u ON p.user_id = u.id
     LEFT JOIN (SELECT project_id, COUNT(*) AS like_count FROM likes GROUP BY project_id) l ON p.id = l.project_id
@@ -62,7 +65,8 @@ router.get('/homepageprojects', (req, res) => {
   });
 });
 
-// ✅ GET /api/user
+
+// ✅ GET current user
 router.get('/user', (req, res) => {
   if (!req.isAuthenticated()) {
     return res.status(401).json({ success: false, message: 'Not logged in' });
@@ -83,7 +87,8 @@ router.get('/user', (req, res) => {
   });
 });
 
-// ✅ GET /api/searchprojects?q=term
+
+// ✅ Search projects
 router.get('/searchprojects', (req, res) => {
   const searchTerm = req.query.q;
 
@@ -99,7 +104,7 @@ router.get('/searchprojects', (req, res) => {
       u.name AS author,
       COALESCE(l.like_count, 0) AS likes,
       COALESCE(c.comment_count, 0) AS comments,
-      p.project_profile_picture  AS image
+      p.project_profile_picture AS image
     FROM projects p
     LEFT JOIN users u ON p.user_id = u.id
     LEFT JOIN (SELECT project_id, COUNT(*) AS like_count FROM likes GROUP BY project_id) l ON p.id = l.project_id
@@ -114,7 +119,8 @@ router.get('/searchprojects', (req, res) => {
   });
 });
 
-// ✅ GET /api/categories
+
+// ✅ Get all project categories
 router.get('/categories', (req, res) => {
   const sql = `
     SELECT DISTINCT category 
@@ -129,7 +135,8 @@ router.get('/categories', (req, res) => {
   });
 });
 
-// ✅ GET /api/projects/by-category
+
+// ✅ Get projects by category
 router.get('/projects/by-category', (req, res) => {
   const { category, sort } = req.query;
 
@@ -146,8 +153,7 @@ router.get('/projects/by-category', (req, res) => {
       p.id, p.title, p.description, p.category, p.created_at,
       COALESCE(l.like_count, 0) AS likes,
       COALESCE(c.comment_count, 0) AS comments,
-      p.project_profile_picture  AS image,
-
+      p.project_profile_picture AS image
     FROM projects p
     LEFT JOIN (SELECT project_id, COUNT(*) AS like_count FROM likes GROUP BY project_id) l ON p.id = l.project_id
     LEFT JOIN (SELECT project_id, COUNT(*) AS comment_count FROM comments GROUP BY project_id) c ON p.id = c.project_id
@@ -161,18 +167,19 @@ router.get('/projects/by-category', (req, res) => {
   });
 });
 
-// ✅ GET /api/projects/:id/details
+
+// ✅ Get project details
 router.get('/projects/:id/details', (req, res) => {
   const { id } = req.params;
 
   const sql = `
-      SELECT 
-  p.id, p.title, p.Short_description AS short_description,
-  p.description AS overview, p.tags, p.technical_details,
-  p.status, p.launch_date, p.project_lead, p.team_size,
-  p.Project_profile_picture AS profile_picture,
-  p.screenshots, p.documents, p.version, p.project_type, p.category,
-  COALESCE(l.like_count, 0) AS likes
+    SELECT 
+      p.id, p.title, p.Short_description AS short_description,
+      p.description AS overview, p.tags, p.technical_details,
+      p.status, p.launch_date, p.project_lead, p.team_size,
+      p.Project_profile_picture AS profile_picture,
+      p.screenshots, p.documents, p.version, p.project_type, p.category,
+      COALESCE(l.like_count, 0) AS likes
     FROM projects p
     LEFT JOIN (SELECT project_id, COUNT(*) AS like_count FROM likes GROUP BY project_id) l ON p.id = l.project_id
     WHERE p.id = ?
@@ -191,7 +198,8 @@ router.get('/projects/:id/details', (req, res) => {
   });
 });
 
-// ✅ GET /api/projects/:projectId/team
+
+// ✅ Get team
 router.get('/projects/:projectId/team', (req, res) => {
   const projectId = parseInt(req.params.projectId);
 
@@ -220,7 +228,8 @@ router.get('/projects/:projectId/team', (req, res) => {
   });
 });
 
-// ✅ GET /api/projects/:id/comments
+
+// ✅ Get comments
 router.get('/projects/:id/comments', (req, res) => {
   const { id } = req.params;
 
@@ -243,7 +252,7 @@ router.get('/projects/:id/comments', (req, res) => {
 });
 
 
-// ✅ POST /api/projects/:id/comment
+// ✅ Post a comment
 router.post('/projects/:id/comment', (req, res) => {
   const { id } = req.params;
   const { content } = req.body;
@@ -272,7 +281,8 @@ router.post('/projects/:id/comment', (req, res) => {
   });
 });
 
-// ✅ Toggle like / unlike
+
+// ✅ Toggle like/unlike
 router.post('/projects/:id/like', (req, res) => {
   const { id: project_id } = req.params;
   const user_id = req.session?.user?.id;
@@ -286,19 +296,16 @@ router.post('/projects/:id/like', (req, res) => {
     if (err) return res.status(500).json({ error: 'Database error (check)' });
 
     if (results.length > 0) {
-      // ✅ Unlike
       const deleteSql = `DELETE FROM likes WHERE project_id = ? AND user_id = ?`;
       db.query(deleteSql, [project_id, user_id], (err2) => {
         if (err2) return res.status(500).json({ error: 'Database error (delete)' });
 
-        // ✅ Get new like count
         db.query(`SELECT COUNT(*) AS like_count FROM likes WHERE project_id = ?`, [project_id], (err3, countRes) => {
           if (err3) return res.status(500).json({ error: 'Count error after unlike' });
           res.json({ status: "unliked", newLikeCount: countRes[0].like_count });
         });
       });
     } else {
-      // ✅ Like
       const insertSql = `INSERT INTO likes (project_id, user_id, created_at) VALUES (?, ?, NOW())`;
       db.query(insertSql, [project_id, user_id], (err2) => {
         if (err2) return res.status(500).json({ error: 'Database error (insert)' });
@@ -311,33 +318,52 @@ router.post('/projects/:id/like', (req, res) => {
     }
   });
 });
-//view document
+
+
+// ✅ Get GitHub repo URL
+router.get('/projects/:id/github', (req, res) => {
+  const projectId = parseInt(req.params.id);
+
+  if (isNaN(projectId)) {
+    return res.status(400).json({ error: "Invalid project ID" });
+  }
+
+  const sql = `SELECT repo_url FROM github_metadata WHERE project_id = ?`;
+
+  db.query(sql, [projectId], (err, results) => {
+    if (err) {
+      console.error("❌ GitHub repo fetch error:", err);
+      return res.status(500).json({ error: "Database error" });
+    }
+
+    if (results.length === 0) {
+      return res.status(404).json({ error: "GitHub repo not found for this project" });
+    }
+
+    res.json({ repo_url: results[0].repo_url });
+  });
+});
+
+
+// ✅ View uploaded document
 router.get('/uploads/documents/:filename', (req, res) => {
   const file = path.join(__dirname, '../uploads/documents', req.params.filename);
   const ext = path.extname(file).toLowerCase();
 
-  // Set appropriate MIME type
   let contentType = 'application/octet-stream';
 
-  if (ext === '.pdf') {
-    contentType = 'application/pdf';
-  } else if (ext === '.txt') {
-    contentType = 'text/plain';
-  } else if (ext === '.docx') {
-    contentType = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
-  } else if (ext === '.doc') {
-    contentType = 'application/msword';
-  } else if (ext === '.png') {
-    contentType = 'image/png';
-  } else if (ext === '.jpg' || ext === '.jpeg') {
-    contentType = 'image/jpeg';
-  }
+  if (ext === '.pdf') contentType = 'application/pdf';
+  else if (ext === '.txt') contentType = 'text/plain';
+  else if (ext === '.docx') contentType = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+  else if (ext === '.doc') contentType = 'application/msword';
+  else if (ext === '.png') contentType = 'image/png';
+  else if (ext === '.jpg' || ext === '.jpeg') contentType = 'image/jpeg';
 
-  // Set headers for inline viewing
   res.setHeader('Content-Type', contentType);
-  res.setHeader('Content-Disposition', 'inline'); // Forces browser to open, not download
-
+  res.setHeader('Content-Disposition', 'inline');
   res.sendFile(file);
 });
+
+
 
 module.exports = router;

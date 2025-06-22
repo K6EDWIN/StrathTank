@@ -9,18 +9,13 @@
 </head>
 <body>
 
-  <!-- Inject user ID from server -->
-  <script>
-    window.currentUserId = 2; // 🔁 Replace this dynamically from server/session
-  </script>
-
   <nav class="navbar">
     <a href="#" class="logo">
       <img src="assets/logo.png" alt="StrathTank Logo" class="logo-img" />
     </a>
     <div class="nav-links">
-      <a href="#">Home</a>
-      <a href="#">Upload</a>
+      <a href="/dashboard">Home</a>
+      <a href="/upload-project">Upload</a>
       <a href="/explore-projects">Explore</a>
       <a href="#">Mentorship</a>
       <a href="#">Collaboration</a>
@@ -48,6 +43,9 @@
             </label>
             <label for="shortDesc">Short Description
               <input id="shortDesc" name="short_description" type="text" required placeholder="Add a short description about your project" />
+            </label>
+            <label for="category">Category
+              <input id="category" name="category" type="text" required placeholder="e.g., AI, IoT, Sustainability" />
             </label>
             <label for="lead">Project Lead
               <input id="lead" name="project_lead" type="text" placeholder="e.g., John Dim" />
@@ -86,12 +84,12 @@
           </section>
 
           <section>
-            <h2>Team Members</h2>
-            <div id="teamMembers">
-              <input type="text" placeholder="e.g., Alice Smith" />
-            </div>
-            <button type="button" onclick="addTeamMemberInput()">+ Add More</button>
-          </section>
+  <h2>Team Members</h2>
+  <div id="teamMembers">
+  </div>
+  <button type="button" onclick="addTeamMemberInput()">+ Add More</button>
+</section>
+
         </div>
 
         <!-- Right Column -->
@@ -113,9 +111,14 @@
           <!-- Conditional Fields for IT Projects -->
           <div id="itFields" style="display: none;">
             <section>
-              <h2>GitHub Repository</h2>
-              <input type="url" placeholder="https://github.com/your-repo" />
-              <button type="button">View GitHub</button>
+              <h2>GitHub Repository (Must be set to Public)</h2>
+                <input
+    type="url"
+    name="repo_url"
+    id="repo_url"
+    placeholder="https://github.com/your-repo"
+  />
+              <button id="selectRepoBtn" type="button">Select from GitHub</button>
             </section>
 
             <section>

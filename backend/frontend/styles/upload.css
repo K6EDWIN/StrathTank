@@ -310,3 +310,64 @@ button[type="button"]:hover,
 .hidden {
   display: none;
 }
+/* TEAM MEMBER AUTOSUGGEST STYLES */
+.team-member-input {
+  position: relative;
+  margin-bottom: 1rem;
+}
+
+.suggestions {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: #ffffff;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  z-index: 1000;
+  max-height: 250px;
+  overflow-y: auto;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.suggestion-item {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.suggestion-item:hover {
+  background-color: #f2f2f2;
+}
+
+.suggestion-item img {
+  width: 40px;
+  height: 40px;
+  object-fit: cover;
+  border-radius: 50%;
+  margin-right: 0.75rem;
+  border: 2px solid #ccc;
+}
+
+.suggestion-item strong {
+  display: block;
+  font-size: 0.95rem;
+  color: #2c3e50;
+}
+
+.suggestion-item small {
+  font-size: 0.8rem;
+  color: #7f8c8d;
+}
+
+.suggestion-list {
+  font-size: 0.95rem;
+  border-radius: 4px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+}
+
+.suggestion-item:hover {
+  background-color: #f1f1f1;
+}

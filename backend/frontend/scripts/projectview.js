@@ -1,6 +1,9 @@
 const params = new URLSearchParams(window.location.search);
 const projectId = params.get("projectId");
 
+// ============================
+// LOAD PROJECT DATA
+// ============================
 async function loadProjectData() {
   const projectRes = await fetch(`/api/projects/${projectId}/details`);
   const project = await projectRes.json();
@@ -23,7 +26,6 @@ async function loadProjectData() {
     };
     testImage.src = fullImagePath;
   } else {
-
     heroSection.style.backgroundImage = `url('${fallbackImage}')`;
   }
 
@@ -41,9 +43,9 @@ async function loadProjectData() {
 
   const techList = document.getElementById("technical-details");
   techList.innerHTML = '';
-  const techDetails = project.technical_details;
   const headings = ['Programming', 'Frameworks', 'Database', 'Deployment'];
-  const sections = techDetails.split(new RegExp(`(?=${headings.join('|')}:)`, 'g'));
+  const sections = project.technical_details.split(new RegExp(`(?=${headings.join('|')}:)`, 'g'));
+
   sections.forEach(section => {
     const [heading, content] = section.split(":");
     if (heading && content) {
@@ -61,6 +63,7 @@ async function loadProjectData() {
     <li><strong>Project Lead:</strong> ${project.project_lead}</li>
     <li><strong>Team Size:</strong> ${project.team_size}</li>
   `;
+
   document.getElementById("like-count").textContent = project.likes;
 
   const screenGrid = document.getElementById("screenshots");
@@ -92,6 +95,9 @@ async function loadProjectData() {
   });
 }
 
+// ============================
+// LOAD TEAM
+// ============================
 async function loadTeam() {
   try {
     const res = await fetch(`/api/projects/${projectId}/team`);
@@ -127,6 +133,9 @@ async function loadTeam() {
   }
 }
 
+// ============================
+// LOAD COMMENTS
+// ============================
 async function loadComments() {
   try {
     const res = await fetch(`/api/projects/${projectId}/comments`);
@@ -152,6 +161,9 @@ async function loadComments() {
   }
 }
 
+// ============================
+// SUBMIT COMMENT
+// ============================
 async function submitComment() {
   const content = document.getElementById("comment-text").value;
   if (!content) return;
@@ -166,6 +178,9 @@ async function submitComment() {
   loadComments();
 }
 
+// ============================
+// LIKE TOGGLE
+// ============================
 document.getElementById("like-section").addEventListener("click", async () => {
   try {
     const res = await fetch(`/api/projects/${projectId}/like`, {
@@ -188,6 +203,9 @@ document.getElementById("like-section").addEventListener("click", async () => {
   }
 });
 
+// ============================
+// DOCUMENT VIEW OVERLAY
+// ============================
 document.addEventListener("click", (e) => {
   if (e.target.classList.contains("view-doc-btn")) {
     const src = e.target.getAttribute("data-src");
@@ -207,8 +225,48 @@ document.addEventListener("click", (e) => {
   }
 });
 
+// ============================
+// INITIALIZE ON LOAD
+// ============================
 document.addEventListener('DOMContentLoaded', () => {
   loadProjectData();
   loadTeam();
   loadComments();
+
+  // ========================
+  // GITHUB VIEW BUTTON
+  // ========================
+  document.querySelector(".viewGithub").addEventListener("click", async () => {
+  try {
+    const res = await fetch(`/api/projects/${projectId}/github`);
+    if (!res.ok) {
+      if (res.status === 404) {
+        alert("🚫 No repo for this project yet, sorry.");
+      } else {
+        throw new Error("GitHub repo fetch failed");
+      }
+      return;
+    }
+
+    const data = await res.json();
+    let url = (data.repo_url || "").trim();
+
+    if (!url) {
+      alert("🚫 No repo for this project yet, sorry.");
+      return;
+    }
+
+    if (url.endsWith(".git")) url = url.slice(0, -4);
+    if (!/^https?:\/\/.+/.test(url)) {
+      alert("❗ Invalid GitHub URL");
+      return;
+    }
+
+    window.open(url, "_blank");
+  } catch (err) {
+    alert("⚠️ Could not open GitHub repo. Please try again.");
+    console.error("GitHub view error:", err);
+  }
+});
+
 });

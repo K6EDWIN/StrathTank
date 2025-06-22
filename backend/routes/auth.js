@@ -23,24 +23,50 @@ router.get('/google/callback',
 );
 
 // GitHub OAuth
-router.get('/github',
-  passport.authenticate('github', { scope: ['user:email'] })
-);
+// ----------------------------------------
+// GitHub OAuth Routes
+// ----------------------------------------
 
+// Redirect user to GitHub for authentication
+router.get('/github', (req, res, next) => {
+  // Optional: Store redirect path in session
+  if (req.query.redirect) {
+    req.session.githubRedirect = req.query.redirect;
+  }
+  next();
+}, passport.authenticate('github', { scope: ['user:email', 'repo'] }));
+
+// GitHub callback after authentication
 router.get('/github/callback',
   passport.authenticate('github', { failureRedirect: '/login' }),
   (req, res) => {
+    // ✅ Store GitHub access token in session
+    if (req.user.githubAccessToken) {
+      req.session.githubAccessToken = req.user.githubAccessToken;
+    }
+
+    // ✅ Store user data in session
     req.session.user = {
       id: req.user.id,
       name: req.user.name,
       email: req.user.email,
       role: req.user.role
     };
+
     req.session._isNewUser = req.user._isNewUser;
-    const redirectUrl = req.user._isNewUser ? '/signup?showRoleModal=true' : '/dashboard';
+
+    // ✅ Redirect to dashboard or to original page if provided
+    const redirectUrl = req.session.githubRedirect
+      || (req.user._isNewUser ? '/signup?showRoleModal=true' : '/dashboard');
+
+    delete req.session.githubRedirect;
+
     res.redirect(redirectUrl);
   }
 );
+
+module.exports = router;
+
 
 module.exports = router;
 

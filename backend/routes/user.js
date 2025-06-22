@@ -4,41 +4,53 @@ const bcrypt = require('bcrypt');
 const db = require('../config/db');
 const transporter = require('../config/mailer');
 const upload = require('../config/multer');
-// POST /user/submit
+
+// ----------------------------------------
+// POST /user/submit - Register User
+// ----------------------------------------
 router.post('/submit', async (req, res) => {
   const { username, email, password, role } = req.body;
-  db.query('SELECT * FROM Users WHERE name = ? OR email = ?', [username, email], async (err, results) => {
-    if (results.length > 0) return res.status(409).json({ success: false, message: 'Account exists' });
 
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const code = Math.floor(100000 + Math.random() * 900000);
+  db.query(
+    'SELECT * FROM Users WHERE name = ? OR email = ?',
+    [username, email],
+    async (err, results) => {
+      if (results.length > 0) {
+        return res.status(409).json({ success: false, message: 'Account exists' });
+      }
 
-    db.query(`INSERT INTO Users (name, email, password, role, verification_code, verified) VALUES (?, ?, ?, ?, ?, ?)`,
-      [username, email, hashedPassword, role, code, false],
-      err => {
-        if (err) return res.status(500).json({ success: false });
+      const hashedPassword = await bcrypt.hash(password, 10);
+      const code = Math.floor(100000 + Math.random() * 900000);
 
-        transporter.sendMail({
-          from: process.env.EMAIL_USER,
-          to: email,
-          subject: 'Strathtank Verification Code',
-          text: `Hi ${username}, your verification code is: ${code}`
-        }, error => {
-          if (error) return res.status(500).json({ success: false });
-        
-res.status(200).json({
-  success: true,
-  message: "Registration successful. Please verify your email.",
-  redirect: `/verify-email?email=${encodeURIComponent(email)}`
+      db.query(
+        'INSERT INTO Users (name, email, password, role, verification_code, verified) VALUES (?, ?, ?, ?, ?, ?)',
+        [username, email, hashedPassword, role, code, false],
+        (err) => {
+          if (err) return res.status(500).json({ success: false });
+
+          transporter.sendMail({
+            from: process.env.EMAIL_USER,
+            to: email,
+            subject: 'Strathtank Verification Code',
+            text: `Hi ${username}, your verification code is: ${code}`
+          }, error => {
+            if (error) return res.status(500).json({ success: false });
+
+            res.status(200).json({
+              success: true,
+              message: "Registration successful. Please verify your email.",
+              redirect: `/verify-email?email=${encodeURIComponent(email)}`
+            });
+          });
+        }
+      );
+    }
+  );
 });
 
-
-        });
-      });
-  });
-});
-
-// POST /user/verify
+// ----------------------------------------
+// POST /user/verify - Email Verification
+// ----------------------------------------
 router.post('/verify', (req, res) => {
   const { email, verificationCode } = req.body;
 
@@ -47,7 +59,6 @@ router.post('/verify', (req, res) => {
     [email, verificationCode],
     (err, results) => {
       if (err) return res.status(500).json({ success: false });
-
       if (results.length === 0) {
         return res.status(400).json({ success: false, message: 'Invalid verification code' });
       }
@@ -57,12 +68,10 @@ router.post('/verify', (req, res) => {
       db.query(
         'UPDATE Users SET verified = true, verification_code = NULL WHERE email = ?',
         [email],
-        err => {
+        (err) => {
           if (err) return res.status(500).json({ success: false });
 
-          // ✅ Automatically log the user in by saving to session
           req.session.user = user;
-
           res.json({ success: true, message: 'Verification successful' });
         }
       );
@@ -70,15 +79,20 @@ router.post('/verify', (req, res) => {
   );
 });
 
-
+// ----------------------------------------
 // POST /user/resend-code
+// ----------------------------------------
 router.post('/resend-code', (req, res) => {
   const { email } = req.body;
+
   db.query('SELECT * FROM Users WHERE email = ?', [email], (err, results) => {
-    if (!results.length || results[0].verified) return res.status(400).json({ success: false });
+    if (!results.length || results[0].verified) {
+      return res.status(400).json({ success: false });
+    }
 
     const newCode = Math.floor(100000 + Math.random() * 900000);
-    db.query('UPDATE Users SET verification_code = ? WHERE email = ?', [newCode, email], err => {
+
+    db.query('UPDATE Users SET verification_code = ? WHERE email = ?', [newCode, email], (err) => {
       if (err) return res.status(500).json({ success: false });
 
       transporter.sendMail({
@@ -94,9 +108,12 @@ router.post('/resend-code', (req, res) => {
   });
 });
 
+// ----------------------------------------
 // POST /user/login
+// ----------------------------------------
 router.post('/login', (req, res) => {
   const { email, password } = req.body;
+
   db.query('SELECT * FROM Users WHERE email = ?', [email], (err, results) => {
     if (!results.length) return res.status(401).json({ success: false });
 
@@ -108,11 +125,14 @@ router.post('/login', (req, res) => {
   });
 });
 
+// ----------------------------------------
 // POST /user/forgot-password
+// ----------------------------------------
 router.post('/forgot-password', (req, res) => {
   const { email } = req.body;
   const code = Math.floor(100000 + Math.random() * 900000).toString();
-  db.query('UPDATE Users SET reset_code = ? WHERE email = ?', [code, email], err => {
+
+  db.query('UPDATE Users SET reset_code = ? WHERE email = ?', [code, email], (err) => {
     if (err) return res.status(500).send();
 
     transporter.sendMail({
@@ -127,29 +147,40 @@ router.post('/forgot-password', (req, res) => {
   });
 });
 
+// ----------------------------------------
 // POST /user/reset-password
+// ----------------------------------------
 router.post('/reset-password', async (req, res) => {
   const { email, resetCode, newPassword } = req.body;
   const hashed = await bcrypt.hash(newPassword, 10);
-  db.query('UPDATE Users SET password = ?, reset_code = NULL WHERE email = ? AND reset_code = ?', [hashed, email, resetCode], err => {
+
+  db.query('UPDATE Users SET password = ?, reset_code = NULL WHERE email = ? AND reset_code = ?', [hashed, email, resetCode], (err) => {
     if (err) return res.status(500).send();
     res.send('Password reset.');
   });
 });
 
+// ----------------------------------------
 // POST /user/set-role
+// ----------------------------------------
 router.post('/set-role', (req, res) => {
-  if (!req.isAuthenticated()) return res.status(401).json({ message: 'Not authenticated' });
+  if (!req.isAuthenticated()) {
+    return res.status(401).json({ message: 'Not authenticated' });
+  }
 
   const { role } = req.body;
-  db.query('UPDATE Users SET role = ? WHERE id = ?', [role, req.user.id], err => {
+  db.query('UPDATE Users SET role = ? WHERE id = ?', [role, req.user.id], (err) => {
     if (err) return res.status(500).json({ message: 'DB error' });
     res.json({ message: 'Role updated' });
   });
 });
 
-
-// ✅ POST /user/upload-project
+// ----------------------------------------
+// POST /user/upload-project
+// ----------------------------------------
+// ----------------------------------------
+// POST /user/upload-project
+// ----------------------------------------
 router.post(
   '/upload-project',
   upload.fields([
@@ -158,32 +189,62 @@ router.post(
     { name: 'documents[]', maxCount: 10 }
   ]),
   (req, res) => {
+    console.log("🚀 Upload project request received");
     try {
-      console.log("Files:", req.files);
-      console.log("Body:", req.body);
-
       const {
-        user_id, title, Short_description, project_lead, description,
-        tags, launch_date, status, team_size, project_type,
-        category = "General", version = "1.0", technical_details
+        user_id,
+        title,
+        Short_description,
+        project_lead,
+        description,
+        tags,
+        launch_date,
+        status,
+        team_size,
+        project_type,
+        category,
+        version = "1.0",
+        technical_details,
+        repo_url,
+        stars,
+        forks
       } = req.body;
 
-      // 🧠 Format the technical_details based on project type
+      console.log("Form data received:", {
+        user_id,
+        title,
+        Short_description,
+        project_lead,
+        description,
+        tags,
+        launch_date,
+        status,
+        team_size,
+        project_type,
+        category,
+        version,
+        technical_details,
+        repo_url,
+        stars,
+        forks
+      });
+
+      // Format technical details
+      const details = technical_details ? technical_details.split(' | ') : [];
       let formattedTechnicalDetails = '';
-      const details = technical_details.split(' | ');
 
       if (project_type === 'it') {
-        formattedTechnicalDetails =
-          `Programming: ${details[0] || 'N/A'}\n` +
-          `Frameworks: ${details[1] || 'N/A'}\n` +
-          `Database: ${details[2] || 'N/A'}\n` +
-          `Deployment: ${details[3] || 'N/A'}`;
+        formattedTechnicalDetails = `
+Programming: ${details[0] || 'N/A'}
+Frameworks: ${details[1] || 'N/A'}
+Database: ${details[2] || 'N/A'}
+Deployment: ${details[3] || 'N/A'}`;
       } else {
-        formattedTechnicalDetails =
-          `Project Focus: ${details[0] || 'N/A'}\n` +
-          `Methodology: ${details[1] || 'N/A'}\n` +
-          `Target Beneficiaries: ${details[2] || 'N/A'}\n` +
-          `Impact Goals: ${details[3] || 'N/A'}`;
+        formattedTechnicalDetails = `
+Project Focus: ${details[0] || 'N/A'}
+Methodology: ${details[1] || 'N/A'}
+Target Beneficiaries: ${details[2] || 'N/A'}
+Impact Goals: ${details[3] || 'N/A'}`;
       }
 
       const project = {
@@ -197,7 +258,7 @@ router.post(
         status,
         team_size,
         project_type,
-        category,
+        category: Array.isArray(category) ? category.join(', ') : category,
         version,
         technical_details: formattedTechnicalDetails,
         project_profile_picture: req.files?.['project_profile_picture']?.[0]?.path || null,
@@ -206,14 +267,87 @@ router.post(
         created_at: new Date()
       };
 
-      db.query('INSERT INTO projects SET ?', project, (err, results) => {
+      console.log("Prepared project object to insert:", project);
+
+      // Insert project into DB
+      db.query('INSERT INTO projects SET ?', project, (err, result) => {
         if (err) {
-          console.error("❌ Upload error:", err);
+          console.error("❌ Project insert error:", err);
           return res.status(500).json({ success: false, message: "Upload failed", error: err.message });
         }
 
-        return res.json({ success: true, message: "✅ Project uploaded successfully!" });
+        const projectId = result.insertId;
+        console.log(`✅ Project inserted with ID: ${projectId}`);
+
+        // Function to insert team members and respond
+        function insertTeamMembersAndRespond() {
+          // Normalize team inputs
+          const teamIdsRaw = req.body.team_ids;
+          const teamRolesRaw = req.body.team_roles;
+
+          const teamIds = Array.isArray(teamIdsRaw) ? teamIdsRaw : teamIdsRaw ? [teamIdsRaw] : [];
+          const teamRoles = Array.isArray(teamRolesRaw) ? teamRolesRaw : teamRolesRaw ? [teamRolesRaw] : [];
+
+          console.log("Team IDs received:", teamIds);
+          console.log("Team Roles received:", teamRoles);
+
+          const memberInserts = [];
+
+          teamIds.forEach((uid, i) => {
+            const role = teamRoles[i] || 'Member';
+            memberInserts.push([projectId, uid, role]);
+          });
+
+          if (memberInserts.length > 0) {
+            const sql = `INSERT INTO project_team_members (project_id, user_id, role) VALUES ?`;
+            db.query(sql, [memberInserts], (err) => {
+              if (err) {
+                console.error("❌ Team insert error:", err);
+                return res.status(500).json({
+                  success: false,
+                  message: "Project saved but team insert failed",
+                  error: err.message
+                });
+              }
+              console.log(`✅ Team members inserted for project ID ${projectId}`);
+              return res.json({ success: true, message: "✅ Project and team saved!" });
+            });
+          } else {
+            console.log("No team members to insert");
+            return res.json({ success: true, message: "✅ Project saved (no team members added)" });
+          }
+        }
+
+        // Insert GitHub metadata if it's an IT project and repo_url is provided and not empty
+        if (project_type === 'it' && repo_url && repo_url.trim() !== '') {
+          console.log("Attempting to insert GitHub metadata for project ID:", projectId);
+          console.log("Repo URL:", repo_url);
+          console.log("Stars:", stars);
+          console.log("Forks:", forks);
+
+          const githubMetadata = {
+            project_id: projectId,
+            repo_url: repo_url.trim(),
+            stars: parseInt(stars) || 0,
+            forks: parseInt(forks) || 0,
+            last_synced_at: new Date()
+          };
+
+          db.query('INSERT INTO github_metadata SET ?', githubMetadata, (err) => {
+            if (err) {
+              console.error("❌ GitHub metadata insert error:", err);
+              // Do NOT fail the whole request just because metadata failed
+            } else {
+              console.log("✅ GitHub metadata inserted successfully");
+            }
+            insertTeamMembersAndRespond();
+          });
+        } else {
+          console.log("Skipping GitHub metadata insert (not IT project or no repo URL)");
+          insertTeamMembersAndRespond();
+        }
       });
+
     } catch (err) {
       console.error("❌ Unexpected error:", err);
       res.status(500).json({ success: false, message: "Unexpected error", error: err.message });
@@ -221,5 +355,35 @@ router.post(
   }
 );
 
+
+
+
+// ----------------------------------------
+// GET /user/search - Autocomplete User Search
+// ----------------------------------------
+router.get('/search', (req, res) => {
+  const q = req.query.q;
+
+  if (!q || q.trim() === '') {
+    return res.status(400).json({ error: 'Query required' });
+  }
+
+  const sql = `
+    SELECT id, name, profile_image AS profile_photo, role
+    FROM users
+    WHERE name LIKE ?
+    ORDER BY name
+    LIMIT 6
+  `;
+
+  db.query(sql, [`%${q}%`], (err, results) => {
+    if (err) {
+      console.error("User search error:", err);
+      return res.status(500).json({ error: 'Database error' });
+    }
+
+    res.json(results);
+  });
+});
 
 module.exports = router;

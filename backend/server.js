@@ -25,6 +25,7 @@ app.use('/auth', require('./routes/auth'));
 app.use('/user', require('./routes/user'));
 app.use('/api', require('./routes/project'));
 
+
 // Static assets
 app.use('/styles', express.static(path.join(__dirname, 'frontend/styles')));
 app.use('/assets', express.static(path.join(__dirname, 'frontend/assets')));
