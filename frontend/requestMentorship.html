@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mentorship Request</title>
+    <link rel="stylesheet" href="requestMentorship.css">
+</head>
+<body>
+     <nav class="navbar">
+    <div class="nav-left">
+      <a href="#">Home</a>
+      <a href="#">Upload</a>
+      <a href="#">Explore</a>
+      <a href="#">Mentorship</a>
+      <a href="#">Collaboration</a>
+    </div>
+    <div class="nav-right">
+      <input type="text" placeholder="Search...">
+    </div>
+  </nav>
+    <div class="container">
+        <header class="header">
+            <h1>Request Mentorship: Elevate Your Project</h1>
+            <p>Connect with experienced professionals who can guide you through challenges and help you realize your full potential.</p>
+        </header>
+
+        <main class="main-content">
+            <!-- Mentorship Request Form -->
+            <section class="form-section">
+                <h2>Submit Your Mentorship Request</h2>
+                <p>Clearly articulate your needs to connect with the best mentor.</p>
+
+                <form class="mentorship-form">
+                    <label for="subject">Subject of Mentorship</label>
+                    <input type="text" id="subject" name="subject" placeholder="e.g., Questions on my AI project or Career path in Tech">
+
+                    <label for="challenge">Describe Your Challenge / Goal</label>
+                    <textarea id="challenge" name="challenge" rows="5" placeholder="Describe your challenge or goal..."></textarea>
+
+                    <label for="primary-area">Primary Area of Mentorship</label>
+                    <select id="primary-area" name="primary-area">
+                        <option value="">Select an area...</option>
+                        <option value="AI">Artificial Intelligence</option>
+                        <option value="Web Development">Web Development</option>
+                        <!-- Add more options as needed -->
+                    </select>
+
+                    <label for="skills-expertise">Preferred Mentor Skills/Expertise</label>
+                    <input type="text" id="skills-expertise" name="skills-expertise" placeholder="e.g., Python, Marketing">
+
+                    <label for="LinkToProject">Link to Your Project</label>
+                    <input type="url" id="LinkToProject" name="LinkToProject" placeholder="e.g. https://yourproject.com">
+
+                    <label for="availability">Your Availability</label>
+                    <input type="text" id="availability" name="availability" placeholder="e.g., Weekdays after 5 PM, Weekends">
+
+                    <button type="submit">Submit Request</button>
+                </form>
+            </section>
+
+            <!-- Mentorship Info Section -->
+            <section class="info-section">
+                <h2>Why Mentorship Matters</h2>
+                <p style="padding:10px">Mentorship bridges the gap between potential and achievement. Whether you're navigating a new field or refining your skills, a mentor can provide the insights and encouragement you need to succeed.</p>
+                <ul>
+                    <li><strong>Accelerated Growth:</strong> Gain insights and strategies from experienced professionals to fast-track your learning.</li>
+                    <li><strong>Expert Guidance:</strong> Navigate complex challenges with personalized advice tailored to your project or career goals.</li>
+                    <li><strong>Expand your Network:</strong>Connect with leaders and innovators, opening doors to new opportunities</li>
+                    <li><strong>Accelerated Growth:</strong> Receive encouragement and validation that empowers you to push boundaries.</li>
+                </ul>
+            </section>
+        </main>
+    </div>
+</body>
+</html>

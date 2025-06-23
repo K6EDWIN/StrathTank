@@ -119,11 +119,18 @@ router.post('/login', (req, res) => {
 
     bcrypt.compare(password, results[0].password, (err, isMatch) => {
       if (!isMatch) return res.status(401).json({ success: false });
+
       req.session.user = results[0];
-      res.json({ success: true });
+
+      // ✅ Force session to be saved before sending response
+      req.session.save(err => {
+        if (err) return res.status(500).json({ success: false, message: 'Session save failed' });
+        res.json({ success: true });
+      });
     });
   });
 });
+
 
 // ----------------------------------------
 // POST /user/forgot-password
@@ -384,6 +391,122 @@ router.get('/search', (req, res) => {
 
     res.json(results);
   });
+});
+// ----------------------------------------
+// ✅ GET /user - return logged in user (session or passport)
+// ----------------------------------------
+router.get('/', (req, res) => {
+  // Handle session login (email/password)
+  if (req.session?.user) {
+    return res.json({
+      success: true,
+      user: {
+        id: req.session.user.id,
+        name: req.session.user.name,
+        email: req.session.user.email,
+        role: req.session.user.role,
+        profile_image: req.session.user.profile_image || '/images/default-profile.png'
+      }
+    });
+  }
+
+  // Handle passport social login (GitHub, Google, etc.)
+  if (req.user) {
+    return res.json({
+      success: true,
+      user: {
+        id: req.user.id,
+        name: req.user.name,
+        email: req.user.email,
+        role: req.user.role || 'student',
+        profile_image: req.user.profile_image || '/images/default-profile.png'
+      }
+    });
+  }
+
+  // Not logged in
+  return res.status(401).json({ success: false, message: 'Not logged in' });
+});
+
+// --------------------------------------
+// PUT /user/skills - Update skills from session
+// ----------------------------------------
+router.put('/skills', (req, res) => {
+  const user = req.session.user;
+  if (!user) {
+    return res.status(401).json({ success: false, message: 'Not authenticated' });
+  }
+
+  const userId = user.id;
+  const { skills } = req.body;
+
+  if (!Array.isArray(skills)) {
+    return res.status(400).json({ success: false, message: 'Skills must be an array' });
+  }
+
+  const skillsString = skills.join(','); // or JSON.stringify(skills) if using JSON column
+
+  db.query('UPDATE Users SET skills = ? WHERE id = ?', [skillsString, userId], (err) => {
+    if (err) {
+      console.error('❌ Skill update error:', err);
+      return res.status(500).json({ success: false, message: 'DB error' });
+    }
+
+    res.json({ success: true, message: 'Skills updated successfully' });
+  });
+});
+
+
+// ----------------------------------------
+// PUT /user/bio - Update Bio
+// ----------------------------------------
+router.put('/bio', (req, res) => {
+  const user = req.session.user;
+  if (!user) {
+    return res.status(401).json({ success: false, message: 'Not authenticated' });
+  }
+
+  const userId = user.id;
+  const { bio } = req.body;
+
+  if (typeof bio !== 'string' || bio.length > 1000) {
+    return res.status(400).json({ success: false, message: 'Invalid bio input' });
+  }
+
+  db.query('UPDATE Users SET bio = ? WHERE id = ?', [bio, userId], (err) => {
+    if (err) {
+      console.error('❌ Bio update error:', err);
+      return res.status(500).json({ success: false, message: 'Database error' });
+    }
+
+    // Update session too
+    req.session.user.bio = bio;
+    res.json({ success: true, message: 'Bio updated successfully', bio });
+  });
+});
+
+//edit profile picture
+router.post('/profile-picture', upload.single('profile_picture'), (req, res) => {
+  if (!req.session.user) {
+    return res.status(401).json({ success: false, message: 'Not logged in' });
+  }
+
+  const userId = req.session.user.id;
+  const imagePath = req.file.path.replace(/\\/g, '/'); 
+
+  db.query(
+    'UPDATE Users SET profile_image = ? WHERE id = ?',
+    [imagePath, userId],
+    (err) => {
+      if (err) {
+        console.error('❌ Could not update profile image:', err);
+        return res.status(500).json({ success: false, message: 'Could not update image' });
+      }
+
+      req.session.user.profile_image = imagePath;
+      res.json({ success: true, imagePath });
+    }
+  );
 });
 
 module.exports = router;

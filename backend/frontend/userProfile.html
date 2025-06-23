@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Profile Page</title>
+  <link rel="stylesheet" href="styles/userProfile.css" />
+</head>
+<body>
+
+  <!-- Sidebar -->
+  <aside class="sidebar visible">
+    <h2>StrathTank</h2>
+    <ul>
+      <li><a href="/">Home</a></li>
+      <li><a href="/upload.html">Upload</a></li>
+      <li><a href="/explore.html">Explore</a></li>
+      <li><a href="/mentorship.html">Mentorship</a></li>
+      <li><a href="/collaboration.html">Collaboration</a></li>
+    </ul>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <!-- Top Navigation Bar -->
+    <nav class="navbar">
+      <a href="#" class="logo">
+        <img src="/assets/logo.png" alt="StrathTank Logo" class="logo-img" />
+      </a>
+      <div class="nav-links">
+        <a href="#">Home</a>
+        <a href="/upload-project">Upload</a>
+        <a href="/explore-projects">Explore</a>
+        <a href="#">Mentorship</a>
+        <a href="#">Collaboration</a>
+        <a href="#">My Profile</a>
+      </div>
+      <div class="search-section">
+        <input id="searchBar" class="search-bar" type="text" placeholder="Search by title or author..." />
+        <div id="search-results" class="results-container"></div>
+      </div>
+    </nav>
+
+    <!-- Profile Content -->
+    <div class="page-container">
+      <main class="profile-content">
+        <section class="profile-header">
+          <div class="profile-top">
+            <div class="profile-image-container">
+              <img id="profilePic" class="profile-pic" alt="Profile Picture" />
+              <label id="editIcon" class="edit-pic" style="display: none;">
+               <input type="file" id="profilePicInput" accept="image/*" hidden />
+                <span class="edit-icon">🖉</span>
+              </label>
+            </div>
+            <div class="profile-info">
+              <h1 id="username">Loading...</h1>
+              <p id="email" style="display: none;"></p>
+             <p id="bio" class="bio">No bio yet.</p>
+<button id="openBioModal" class="edit-bio-btn">Edit Bio</button>
+
+<!-- Bio Edit Modal -->
+<div id="bioModal" class="modal">
+  <div class="modal-content">
+    <h3>Edit Your Bio</h3>
+    <textarea id="bioTextarea" placeholder="Write something about yourself..."></textarea>
+    <div class="modal-actions">
+      <button id="saveBioBtn">Save</button>
+      <button id="closeBioModal" class="cancel-btn">Cancel</button>
+    </div>
+  </div>
+</div>
+
+            </div>
+          </div>
+        </section>
+
+  <section class="skills-section">
+  <h2>Skills & Expertise</h2>
+  <div id="skillsList" class="skills"></div>
+  <div id="skillsEditor">
+    <input type="text" id="newSkillInput" class="add-skill-input" placeholder="Add a new skill..." />
+    <button id="addSkillBtn" class="add-skill-btn">Add</button>
+  </div>
+</section>
+
+
+
+
+        <section class="stats-section">
+          <h2>Statistics Overview</h2>
+          <ul id="statsList">
+            <li><strong>Projects Created:</strong> <span id="projectsCreated">0</span></li>
+            <li><strong>Collaborations:</strong> <span id="collaborationsCount">0</span></li>
+            <li><strong>Total Likes:</strong> <span id="totalLikes">0</span></li>
+          </ul>
+        </section>
+
+        <section class="projects-section">
+          <h2 id="projectsHeader">My Projects</h2>
+          <div id="ownedProjects" class="projects-grid"></div>
+        </section>
+
+        <section class="collaborations-section">
+          <h2 id="collabsHeader">Collaborated Projects</h2>
+          <div id="collaborations" class="collaborations-grid"></div>
+        </section>
+      </main>
+    </div>
+  </main>
+
+  <script src="scripts/profile.js"></script>
+</body>
+</html>
