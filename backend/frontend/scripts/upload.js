@@ -1,5 +1,3 @@
-let sessionUserId = window.currentUserId || null;
-
 /* -----------------------------------------------
    Toggle IT Fields
 -------------------------------------------------*/
@@ -137,16 +135,39 @@ function showAndHideThumbsGif() {
 }
 
 /* -----------------------------------------------
+   Session Fetch
+-------------------------------------------------*/
+let sessionUserId = null;
+
+async function fetchSessionUserId() {
+  try {
+    const res = await fetch('/user', { credentials: 'include' });
+    const data = await res.json();
+    if (data.success && data.user?.id) {
+      sessionUserId = data.user.id;
+    } else {
+      throw new Error('Not logged in');
+    }
+  } catch (err) {
+    console.error('❌ Could not fetch session user ID:', err);
+  }
+}
+
+/* -----------------------------------------------
    Gather Form Data
 -------------------------------------------------*/
 function gatherFormData() {
   const form = new FormData();
 
-  form.append("user_id", sessionUserId);
+  if (!sessionUserId || isNaN(sessionUserId)) {
+    alert("❌ You must be logged in to submit a project.");
+    throw new Error("Invalid session user ID");
+  }
+
   form.append("title", document.getElementById("title").value);
   form.append("Short_description", document.getElementById("shortDesc").value);
   form.append("project_lead", document.getElementById("lead").value);
-  form.append("category", document.getElementById("category").value);
+  form.set("category", document.getElementById("category").value);
   form.append("description", document.getElementById("abstract").value);
   form.append("tags", document.getElementById("tags").value);
   form.append("launch_date", document.getElementById("launchDate").value);
@@ -188,12 +209,9 @@ function gatherFormData() {
     const forks = document.getElementById("forks")?.value;
 
     if (repoURL?.trim()) {
-      console.log("📦 Adding GitHub metadata to form...");
       form.append("repo_url", repoURL.trim());
       form.append("stars", stars || 0);
       form.append("forks", forks || 0);
-    } else {
-      console.log("⚠️ No GitHub repo URL provided.");
     }
   } else {
     const nonItDetails = [
@@ -235,7 +253,8 @@ async function submitProject(e) {
   try {
     const res = await fetch("/user/upload-project", {
       method: "POST",
-      body: formData
+      body: formData,
+      credentials: "include"
     });
 
     const result = await res.json();
@@ -254,9 +273,8 @@ async function submitProject(e) {
 /* -----------------------------------------------
    DOM Ready
 -------------------------------------------------*/
-document.addEventListener("DOMContentLoaded", () => {
-  sessionUserId = window.currentUserId || null;
-
+document.addEventListener("DOMContentLoaded", async () => {
+  await fetchSessionUserId();
   addTeamMemberInput();
 
   document.querySelector(".submit")?.addEventListener("click", submitProject);

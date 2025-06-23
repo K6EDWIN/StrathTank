@@ -4,6 +4,8 @@ const express = require('express');
 const path = require('path');
 const passport = require('./middleware/passport');
 const session = require('./config/session');
+const collaborationRoutes = require('./routes/collaboration');
+
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -22,6 +24,8 @@ app.use('/', require('./routes/static'));
 app.use('/auth', require('./routes/auth'));
 app.use('/user', require('./routes/user'));
 app.use('/api', require('./routes/project'));
+app.use('/api/collaboration', collaborationRoutes);
+
 
 // ✅ Static assets
 app.use('/styles', express.static(path.join(__dirname, 'frontend/styles')));

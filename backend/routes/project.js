@@ -3,6 +3,7 @@ const router = express.Router();
 const path = require('path');
 const db = require('../config/db');
 
+
 // ✅ GET all projects
 router.get('/projects', (req, res) => {
   const sort = req.query.sort || 'newest';
@@ -322,7 +323,8 @@ router.get('/projects/by-user/:userId', (req, res) => {
 
   const sql = `
     SELECT 
-      p.id, p.title, p.description, p.created_at, p.project_profile_picture AS image,
+      p.id, p.title, p.description, p.created_at, p.category,
+      p.project_profile_picture AS image,
       COALESCE(l.like_count, 0) AS likes,
       COALESCE(c.comment_count, 0) AS comments
     FROM projects p
@@ -337,6 +339,7 @@ router.get('/projects/by-user/:userId', (req, res) => {
     res.json(results);
   });
 });
+
 
 // ✅ Get user’s collaborations
 router.get('/projects/collaborated/:userId', (req, res) => {
@@ -363,7 +366,7 @@ router.get('/profile/:id', (req, res) => {
   const userId = req.params.id;
 
   const sql = `
-    SELECT Bio AS bio, profile_image, skills
+    SELECT Bio AS bio, profile_image, name ,skills
     FROM users
     WHERE id = ?
   `;

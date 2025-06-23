@@ -22,4 +22,12 @@ router.get('/upload-project', (req, res) => {
   if (!req.isAuthenticated()) return res.redirect('/login');
   res.sendFile(path.join(__dirname, '../frontend/userProfile.html'));
 });
+router.get('/otherProfile', (req, res) => {
+  if (!req.isAuthenticated()) return res.redirect('/login');
+  res.sendFile(path.join(__dirname, '../frontend/otherprofile.html'));
+});
+router.get('/profile/:userId', (req, res) => {
+  res.sendFile(path.join(__dirname, '../frontend/otherprofile.html'));
+});
+
 module.exports = router;

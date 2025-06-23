@@ -223,16 +223,18 @@ document.body.addEventListener('click', async (e) => {
 });
 
 function renderProjectCard(project) {
+  const description = project.description ? project.description.slice(0, 100) + '...' : 'No description available.';
   const div = document.createElement('div');
   div.className = 'project';
   div.innerHTML = `
     <h3>${project.title}</h3>
-    <p>${project.description.slice(0, 100)}...</p>
-    <span>${project.category}</span><br/>
+    <p>${description}</p>
+    <span>${project.category || 'Uncategorized'}</span><br/>
     <button class="view-project-btn" data-id="${project.id}">View</button>
   `;
   return div;
 }
+
 
 function renderCollabCard(project) {
   const div = document.createElement('div');

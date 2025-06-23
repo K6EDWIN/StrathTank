@@ -185,9 +185,6 @@ router.post('/set-role', (req, res) => {
 // ----------------------------------------
 // POST /user/upload-project
 // ----------------------------------------
-// ----------------------------------------
-// POST /user/upload-project
-// ----------------------------------------
 router.post(
   '/upload-project',
   upload.fields([
@@ -197,9 +194,15 @@ router.post(
   ]),
   (req, res) => {
     console.log("🚀 Upload project request received");
+
+    if (!req.session?.user?.id) {
+      return res.status(401).json({ success: false, message: "Not authenticated" });
+    }
+
+    const user_id = req.session.user.id;
+
     try {
       const {
-        user_id,
         title,
         Short_description,
         project_lead,
@@ -218,7 +221,6 @@ router.post(
       } = req.body;
 
       console.log("Form data received:", {
-        user_id,
         title,
         Short_description,
         project_lead,
@@ -288,7 +290,6 @@ Impact Goals: ${details[3] || 'N/A'}`;
 
         // Function to insert team members and respond
         function insertTeamMembersAndRespond() {
-          // Normalize team inputs
           const teamIdsRaw = req.body.team_ids;
           const teamRolesRaw = req.body.team_roles;
 
@@ -325,13 +326,8 @@ Impact Goals: ${details[3] || 'N/A'}`;
           }
         }
 
-        // Insert GitHub metadata if it's an IT project and repo_url is provided and not empty
-        if (project_type === 'it' && repo_url && repo_url.trim() !== '') {
-          console.log("Attempting to insert GitHub metadata for project ID:", projectId);
-          console.log("Repo URL:", repo_url);
-          console.log("Stars:", stars);
-          console.log("Forks:", forks);
-
+        // Insert GitHub metadata if it's an IT project and repo_url is provided
+        if (project_type === 'it' && repo_url?.trim()) {
           const githubMetadata = {
             project_id: projectId,
             repo_url: repo_url.trim(),
@@ -343,14 +339,12 @@ Impact Goals: ${details[3] || 'N/A'}`;
           db.query('INSERT INTO github_metadata SET ?', githubMetadata, (err) => {
             if (err) {
               console.error("❌ GitHub metadata insert error:", err);
-              // Do NOT fail the whole request just because metadata failed
             } else {
               console.log("✅ GitHub metadata inserted successfully");
             }
             insertTeamMembersAndRespond();
           });
         } else {
-          console.log("Skipping GitHub metadata insert (not IT project or no repo URL)");
           insertTeamMembersAndRespond();
         }
       });
@@ -361,6 +355,7 @@ Impact Goals: ${details[3] || 'N/A'}`;
     }
   }
 );
+
 
 
 

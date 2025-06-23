@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const passport = require('../middleware/passport');
 
-// Google OAuth
+// ✅ Google OAuth
 router.get('/google',
   passport.authenticate('google', { scope: ['profile', 'email'] })
 );
@@ -17,35 +17,33 @@ router.get('/google/callback',
       role: req.user.role
     };
     req.session._isNewUser = req.user._isNewUser;
+
+    if (req.session.collabRedirect) {
+      const { projectId, userId, action } = req.session.collabRedirect;
+      delete req.session.collabRedirect;
+      return res.redirect(`/collaboration/response?projectId=${projectId}&userId=${userId}&action=${action}`);
+    }
+
     const redirectUrl = req.user._isNewUser ? '/signup?showRoleModal=true' : '/dashboard';
     res.redirect(redirectUrl);
   }
 );
 
-// GitHub OAuth
-// ----------------------------------------
-// GitHub OAuth Routes
-// ----------------------------------------
-
-// Redirect user to GitHub for authentication
+// ✅ GitHub OAuth
 router.get('/github', (req, res, next) => {
-  // Optional: Store redirect path in session
   if (req.query.redirect) {
     req.session.githubRedirect = req.query.redirect;
   }
   next();
 }, passport.authenticate('github', { scope: ['user:email', 'repo'] }));
 
-// GitHub callback after authentication
 router.get('/github/callback',
   passport.authenticate('github', { failureRedirect: '/login' }),
   (req, res) => {
-    // ✅ Store GitHub access token in session
     if (req.user.githubAccessToken) {
       req.session.githubAccessToken = req.user.githubAccessToken;
     }
 
-    // ✅ Store user data in session
     req.session.user = {
       id: req.user.id,
       name: req.user.name,
@@ -55,22 +53,21 @@ router.get('/github/callback',
 
     req.session._isNewUser = req.user._isNewUser;
 
-    // ✅ Redirect to dashboard or to original page if provided
+    if (req.session.collabRedirect) {
+      const { projectId, userId, action } = req.session.collabRedirect;
+      delete req.session.collabRedirect;
+      return res.redirect(`/collaboration/response?projectId=${projectId}&userId=${userId}&action=${action}`);
+    }
+
     const redirectUrl = req.session.githubRedirect
       || (req.user._isNewUser ? '/signup?showRoleModal=true' : '/dashboard');
 
     delete req.session.githubRedirect;
-
     res.redirect(redirectUrl);
   }
 );
 
-module.exports = router;
-
-
-module.exports = router;
-
-// Local (email/password) login
+// ✅ Local (email/password) login
 router.post('/login', (req, res, next) => {
   passport.authenticate('local', (err, user, info) => {
     if (err) return next(err);
@@ -78,7 +75,6 @@ router.post('/login', (req, res, next) => {
       return res.status(401).json({ success: false, message: info.message || 'Login failed' });
     }
 
-    // Log the user in
     req.login(user, (err) => {
       if (err) return next(err);
 
@@ -89,7 +85,15 @@ router.post('/login', (req, res, next) => {
         role: user.role
       };
 
-      res.json({ success: true, user: req.session.user });
+      if (req.session.collabRedirect) {
+        const { projectId, userId, action } = req.session.collabRedirect;
+        delete req.session.collabRedirect;
+        return res.redirect(`/collaboration/response?projectId=${projectId}&userId=${userId}&action=${action}`);
+      }
+
+      res.redirect('/dashboard');
     });
   })(req, res, next);
 });
+
+module.exports = router;

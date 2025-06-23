@@ -100,12 +100,17 @@ async function loadProjectData() {
 // ============================
 async function loadTeam() {
   try {
+    const currentUserRes = await fetch('/user');
+    const currentUserData = await currentUserRes.json();
+    const currentUserId = currentUserData?.user?.id;
+
     const res = await fetch(`/api/projects/${projectId}/team`);
     const team = await res.json();
     if (!Array.isArray(team)) throw new Error("Team is not an array");
 
     const teamContainer = document.getElementById("team-members");
     teamContainer.innerHTML = '';
+
     team.forEach(member => {
       const rawPhoto = (member.profile_photo || '').trim();
       const normalizedPhoto = rawPhoto
@@ -117,13 +122,18 @@ async function loadTeam() {
         ? `/uploads/${normalizedPhoto}`
         : '/assets/noprofile.jpg';
 
+      const isCurrentUser = String(member.user_id) === String(currentUserId);
+      const profileLink = isCurrentUser
+        ? '/profile'
+        : `/otherProfile?userId=${member.user_id}`;
+
       teamContainer.innerHTML += `
         <div class="card">
           <img src="${profileImage}" alt="${member.name}" onerror="this.src='/assets/noprofile.jpg'" />
           <div class="doc-info">
             <p>${member.name}</p>
             <p>${member.role}</p>
-            <button>View Profile</button>
+            <button onclick="window.location.href='${profileLink}'">View Profile</button>
           </div>
         </div>
       `;
@@ -237,36 +247,35 @@ document.addEventListener('DOMContentLoaded', () => {
   // GITHUB VIEW BUTTON
   // ========================
   document.querySelector(".viewGithub").addEventListener("click", async () => {
-  try {
-    const res = await fetch(`/api/projects/${projectId}/github`);
-    if (!res.ok) {
-      if (res.status === 404) {
-        alert("🚫 No repo for this project yet, sorry.");
-      } else {
-        throw new Error("GitHub repo fetch failed");
+    try {
+      const res = await fetch(`/api/projects/${projectId}/github`);
+      if (!res.ok) {
+        if (res.status === 404) {
+          alert("🚫 No repo for this project yet, sorry.");
+        } else {
+          throw new Error("GitHub repo fetch failed");
+        }
+        return;
       }
-      return;
+
+      const data = await res.json();
+      let url = (data.repo_url || "").trim();
+
+      if (!url) {
+        alert("🚫 No repo for this project yet, sorry.");
+        return;
+      }
+
+      if (url.endsWith(".git")) url = url.slice(0, -4);
+      if (!/^https?:\/\/.+/.test(url)) {
+        alert("❗ Invalid GitHub URL");
+        return;
+      }
+
+      window.open(url, "_blank");
+    } catch (err) {
+      alert("⚠️ Could not open GitHub repo. Please try again.");
+      console.error("GitHub view error:", err);
     }
-
-    const data = await res.json();
-    let url = (data.repo_url || "").trim();
-
-    if (!url) {
-      alert("🚫 No repo for this project yet, sorry.");
-      return;
-    }
-
-    if (url.endsWith(".git")) url = url.slice(0, -4);
-    if (!/^https?:\/\/.+/.test(url)) {
-      alert("❗ Invalid GitHub URL");
-      return;
-    }
-
-    window.open(url, "_blank");
-  } catch (err) {
-    alert("⚠️ Could not open GitHub repo. Please try again.");
-    console.error("GitHub view error:", err);
-  }
-});
-
+  });
 });
