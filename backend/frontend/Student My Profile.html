@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>User Profile</title>
-  <link rel="stylesheet" href="/styles/userProfile.css" />
+  <title>Profile Page</title>
+  <link rel="stylesheet" href="styles/userProfile.css" />
 </head>
 <body>
 
@@ -15,7 +15,7 @@
       <li><a href="/dashboard">Home</a></li>
       <li><a href="/upload-project">Upload</a></li>
       <li><a href="/explore-projects">Explore</a></li>
-      <li><a href="#">Mentorship</a></li>
+      <li><a href="/mentorship-request">Mentorship</a></li>
       <li><a href="/profile">My Profile</a></li>
     </ul>
   </aside>
@@ -31,7 +31,7 @@
         <a href="/dashboard">Home</a>
         <a href="/upload-project">Upload</a>
         <a href="/explore-projects">Explore</a>
-        <a href="#">Mentorship</a>
+        <a href="/mentorship-request">Mentorship</a>
         <a href="/profile">My Profile</a>
       </div>
       <div class="search-section">
@@ -47,18 +47,44 @@
           <div class="profile-top">
             <div class="profile-image-container">
               <img id="profilePic" class="profile-pic" alt="Profile Picture" />
+              <label id="editIcon" class="edit-pic" style="display: none;">
+               <input type="file" id="profilePicInput" accept="image/*" hidden />
+                <span class="edit-icon">🖉</span>
+              </label>
             </div>
             <div class="profile-info">
               <h1 id="username">Loading...</h1>
-              <p id="bio" class="bio">No bio yet.</p>
+              <p id="email" style="display: none;"></p>
+             <p id="bio" class="bio">No bio yet.</p>
+<button id="openBioModal" class="edit-bio-btn">Edit Bio</button>
+
+<!-- Bio Edit Modal -->
+<div id="bioModal" class="modal">
+  <div class="modal-content">
+    <h3>Edit Your Bio</h3>
+    <textarea id="bioTextarea" placeholder="Write something about yourself..."></textarea>
+    <div class="modal-actions">
+      <button id="saveBioBtn">Save</button>
+      <button id="closeBioModal" class="cancel-btn">Cancel</button>
+    </div>
+  </div>
+</div>
+
             </div>
           </div>
         </section>
 
-        <section class="skills-section">
-          <h2>Skills & Expertise</h2>
-          <div id="skillsList" class="skills"></div>
-        </section>
+  <section class="skills-section">
+  <h2>Skills & Expertise</h2>
+  <div id="skillsList" class="skills"></div>
+  <div id="skillsEditor">
+    <input type="text" id="newSkillInput" class="add-skill-input" placeholder="Add a new skill..." />
+    <button id="addSkillBtn" class="add-skill-btn">Add</button>
+  </div>
+</section>
+
+
+
 
         <section class="stats-section">
           <h2>Statistics Overview</h2>
@@ -70,18 +96,18 @@
         </section>
 
         <section class="projects-section">
-          <h2 id="projectsHeader">User's Projects</h2>
+          <h2 id="projectsHeader">My Projects</h2>
           <div id="ownedProjects" class="projects-grid"></div>
         </section>
 
         <section class="collaborations-section">
-          <h2>Collaborated Projects</h2>
+          <h2 id="collabsHeader">Collaborated Projects</h2>
           <div id="collaborations" class="collaborations-grid"></div>
         </section>
       </main>
     </div>
   </main>
 
-  <script src="/scripts/otherProfile.js"></script>
+  <script src="scripts/profile.js"></script>
 </body>
 </html>

@@ -64,6 +64,25 @@ document.addEventListener("DOMContentLoaded", async () => {
     const formData = new FormData(form);
     const payload = Object.fromEntries(formData.entries());
 
+    
+payload.skills_expertise = payload.skills_expertise
+  ?.split(',')
+  .map(s => s.trim())
+  .filter(Boolean)
+  .join(',');
+
+payload.availability = payload.availability
+  ?.split(',')
+  .map(s => s.trim())
+  .filter(Boolean)
+  .join(',');
+
+payload.primary_area = payload.primary_area
+  ?.split(',')
+  .map(s => s.trim())
+  .filter(Boolean)
+  .join(',');
+
     try {
       const res = await fetch("/api/mentorship/mentorship-request", {
         method: "POST",

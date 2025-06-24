@@ -36,7 +36,7 @@ router.post('/mentorship-request', (req, res) => {
     subject,
     challenge,
     primary_area,
-    preferred_skills,
+    skills_expertise,
     availability,
     project_id
   } = req.body;
@@ -58,7 +58,7 @@ router.post('/mentorship-request', (req, res) => {
     subject,
     challenge,
     primary_area,
-    preferred_skills || null,
+    skills_expertise || null,
     availability || null
   ];
 
