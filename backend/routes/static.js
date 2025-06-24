@@ -28,6 +28,11 @@ router.get('/otherProfile', (req, res) => {
 });
 router.get('/profile/:userId', (req, res) => {
   res.sendFile(path.join(__dirname, '../frontend/otherprofile.html'));
+
+});
+router.get('/mentorship-request', (req, res) => {
+  if (!req.isAuthenticated()) return res.redirect('/login');
+  res.sendFile(path.join(__dirname, '../frontend/requestMentorship.html'));
 });
 
 module.exports = router;

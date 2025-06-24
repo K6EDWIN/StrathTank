@@ -5,6 +5,7 @@ const path = require('path');
 const passport = require('./middleware/passport');
 const session = require('./config/session');
 const collaborationRoutes = require('./routes/collaboration');
+const mentorshipRoutes = require('./routes/mentorship');
 
 
 const app = express();
@@ -25,6 +26,8 @@ app.use('/auth', require('./routes/auth'));
 app.use('/user', require('./routes/user'));
 app.use('/api', require('./routes/project'));
 app.use('/api/collaboration', collaborationRoutes);
+app.use('/api/mentorship', mentorshipRoutes); 
+
 
 
 // ✅ Static assets

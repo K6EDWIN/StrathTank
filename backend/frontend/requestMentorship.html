@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Mentorship Request</title>
+  <link rel="stylesheet" href="styles/requestMentorship.css" />
+</head>
+<body>
+
+  <!-- Fixed Top Navigation Bar -->
+  <nav class="navbar">
+    <a href="#" class="logo">
+      <img src="/assets/logo.png" alt="StrathTank Logo" class="logo-img" />
+    </a>
+    <div class="nav-links">
+      <a href="#">Home</a>
+      <a href="/upload-project">Upload</a>
+      <a href="/explore-projects">Explore</a>
+      <a href="#">Mentorship</a>
+      <a href="/profile">My Profile</a>
+    </div>
+    <div class="search-section">
+      <input id="searchBar" class="search-bar" type="text" placeholder="Search by title or author..." />
+      <div id="search-results" class="results-container"></div>
+    </div>
+  </nav>
+
+  <!-- Page Layout -->
+  <div class="layout">
+    <!-- Main Content -->
+    <main class="main-content" id="mainContent">
+      <div class="container">
+        <!-- Header -->
+        <header class="header">
+          <h1>Request Mentorship: Elevate Your Project</h1>
+          <p>Connect with experienced professionals who can guide you through challenges and help you realize your full potential.</p>
+        </header>
+
+        <!-- Form + Info Section -->
+        <section class="form-section-wrapper">
+          <div class="form-section">
+            <h2>Submit Your Mentorship Request</h2>
+            <p>Clearly articulate your needs to connect with the best mentor.</p>
+
+            <form class="mentorship-form" method="POST" action="/api/mentorship-request">
+              <label for="subject">Subject of Mentorship</label>
+              <input type="text" id="subject" name="subject" placeholder="e.g., Questions on my AI project or Career path in Tech" required />
+
+              <label for="challenge">Describe Your Challenge / Goal</label>
+              <textarea id="challenge" name="challenge" rows="5" placeholder="Describe your challenge or goal..." required></textarea>
+
+              <label for="primary-area">Primary Area of Mentorship</label>
+              <input type="text" id="primary-area" name="primary_area" placeholder="e.g., Data Science, Web Development" required />
+
+              <label for="skills-expertise">Preferred Mentor Skills/Expertise</label>
+              <input type="text" id="skills-expertise" name="skills_expertise" placeholder="e.g., Python, Marketing" />
+
+              <label for="project-id">Select One of Your Projects</label>
+              <select id="project-id" name="project_id" required>
+                <option value="">Select a project...</option>
+              </select>
+
+              <label for="availability">Your Availability</label>
+              <input type="text" id="availability" name="availability" placeholder="e.g., Weekdays after 5 PM, Weekends" />
+
+              <button type="submit">Submit Request</button>
+            </form>
+          </div>
+
+          <aside class="info-notice">
+            <h3>Why Mentorship Matters</h3>
+            <p>
+              Mentorship bridges the gap between potential and achievement. Whether you're navigating a new field or refining your skills, a mentor can provide the insights and encouragement you need to succeed.
+            </p>
+            <ul>
+              <li><strong>Accelerated Growth:</strong> Learn from experts.</li>
+              <li><strong>Guidance:</strong> Navigate challenges better.</li>
+              <li><strong>Networking:</strong> Build lasting connections.</li>
+              <li><strong>Empowerment:</strong> Boost your confidence.</li>
+            </ul>
+          </aside>
+        </section>
+      </div>
+    </main>
+  </div>
+<script src="/scripts/requestMentorship.js"></script>
+</body>
+</html>
