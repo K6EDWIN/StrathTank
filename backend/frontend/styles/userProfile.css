@@ -21,7 +21,7 @@ body {
 /* === Sidebar (Dark Theme) === */
 .sidebar {
   width: 250px;
-  background-color: #34495e;
+  background-color: #2c3e50;
   color: white;
   padding: 1rem;
   position: fixed;
@@ -66,11 +66,8 @@ body {
   margin-left: 0;
 }
 
-.sidebar.visible ~ .main-content {
-  margin-left: 250px;
-}
 
-/* === Navbar (Dark Theme) === */
+
 .navbar {
   display: flex;
   align-items: center;
@@ -169,14 +166,14 @@ body {
   color: white;
   border: none;
   padding: 5px 10px;
-  border-radius: 4px;
+  border-radius: 20px;
   font-size: 0.85rem;
   cursor: pointer;
   margin-left: 10px;
 }
 
 .edit-bio-btn:hover {
-  background-color: #2471a3;
+  background-color: #e9486d;
 }
 
 /* === Modal Popup === */
@@ -261,13 +258,14 @@ body {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
+
   margin: 1rem 0;
 }
 
 .skills-section .skills span {
   background-color: #ecf0f1;
   padding: 0.4rem 0.8rem;
-  border-radius: 20px;
+  border-radius: 50px;
   font-size: 0.9rem;
   display: inline-flex;
   align-items: center;
@@ -295,20 +293,20 @@ body {
   padding: 0.5rem;
   width: 250px;
   border: 1px solid #ccc;
-  border-radius: 4px;
+  border-radius: 50px;
 }
 
 #addSkillBtn {
-  background-color: #2ecc71;
+  background-color:black;
   color: white;
   border: none;
   padding: 0.5rem 1rem;
-  border-radius: 5px;
+  border-radius: 50px;
   cursor: pointer;
 }
 
 #addSkillBtn:hover {
-  background-color: #27ae60;
+  background-color: #e9486d;
 }
 
 /* === Statistics Section === */
@@ -350,6 +348,7 @@ body {
 .collaboration {
   background-color: #fff;
   border-left: 4px solid #9b59b6;
+  border-right: 4px solid #9b59b6;
   border-radius: 8px;
   padding: 1rem;
   text-align: center;
@@ -391,6 +390,7 @@ body {
 
 .collaboration {
   border-left-color: #3498db;
+  border-right-color: #3498db;
 }
 
 .collaboration button {

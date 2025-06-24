@@ -194,7 +194,7 @@ button[type="button"]:hover,
 
 .actions {
   display: flex;
-  justify-content: flex-end;
+  justify-content: center;
   gap: 1rem;
   margin-top: 2rem;
 }
