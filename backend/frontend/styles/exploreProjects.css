@@ -112,6 +112,7 @@ body {
   flex: 1;
   padding: 20px 30px;
   overflow-y: auto;
+ background: linear-gradient(to right, #e7eaeb, #ffffff);
 }
 
 .header {
@@ -178,7 +179,7 @@ body {
 
 .interactions {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
   font-size: 0.9rem;
   color: #7f8c8d;
@@ -192,6 +193,7 @@ body {
   align-items: center;
   gap: 6px;
   cursor: pointer;
+  margin-right: 20px;
 }
 
 .interactions span:hover {

@@ -10,6 +10,7 @@ const mentorshipRoutes = require('./routes/mentorship');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+const adminRoutes = require('./routes/admin');
 
 
 
@@ -27,6 +28,8 @@ app.use('/user', require('./routes/user'));
 app.use('/api', require('./routes/project'));
 app.use('/api/collaboration', collaborationRoutes);
 app.use('/api/mentorship', mentorshipRoutes); 
+app.use('/admin', adminRoutes);
+
 
 
 

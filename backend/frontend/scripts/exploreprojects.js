@@ -13,6 +13,17 @@ function fetchCategories() {
     .then(res => res.json())
     .then(data => {
       categoryList.innerHTML = '';
+      const allLi = document.createElement('li');
+      allLi.textContent = 'All';
+      allLi.classList.add('selected'); 
+      allLi.addEventListener('click', () => {
+        document.querySelectorAll('#category-list li').forEach(el => el.classList.remove('selected'));
+        allLi.classList.add('selected');
+        currentCategory = ''; 
+        fetchProjects(currentSearchTerm);
+      });
+      categoryList.appendChild(allLi);
+
       data.forEach(cat => {
         const li = document.createElement('li');
         li.textContent = cat.category;
@@ -25,9 +36,10 @@ function fetchCategories() {
         categoryList.appendChild(li);
       });
 
-      fetchProjects(); // Load all projects initially
+      fetchProjects(); 
     });
 }
+
 
 // Fetch and display projects based on filters
 function fetchProjects(searchTerm = '') {

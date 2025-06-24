@@ -2,6 +2,20 @@ const express = require('express');
 const router = express.Router();
 const passport = require('../middleware/passport');
 
+// ✅ Helper: Redirect based on role
+function redirectByRole(req, res) {
+  const user = req.user || req.session.user;
+
+  if (req.session.collabRedirect) {
+    const { projectId, userId, action } = req.session.collabRedirect;
+    delete req.session.collabRedirect;
+    return res.redirect(`/collaboration/response?projectId=${projectId}&userId=${userId}&action=${action}`);
+  }
+
+  const redirectUrl = user.role === 'admin' ? '/admin' : '/dashboard';
+  res.redirect(redirectUrl);
+}
+
 // ✅ Google OAuth
 router.get('/google',
   passport.authenticate('google', { scope: ['profile', 'email'] })
@@ -18,14 +32,7 @@ router.get('/google/callback',
     };
     req.session._isNewUser = req.user._isNewUser;
 
-    if (req.session.collabRedirect) {
-      const { projectId, userId, action } = req.session.collabRedirect;
-      delete req.session.collabRedirect;
-      return res.redirect(`/collaboration/response?projectId=${projectId}&userId=${userId}&action=${action}`);
-    }
-
-    const redirectUrl = req.user._isNewUser ? '/signup?showRoleModal=true' : '/dashboard';
-    res.redirect(redirectUrl);
+    redirectByRole(req, res);
   }
 );
 
@@ -50,24 +57,13 @@ router.get('/github/callback',
       email: req.user.email,
       role: req.user.role
     };
-
     req.session._isNewUser = req.user._isNewUser;
 
-    if (req.session.collabRedirect) {
-      const { projectId, userId, action } = req.session.collabRedirect;
-      delete req.session.collabRedirect;
-      return res.redirect(`/collaboration/response?projectId=${projectId}&userId=${userId}&action=${action}`);
-    }
-
-    const redirectUrl = req.session.githubRedirect
-      || (req.user._isNewUser ? '/signup?showRoleModal=true' : '/dashboard');
-
-    delete req.session.githubRedirect;
-    res.redirect(redirectUrl);
+    redirectByRole(req, res);
   }
 );
 
-// ✅ Local (email/password) login
+// ✅ Local login (email/password)
 router.post('/login', (req, res, next) => {
   passport.authenticate('local', (err, user, info) => {
     if (err) return next(err);
@@ -85,13 +81,16 @@ router.post('/login', (req, res, next) => {
         role: user.role
       };
 
-      if (req.session.collabRedirect) {
-        const { projectId, userId, action } = req.session.collabRedirect;
-        delete req.session.collabRedirect;
-        return res.redirect(`/collaboration/response?projectId=${projectId}&userId=${userId}&action=${action}`);
+      // If using fetch, return JSON:
+      if (req.headers.accept?.includes('application/json')) {
+        return res.json({
+          success: true,
+          redirectUrl: user.role === 'admin' ? '/admin' : '/dashboard'
+        });
       }
 
-      res.redirect('/dashboard');
+      // Otherwise standard redirect
+      redirectByRole(req, res);
     });
   })(req, res, next);
 });

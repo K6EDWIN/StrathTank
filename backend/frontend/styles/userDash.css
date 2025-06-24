@@ -233,7 +233,7 @@
 /* Interactions */
 .interactions {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
   font-size: 0.9rem;
   color: #7f8c8d;
@@ -246,6 +246,7 @@
   align-items: center;
   gap: 4px;
   cursor: pointer;
+  margin-right: 20px;
 }
 .interactions span:hover {
   color: #2c3e50;

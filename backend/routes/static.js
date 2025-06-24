@@ -34,5 +34,8 @@ router.get('/mentorship-request', (req, res) => {
   if (!req.isAuthenticated()) return res.redirect('/login');
   res.sendFile(path.join(__dirname, '../frontend/Request Mentorship.html'));
 });
-
+router.get('/admin', (req, res) => {
+  if (!req.isAuthenticated() || req.user.role !== 'admin') return res.redirect('/login');
+  res.sendFile(path.join(__dirname, '../frontend/Admin.html'));
+});
 module.exports = router;
