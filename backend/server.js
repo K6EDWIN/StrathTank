@@ -37,7 +37,15 @@ app.use('/admin', adminRoutes);
 app.use('/styles', express.static(path.join(__dirname, 'frontend/styles')));
 app.use('/assets', express.static(path.join(__dirname, 'frontend/assets')));
 app.use('/scripts', express.static(path.join(__dirname, 'frontend/scripts')));
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads'), {
+  setHeaders: (res, filePath) => {
+    if (filePath.endsWith('.pdf')) {
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', 'inline');
+    }
+  }
+}));
+
 
 // ✅ Start server
 app.listen(PORT, '0.0.0.0', () => {

@@ -53,11 +53,12 @@
         <h2>Project Information</h2>
         <ul id="project-info"></ul>
         <div class="buttons">
-          <button class="viewGithub">👨🏽‍💻View Github repo</button>
+          <button id="Github" class="viewGithub">👨🏽View Github repo</button>
           <button class="collaborate">🤝 Collaborate</button>
+          <button class="flagproject">🚩flag project</button>
         </div>
         <div class="heart" id="like-section">
-          ❤️ <span id="like-count">0</span> <span id="like-status">🤍 Like</span>
+           <span id="like-count">0</span> <span id="like-status">🤍</span>
         </div>
       </div>
     </section>
@@ -96,6 +97,18 @@
   <div class="overlay-content">
     <button id="close-overlay" onclick="closeDocumentOverlay()">×</button>
     <iframe id="doc-frame" src="" frameborder="0"></iframe>
+  </div>
+</div>
+
+<!-- Popup Modal -->
+<div id="flag-popup" class="popup-overlay hidden">
+  <div class="popup-box">
+    <h3>Flag This Project</h3>
+    <textarea id="flag-reason" placeholder="Why are you flagging this project?" rows="4"></textarea>
+    <div class="popup-actions">
+      <button id="cancel-flag">Cancel</button>
+      <button id="submit-flag">Flag</button>
+    </div>
   </div>
 </div>
 

@@ -5,7 +5,7 @@ const GitHubStrategy = require('passport-github2').Strategy;
 const bcrypt = require('bcrypt');
 const mysql = require('mysql2');
 
-// DB connection
+// ✅ Database connection
 const db = mysql.createConnection({
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
@@ -13,29 +13,43 @@ const db = mysql.createConnection({
   database: process.env.DB_NAME
 });
 
-// ✅ Local Strategy
+// ✅ Local Strategy (email + password)
 passport.use(new LocalStrategy(
   { usernameField: 'email' },
   async (email, password, done) => {
     try {
       const query = 'SELECT * FROM Users WHERE email = ?';
       db.query(query, [email], async (err, results) => {
-        if (err) return done(err);
-        if (!results.length) return done(null, false, { message: 'User not found' });
+        if (err) {
+          console.error('[LOCAL LOGIN] DB error:', err);
+          return done(err);
+        }
+
+        if (!results.length) {
+          console.log('[LOCAL LOGIN] No user found with email:', email);
+          return done(null, false, { message: 'User not found' });
+        }
 
         const user = results[0];
+        console.log('[LOCAL LOGIN] Found user:', user);
 
         if (!user.verified) {
+          console.log('[LOCAL LOGIN] User not verified');
           return done(null, false, { message: 'Please verify your email first' });
         }
 
         const isMatch = await bcrypt.compare(password, user.password);
-        if (!isMatch) return done(null, false, { message: 'Incorrect password' });
+        console.log('[LOCAL LOGIN] Password match:', isMatch);
+
+        if (!isMatch) {
+          return done(null, false, { message: 'Incorrect password' });
+        }
 
         user._isNewUser = false;
         return done(null, user);
       });
     } catch (err) {
+      console.error('[LOCAL LOGIN] Error:', err);
       return done(err);
     }
   }
@@ -51,7 +65,10 @@ passport.use(new GoogleStrategy({
   const name = profile.displayName || 'Google User';
   const image = profile.photos?.[0]?.value || null;
 
-  if (!email) return done(null, false, { message: 'No email provided by Google' });
+  if (!email) {
+    console.log('[GOOGLE LOGIN] No email from Google');
+    return done(null, false, { message: 'No email provided by Google' });
+  }
 
   const query = 'SELECT * FROM Users WHERE email = ?';
   db.query(query, [email], (err, results) => {
@@ -88,6 +105,7 @@ passport.use(new GitHubStrategy({
     const image = profile.photos?.[0]?.value || null;
 
     if (!email) {
+      console.log('[GITHUB LOGIN] No email returned');
       return done(null, false, { message: 'Email is required from GitHub. Please make your email public or use another method.' });
     }
 
@@ -99,7 +117,7 @@ passport.use(new GitHubStrategy({
 
       const proceed = (finalUser) => {
         finalUser._isNewUser = !user;
-        finalUser.githubAccessToken = accessToken; // ✅ Save access token
+        finalUser.githubAccessToken = accessToken;
         return done(null, finalUser);
       };
 
@@ -118,13 +136,12 @@ passport.use(new GitHubStrategy({
       }
     });
   } catch (error) {
+    console.error('[GITHUB LOGIN] Error:', error);
     return done(error);
   }
 }));
 
-
-
-// ✅ Session management
+// ✅ Session Management
 passport.serializeUser((user, done) => {
   done(null, {
     id: user.id,

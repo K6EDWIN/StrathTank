@@ -503,5 +503,35 @@ router.post('/profile-picture', upload.single('profile_picture'), (req, res) => 
     }
   );
 });
+// ----------------------------------------
+// POST /user/flag-project - Flag a project for admin review
+// ----------------------------------------
+router.post('/flag-project', (req, res) => {
+  const user = req.session?.user;
+  const { project_id, name, reason } = req.body;
+
+  if (!user) {
+    return res.status(401).json({ success: false, message: 'Not authenticated' });
+  }
+
+  if (!project_id || !name || !reason) {
+    return res.status(400).json({ success: false, message: 'Missing required fields' });
+  }
+
+  const sql = `
+    INSERT INTO FlaggedProjects (project_id, name, flagged_by, flag_reason)
+    VALUES (?, ?, ?, ?)
+  `;
+
+  db.query(sql, [project_id, name, user.id, reason], (err) => {
+    if (err) {
+      console.error('❌ Error flagging project:', err);
+      return res.status(500).json({ success: false, message: 'Database error' });
+    }
+
+    res.json({ success: true, message: 'Project flagged for review' });
+  });
+});
+
 
 module.exports = router;

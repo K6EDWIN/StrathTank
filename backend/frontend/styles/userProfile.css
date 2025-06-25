@@ -419,3 +419,25 @@ body {
     grid-template-columns: 1fr;
   }
 }
+/* Message for no projects or collaborations */
+.no-projects-msg,
+.no-collabs-msg {
+  padding: 1rem;
+  margin: 1rem 0;
+  border-radius: 10px;
+  background-color: #f9f9f9;
+  border: 1px dashed #ccc;
+  color: #555;
+  font-size: 1rem;
+  text-align: center;
+  font-style: italic;
+  transition: all 0.3s ease;
+}
+
+/* Optional: subtle hover effect */
+.no-projects-msg:hover,
+.no-collabs-msg:hover {
+  background-color: #f1f1f1;
+  color: #333;
+  border-color: #aaa;
+}

@@ -192,3 +192,8 @@ async function rejectProject(projectId) {
     console.error("Error rejecting project:", err);
   }
 }
+document.getElementById("users-link").addEventListener("click", (e) => {
+e.preventDefault();
+document.querySelector(".admin-main").scrollIntoView({ behavior: "smooth" });
+loadUsers(); // This will reload the users table
+});

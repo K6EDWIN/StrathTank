@@ -217,7 +217,7 @@ router.get('/projects/:id/comments', (req, res) => {
   const { id } = req.params;
 
   const sql = `
-    SELECT c.id, c.comment AS content, c.created_at, u.name AS user_name
+  SELECT c.id, c.user_id, c.comment AS content, c.created_at, c.parent_id, u.name AS user_name, u.profile_image AS user_profile_photo
     FROM comments c
     JOIN users u ON c.user_id = u.id
     WHERE c.project_id = ?
@@ -227,26 +227,6 @@ router.get('/projects/:id/comments', (req, res) => {
   db.query(sql, [id], (err, results) => {
     if (err) return res.status(500).json({ error: 'Database error' });
     res.json(results);
-  });
-});
-
-// ✅ Post a comment
-router.post('/projects/:id/comment', (req, res) => {
-  const { id } = req.params;
-  const { content } = req.body;
-  const user_id = req.session?.user?.id || req.user?.id;
-
-  if (!user_id) return res.status(401).json({ error: 'Unauthorized. Please log in.' });
-  if (!content) return res.status(400).json({ error: 'Content is required' });
-
-  const sql = `
-    INSERT INTO comments (project_id, user_id, comment, created_at)
-    VALUES (?, ?, ?, NOW())
-  `;
-
-  db.query(sql, [id, user_id, content], (err) => {
-    if (err) return res.status(500).json({ error: 'Database error' });
-    res.json({ message: 'Comment added successfully' });
   });
 });
 
@@ -407,6 +387,74 @@ router.get('/profile/:id/stats', (req, res) => {
       return res.status(500).json({ error: 'Database error' });
     }
     res.json(results[0]);
+  });
+});
+
+// ✅ Get comments with parent_id
+// ✅ Post a comment with optional parent_id
+router.post('/projects/:id/comment', (req, res) => {
+  const { id } = req.params;
+  const { content, parent_id } = req.body;
+  const user_id = req.session?.user?.id || req.user?.id;
+
+  if (!user_id) return res.status(401).json({ error: 'Unauthorized. Please log in.' });
+  if (!content) return res.status(400).json({ error: 'Content is required' });
+console.log("🧾 Comment payload:", {
+  project_id: id,
+  user_id,
+  content,
+  parent_id
+});
+
+  const sql = `
+    INSERT INTO comments (project_id, user_id, comment, parent_id, created_at)
+    VALUES (?, ?, ?, ?, NOW())
+  `;
+
+  db.query(sql, [id, user_id, content, parent_id ?? null], (err) => {
+    if (err) return res.status(500).json({ error: 'Database error' });
+    res.json({ message: 'Comment added successfully' });
+  });
+});
+
+
+// ✅ Post a comment with optional parent_id
+router.post('/projects/:id/comment', (req, res) => {
+  const { id } = req.params;
+  const { content, parent_id } = req.body;
+  const user_id = req.session?.user?.id || req.user?.id;
+
+  if (!user_id) return res.status(401).json({ error: 'Unauthorized. Please log in.' });
+  if (!content) return res.status(400).json({ error: 'Content is required' });
+
+  const sql = `
+    INSERT INTO comments (project_id, user_id, comment, parent_id, created_at)
+    VALUES (?, ?, ?, ?, NOW())
+  `;
+
+  db.query(sql, [id, user_id, content, parent_id ?? null], (err) => {
+    if (err) return res.status(500).json({ error: 'Database error' });
+    res.json({ message: 'Comment added successfully' });
+  });
+});
+
+// ✅ DELETE comment (only own)
+router.delete('/projects/comments/:commentId', (req, res) => {
+  const userId = req.session?.user?.id || req.user?.id;
+  const commentId = req.params.commentId;
+
+  if (!userId) return res.status(401).json({ error: 'Unauthorized' });
+
+  const sql = `DELETE FROM comments WHERE id = ? AND user_id = ?`;
+  db.query(sql, [commentId, userId], (err, result) => {
+    if (err) return res.status(500).json({ error: 'Database error' });
+
+
+    if (result.affectedRows === 0) {
+      return res.status(403).json({ error: 'You can only delete your own comments' });
+    }
+
+    res.json({ success: true, message: 'Comment deleted successfully' });
   });
 });
 

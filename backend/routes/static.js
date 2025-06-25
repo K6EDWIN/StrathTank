@@ -38,4 +38,16 @@ router.get('/admin', (req, res) => {
   if (!req.isAuthenticated() || req.user.role !== 'admin') return res.redirect('/login');
   res.sendFile(path.join(__dirname, '../frontend/Admin.html'));
 });
+router.get('/adminExplore', (req, res) => {
+  if (!req.isAuthenticated() || req.user.role !== 'admin') return res.redirect('/login');
+  res.sendFile(path.join(__dirname, '../frontend/Admin Explore.html'));
+});
+  router.get('/AllUsers', (req, res) => {  if (!req.isAuthenticated() || req.user.role !== 'admin') return res.redirect('/login');
+  res.sendFile(path.join(__dirname, '../frontend/Admin All Users.html'));
+});
+router.get('/collaborations', (req, res) => {
+  if (!req.isAuthenticated()) return res.redirect('/login');
+  res.sendFile(path.join(__dirname, '../frontend/Admin collaborations.html'));
+});
+
 module.exports = router;

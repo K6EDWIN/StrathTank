@@ -8,20 +8,19 @@ loginForm.addEventListener('submit', async function(e) {
   const password = document.getElementById('password').value;
 
   const response = await fetch('/auth/login', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({ email, password })
-});
-
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+    body: JSON.stringify({ email, password })
+  });
 
   const data = await response.json();
+  console.log('[LOGIN RESPONSE]', data); // 🔍 Confirm what backend sends
 
   if (data.success) {
     messageDiv.textContent = '✅ Successful! Welcome to your Dashboard.';
     messageDiv.style.color = 'green';
-    // Redirect after 2 seconds, 
     setTimeout(() => {
-      window.location.href = '/dashboard';
+      window.location.href = data.redirectUrl || '/dashboard'; // ✅ Use backend-provided URL
     }, 2000);
   } else {
     messageDiv.textContent = data.message;
@@ -29,12 +28,10 @@ loginForm.addEventListener('submit', async function(e) {
   }
 });
 
-// Clear messages when user starts typing
 loginForm.addEventListener('input', () => {
   messageDiv.textContent = '';
 });
 
-// Social Login Redirects
 const googleBtn = document.getElementById('Google');
 const githubBtn = document.getElementById('Github');
 

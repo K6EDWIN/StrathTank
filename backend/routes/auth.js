@@ -72,7 +72,11 @@ router.post('/login', (req, res, next) => {
     }
 
     req.login(user, (err) => {
+      
       if (err) return next(err);
+      
+  console.log('[LOCAL LOGIN] req.login successful, setting session user');
+  
 
       req.session.user = {
         id: user.id,

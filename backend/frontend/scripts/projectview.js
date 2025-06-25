@@ -77,70 +77,75 @@ async function loadProjectData() {
     `;
   });
 
-  const docRow = document.getElementById("documents");
-  docRow.innerHTML = '';
-  project.documents.forEach((doc, i) => {
-    const ext = doc.split('.').pop().toLowerCase();
-    const fileUrl = doc.replace(/^\/?uploads\//, '/uploads/');
+ const docRow = document.getElementById("documents");
+docRow.innerHTML = '';
+project.documents.forEach((doc, i) => {
+  const fileUrl = doc.replace(/^\/?uploads[\\/]/, '/uploads/');
+  const fullName = doc.replace(/\\/g, '/').split('/').pop();
+  const readableName = fullName.replace(/^\d+(?:-\d+)*-/, '');
 
-    docRow.innerHTML += `
-      <div class="card">
-        <div class="icon">📄</div>
-        <div class="doc-info">
-          <p>${doc}</p>
-          <button class="view-doc-btn" data-src="${fileUrl}">View</button>
-        </div>
+  docRow.innerHTML += `
+    <div class="card">
+      <div class="icon">📄</div>
+      <div class="doc-info">
+        <p>${readableName}</p>
+        <button class="view-doc-btn" data-src="${fileUrl}">View</button>
       </div>
-    `;
-  });
+    </div>
+  `;
+});
+
 }
 
 // ============================
 // LOAD TEAM
 // ============================
-async function loadTeam() {
-  try {
-    const currentUserRes = await fetch('/user');
-    const currentUserData = await currentUserRes.json();
-    const currentUserId = currentUserData?.user?.id;
 
-    const res = await fetch(`/api/projects/${projectId}/team`);
-    const team = await res.json();
-    if (!Array.isArray(team)) throw new Error("Team is not an array");
-
-    const teamContainer = document.getElementById("team-members");
-    teamContainer.innerHTML = '';
-
-    team.forEach(member => {
-      const rawPhoto = (member.profile_photo || '').trim();
-      const normalizedPhoto = rawPhoto
-        .replace(/\\/g, '/')
-        .replace(/\s+/g, '')
-        .replace(/^\/?uploads\//, '');
-
-      const profileImage = normalizedPhoto
-        ? `/uploads/${normalizedPhoto}`
-        : '/assets/noprofile.jpg';
-
-      const isCurrentUser = String(member.user_id) === String(currentUserId);
-      const profileLink = isCurrentUser
-        ? '/profile'
-        : `/otherProfile?userId=${member.user_id}`;
-
-      teamContainer.innerHTML += `
-        <div class="card">
-          <img src="${profileImage}" alt="${member.name}" onerror="this.src='/assets/noprofile.jpg'" />
-          <div class="doc-info">
-            <p>${member.name}</p>
-            <p>${member.role}</p>
-            <button onclick="window.location.href='${profileLink}'">View Profile</button>
-          </div>
-        </div>
-      `;
-    });
-  } catch (err) {
-    console.error("❌ loadTeam failed:", err.message);
+function normalizeProfileImage(path) {
+  if (!path || typeof path !== "string" || path.trim() === "") {
+    return "/assets/noprofile.jpg";
   }
+  let normalized = path.replace(/\\/g, "/").replace(/\s+/g, " ").trim();
+  if (normalized.startsWith("/")) normalized = normalized.slice(1);
+  return `/${normalized}`;
+}
+
+async function loadTeam() {
+ try {
+  const currentUserRes = await fetch('/user');
+  const currentUserData = await currentUserRes.json();
+  const currentUserId = currentUserData?.user?.id;
+
+  const res = await fetch(`/api/projects/${projectId}/team`);
+  const team = await res.json();
+  if (!Array.isArray(team)) throw new Error("Team is not an array");
+
+  const teamContainer = document.getElementById("team-members");
+  teamContainer.innerHTML = '';
+
+  team.forEach(member => {
+   const profileImage = normalizeProfileImage(member.profile_photo);
+   const isCurrentUser = String(member.user_id) === String(currentUserId);
+   const profileLink = isCurrentUser
+    ? '/profile'
+    : `/otherProfile?userId=${member.user_id}`;
+
+   teamContainer.innerHTML += `
+    <div class="card">
+     <img src="${profileImage}" alt="${member.name || 'Unnamed'}"
+       onerror="this.src='/assets/noprofile.jpg'" />
+     <div class="doc-info">
+      <p>${member.name || 'Unnamed'}</p>
+      <p>${member.role || 'No role specified'}</p>
+      <button onclick="window.location.href='${profileLink}'">View Profile</button>
+     </div>
+    </div>
+   `;
+  });
+
+ } catch (err) {
+  console.error("❌ loadTeam failed:", err.message);
+ }
 }
 
 // ============================
@@ -148,23 +153,74 @@ async function loadTeam() {
 // ============================
 async function loadComments() {
   try {
-    const res = await fetch(`/api/projects/${projectId}/comments`);
-    const data = await res.json();
+    const res = await fetch('/user');
+    const userData = await res.json();
+    currentUserId = userData?.user?.id;
 
+    const commentRes = await fetch(`/api/projects/${projectId}/comments`);
+    const data = await commentRes.json();
+
+    const commentsDiv = document.getElementById("comments-list");
     if (!Array.isArray(data)) {
-      console.error("💥 Error loading comments:", data);
-      document.getElementById("comments-list").innerHTML = "<p>Error loading comments</p>";
+      commentsDiv.innerHTML = "<p>Error loading comments</p>";
       return;
     }
 
-    const commentsDiv = document.getElementById("comments-list");
-    commentsDiv.innerHTML = data.map(c => `
-      <div class="comment">
-        <strong>${c.user_name}</strong><br/>
-        <p>${c.content}</p>
-        <small>${new Date(c.created_at).toLocaleString()}</small>
-      </div>
-    `).join('');
+    const grouped = {};
+    data.forEach(c => {
+      const pid = c.parent_id || "root";
+      grouped[pid] = grouped[pid] || [];
+      grouped[pid].push(c);
+    });
+
+    function renderComment(c, depth = 0) {
+      const rawPhoto = (c.user_profile_photo || '').trim();
+      const profilePic = rawPhoto
+        ? `/${rawPhoto.replace(/\\/g, '/').replace(/\s/g, '%20')}`
+        : '/assets/noprofile.jpg';
+
+      const isOwner = currentUserId && currentUserId == c.user_id;
+      const replies = grouped[c.id] || [];
+
+      let repliesHTML = '';
+      if (replies.length > 0) {
+        const replyList = replies.map(reply => renderComment(reply, depth + 1)).join("");
+        repliesHTML = `
+          <div class="replies-container hidden" id="replies-${c.id}">
+            ${replyList}
+          </div>
+          <button class="toggle-replies" data-id="${c.id}">➕ Show Replies (${replies.length})</button>
+        `;
+      }
+
+      return `
+        <div class="comment" data-comment-id="${c.id}" style="margin-left: ${depth * 20}px;">
+          <div class="comment-header">
+            <img src="${profilePic}" alt="${c.user_name}" class="comment-avatar" />
+            <div class="comment-meta">
+              <strong class="comment-user">${c.user_name}</strong>
+              <small class="comment-time">${new Date(c.created_at).toLocaleString()}</small>
+            </div>
+          </div>
+          <p class="comment-content">${c.content}</p>
+          <div class="comment-actions">
+            ${isOwner ? `<button class="delete-comment" data-id="${c.id}">🗑️ Delete</button>` : ''}
+            <button class="reply-comment" data-id="${c.id}" data-user="${c.user_name}">💬 Reply</button>
+          </div>
+          <div class="reply-box-container"></div>
+          ${repliesHTML}
+        </div>
+      `;
+    }
+
+    const rootComments = grouped["root"] || [];
+  commentsDiv.innerHTML = ''; // Clear existing
+rootComments.forEach(c => {
+  const wrapper = document.createElement('div');
+  wrapper.innerHTML = renderComment(c);
+  commentsDiv.appendChild(wrapper.firstElementChild);
+});
+
   } catch (err) {
     console.error("⚠️ Fetch error:", err);
     document.getElementById("comments-list").innerHTML = "<p>Failed to fetch comments</p>";
@@ -175,18 +231,72 @@ async function loadComments() {
 // SUBMIT COMMENT
 // ============================
 async function submitComment() {
-  const content = document.getElementById("comment-text").value;
+  const content = document.getElementById("comment-text").value.trim();
   if (!content) return;
 
   await fetch(`/api/projects/${projectId}/comment`, {
     method: "POST",
     headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
     body: JSON.stringify({ content })
   });
 
   document.getElementById("comment-text").value = '';
   loadComments();
 }
+// ==========================
+// HANDLE DELETE / REPLY / TOGGLE
+// ==========================
+document.addEventListener("click", async (e) => {
+  if (e.target.classList.contains("delete-comment")) {
+    const commentId = e.target.dataset.id;
+    if (confirm("Delete this comment?")) {
+      const res = await fetch(`/api/projects/comments/${commentId}`, {
+        method: "DELETE",
+        credentials: "include"
+      });
+      const result = await res.json();
+      if (result.success) loadComments();
+      else alert(result.error || "Delete failed.");
+    }
+  }
+
+  if (e.target.classList.contains("reply-comment")) {
+    const comment = e.target.closest(".comment");
+    const replyBox = comment.querySelector(".reply-box-container");
+    replyBox.innerHTML = replyBox.innerHTML.trim() ? '' : `
+      <textarea class="reply-text" placeholder="Write a reply..."></textarea>
+      <button class="send-reply-btn" data-id="${e.target.dataset.id}">Reply</button>
+    `;
+  }
+
+  if (e.target.classList.contains("send-reply-btn")) {
+    const parentId = e.target.dataset.id;
+    const textarea = e.target.previousElementSibling;
+    const content = textarea.value.trim();
+    if (!content) return alert("Reply cannot be empty.");
+
+    await fetch(`/api/projects/${projectId}/comment`, {
+      method: "POST",
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({
+        content,
+        parent_id: parentId === undefined ? null : parseInt(parentId)
+      })
+    });
+
+    loadComments();
+  }
+
+  if (e.target.classList.contains("toggle-replies")) {
+    const commentId = e.target.dataset.id;
+    const repliesDiv = document.getElementById(`replies-${commentId}`);
+    const isHidden = repliesDiv.classList.contains("hidden");
+    repliesDiv.classList.toggle("hidden");
+    e.target.textContent = isHidden ? "➖ Hide Replies" : `➕ Show Replies (${repliesDiv.children.length})`;
+  }
+});
 
 // ============================
 // LIKE TOGGLE
@@ -206,7 +316,7 @@ document.getElementById("like-section").addEventListener("click", async () => {
     }
 
     document.getElementById("like-count").textContent = data.newLikeCount;
-    document.getElementById("like-status").textContent = data.status === "liked" ? "❤️ Liked" : "🤍 Like";
+    document.getElementById("like-status").textContent = data.status === "liked" ? "❤️" : "🤍 ";
   } catch (err) {
     console.error("💥 Like toggle error:", err);
     alert("Something went wrong.");
@@ -216,24 +326,46 @@ document.getElementById("like-section").addEventListener("click", async () => {
 // ============================
 // DOCUMENT VIEW OVERLAY
 // ============================
-document.addEventListener("click", (e) => {
+document.addEventListener("click", async (e) => {
   if (e.target.classList.contains("view-doc-btn")) {
     const src = e.target.getAttribute("data-src");
     const overlay = document.getElementById("documentOverlay");
-    const frame = document.getElementById("doc-frame");
+    const canvas = document.getElementById("pdf-canvas");
+    const ctx = canvas.getContext("2d");
 
-    frame.src = src;
     overlay.classList.remove("hidden");
-  }
 
-  if (e.target.id === "close-overlay") {
-    const overlay = document.getElementById("documentOverlay");
-    const frame = document.getElementById("doc-frame");
+    try {
+      const loadingTask = window['pdfjsLib'].getDocument(src);
+      const pdf = await loadingTask.promise;
+      const page = await pdf.getPage(1); // Render only page 1 for now
 
-    frame.src = "";
-    overlay.classList.add("hidden");
+      const viewport = page.getViewport({ scale: 1.5 });
+      canvas.width = viewport.width;
+      canvas.height = viewport.height;
+
+      const renderContext = {
+        canvasContext: ctx,
+        viewport: viewport
+      };
+
+      await page.render(renderContext).promise;
+    } catch (err) {
+      console.error("PDF.js error:", err);
+      alert("⚠️ Could not load PDF.");
+    }
   }
 });
+
+function closeDocumentOverlay() {
+  const overlay = document.getElementById("documentOverlay");
+  const canvas = document.getElementById("pdf-canvas");
+  const ctx = canvas.getContext("2d");
+
+  overlay.classList.add("hidden");
+  ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear canvas
+}
+
 
 // ============================
 // INITIALIZE ON LOAD
@@ -278,4 +410,70 @@ document.addEventListener('DOMContentLoaded', () => {
       console.error("GitHub view error:", err);
     }
   });
+});
+
+// ============================
+// COLLABORATE REQUEST
+// ============================
+document.querySelector('.collaborate').addEventListener('click', async () => {
+  try {
+    const res = await fetch(`/api/collaboration/${projectId}/request`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include'
+    });
+
+    const data = await res.json();
+    alert(data.message || data.error);
+  } catch (err) {
+    console.error(err);
+    alert('Error sending collaboration request.');
+  }
+});
+
+// ============================
+// FLAG PROJECT
+// ============================
+document.querySelector('.flagproject')?.addEventListener('click', () => {
+  document.getElementById('flag-popup').classList.remove('hidden');
+});
+
+document.getElementById('cancel-flag')?.addEventListener('click', () => {
+  document.getElementById('flag-popup').classList.add('hidden');
+  document.getElementById('flag-reason').value = '';
+});
+
+document.getElementById('submit-flag')?.addEventListener('click', async () => {
+  const reason = document.getElementById('flag-reason').value.trim();
+  if (!reason) {
+    alert("Please provide a reason.");
+    return;
+  }
+
+  try {
+    const title = document.getElementById("project-title")?.textContent || "Untitled";
+
+    const res = await fetch('/user/flag-project', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({
+        project_id: projectId,
+        name: title,
+        reason
+      })
+    });
+
+    const data = await res.json();
+    if (data.success) {
+      alert("✅ Project flagged successfully.");
+      document.getElementById('flag-popup').classList.add('hidden');
+      document.getElementById('flag-reason').value = '';
+    } else {
+      alert("❌ Failed: " + (data.message || "Something went wrong."));
+    }
+  } catch (err) {
+    alert("❌ Could not flag project. Try again later.");
+    console.error(err);
+  }
 });

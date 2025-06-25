@@ -55,6 +55,16 @@ router.get('/users', isAdmin, (req, res) => {
     res.json({ success: true, users: results });
   });
 });
+// ----------------------------------------
+// GET /admin/users - all Users
+// ----------------------------------------
+router.get('/allusers', isAdmin, (req, res) => {
+  const sql = `SELECT id, name, email, role,suspended FROM Users ORDER BY name ASC `;
+  db.query(sql, (err, results) => {
+    if (err) return res.status(500).json({ success: false });
+    res.json({ success: true, users: results });
+  });
+});
 
 
 // ----------------------------------------
@@ -205,4 +215,41 @@ router.delete('/users/:id', isAdmin, (req, res) => {
 });
 
 });
+// ----------------------------------------
+// GET /admin/collaborations - All collaboration requests
+// ----------------------------------------
+router.get('/collaborations', isAdmin, (req, res) => {
+  const sql = `
+    SELECT 
+      c.id AS collaboration_id,
+      c.status,
+      c.requested_at,
+      
+      p.id AS project_id,
+      p.title AS project_title,
+      p.description AS project_description,
+
+      owner.name AS owner_name,
+      owner.email AS owner_email,
+
+      collaborator.name AS collaborator_name,
+      collaborator.email AS collaborator_email
+
+    FROM collaborations c
+    JOIN projects p ON c.project_id = p.id
+    JOIN users owner ON p.user_id = owner.id
+    JOIN users collaborator ON c.collaborator_id = collaborator.id
+    ORDER BY c.requested_at DESC
+  `;
+
+  db.query(sql, (err, results) => {
+    if (err) {
+      console.error("❌ Error fetching collaborations:", err);
+      return res.status(500).json({ success: false, message: "Database error" });
+    }
+
+    res.json({ success: true, collaborations: results });
+  });
+});
+
 module.exports = router;

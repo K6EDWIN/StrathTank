@@ -56,11 +56,19 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const ownRes = await fetch(`/api/projects/by-user/${userId}`, { credentials: 'include' });
     const owned = await ownRes.json();
-    owned.forEach(project => ownedProjectsEl.appendChild(renderProjectCard(project)));
+    if (owned.length === 0) {
+      ownedProjectsEl.innerHTML = '<p class="no-projects-msg">No projects created yet.</p>';
+    } else {
+      owned.forEach(project => ownedProjectsEl.appendChild(renderProjectCard(project)));
+    }
 
     const collabRes = await fetch(`/api/projects/collaborated/${userId}`, { credentials: 'include' });
     const collabs = await collabRes.json();
-    collabs.forEach(project => collaborationsEl.appendChild(renderCollabCard(project)));
+    if (collabs.length === 0) {
+      collaborationsEl.innerHTML = '<p class="no-collabs-msg">Not collaborating on any projects yet.</p>';
+    } else {
+      collabs.forEach(project => collaborationsEl.appendChild(renderCollabCard(project)));
+    }
   } catch (err) {
     console.error('Profile load error:', err);
     window.location.href = '/login';
@@ -234,7 +242,6 @@ function renderProjectCard(project) {
   `;
   return div;
 }
-
 
 function renderCollabCard(project) {
   const div = document.createElement('div');
