@@ -1,6 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../config/db');
+const multer = require('multer');
+const path = require('path');
+
 
 // Middleware to check if user is admin
 function isAdmin(req, res, next) {
@@ -249,6 +252,96 @@ router.get('/collaborations', isAdmin, (req, res) => {
     }
 
     res.json({ success: true, collaborations: results });
+  });
+});
+const bcrypt = require('bcrypt'); // If not already included
+
+// ✅ Change Admin Password
+router.post('/change-password', isAdmin, async (req, res) => {
+  const userId = req.session?.user?.id;
+  const { currentPassword, newPassword } = req.body;
+
+  if (!userId) return res.status(401).json({ success: false, message: 'Unauthorized' });
+
+  db.query('SELECT password FROM users WHERE id = ?', [userId], async (err, results) => {
+    if (err || results.length === 0) return res.status(500).json({ success: false, message: 'User not found' });
+
+    const match = await bcrypt.compare(currentPassword, results[0].password);
+    if (!match) return res.status(400).json({ success: false, message: 'Incorrect current password' });
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    db.query('UPDATE users SET password = ? WHERE id = ?', [hashedPassword, userId], (err) => {
+      if (err) return res.status(500).json({ success: false, message: 'Update failed' });
+      res.json({ success: true });
+    });
+  });
+});
+
+// ✅ Get Admin Profile Info
+router.get('/profile/info', isAdmin, (req, res) => {
+  const userId = req.session?.user?.id;
+
+  db.query('SELECT id, name, email, profile_image FROM Users WHERE id = ?', [userId], (err, results) => {
+    if (err || results.length === 0) {
+      return res.status(500).json({ success: false, message: 'Failed to fetch admin data' });
+    }
+
+    res.json({ success: true, user: results[0] });
+  });
+});
+
+// ✅ Delete Admin's Own Account
+router.delete('/delete-account', isAdmin, (req, res) => {
+  const userId = req.session?.user?.id;
+
+  if (!userId) return res.status(401).json({ success: false, message: 'Unauthorized' });
+
+  // Optionally: prevent deleting superadmin
+  // if (req.session.user.email === 'superadmin@email.com') return res.status(403).json({ success: false, message: 'Superadmin cannot delete self' });
+
+  db.query('DELETE FROM Users WHERE id = ?', [userId], (err, result) => {
+    if (err) {
+      console.error('❌ Error deleting admin account:', err);
+      return res.status(500).json({ success: false, message: 'Deletion failed' });
+    }
+
+    // Destroy session after deletion
+    req.session.destroy((err) => {
+      if (err) console.error('⚠️ Session destroy error:', err);
+      res.json({ success: true, message: 'Account deleted successfully' });
+    });
+  });
+});
+
+// ✅ Configure Multer Storage for Admin Profile Pictures
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, './uploads/');
+  },
+  filename: (req, file, cb) => {
+    const ext = path.extname(file.originalname);
+    const filename = `admin-${req.session.user.id}-${Date.now()}${ext}`;
+    cb(null, filename);
+  }
+});
+
+const upload = multer({ storage });
+
+// ✅ POST /admin/profile-picture - Upload Admin Profile Image
+router.post('/profile-picture', isAdmin, upload.single('profile_picture'), (req, res) => {
+  if (!req.file) {
+    return res.status(400).json({ success: false, message: 'No file uploaded' });
+  }
+
+  const imagePath = path.join('uploads', req.file.filename);
+
+  db.query('UPDATE Users SET profile_image = ? WHERE id = ?', [imagePath, req.session.user.id], (err) => {
+    if (err) {
+      console.error('❌ Failed to update profile image:', err);
+      return res.status(500).json({ success: false, message: 'Database update failed' });
+    }
+
+    res.json({ success: true, imagePath });
   });
 });
 

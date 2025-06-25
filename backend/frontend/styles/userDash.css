@@ -267,3 +267,18 @@
 *::-webkit-scrollbar {
   display: none;
 }
+.projects:has(.project:only-child),
+.projects:has(.card:only-child) {
+  justify-content: center;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+}
+
+
+.project,
+.card {
+  max-width: 500px;
+  margin: 0 auto;
+}
+hr {
+  margin: 20px 0;
+}

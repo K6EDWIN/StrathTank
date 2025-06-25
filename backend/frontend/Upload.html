@@ -73,15 +73,23 @@
           </section>
 
           <section>
-            <h2>Project Media</h2>
-            <label>Project Documents (PDF/DOC)
-              <input type="file" name="documents[]" multiple accept=".pdf,.doc,.docx" />
-            </label>
-            <label>Project Screenshots (Images)
-              <input type="file" name="screenshots[]" multiple accept=".jpg,.jpeg,.png" />
-            </label>
-            <small>Max 50MB. Images, videos, PDFs, docs supported.</small>
-          </section>
+  <h2>Project Media</h2>
+
+  <div class="custom-upload">
+    <button type="button" id="uploadDocumentsBtn">📄 Upload Documents</button>
+    <input type="file" id="documentsInput" name="documents[]" multiple accept=".pdf,.doc,.docx" hidden />
+    <div id="documentsSummary" class="file-summary hidden"></div>
+  </div>
+
+  <div class="custom-upload">
+    <button type="button" id="uploadScreenshotsBtn">🖼️ Upload Screenshots</button>
+    <input type="file" id="screenshotsInput" name="screenshots[]" multiple accept=".jpg,.jpeg,.png" hidden />
+    <div id="screenshotsSummary" class="file-summary hidden"></div>
+  </div>
+
+  <small>Max 50MB. Images, videos, PDFs, docs supported.</small>
+</section>
+
 
           <section>
   <h2>Team Members</h2>

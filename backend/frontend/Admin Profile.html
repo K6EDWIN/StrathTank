@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Profile</title>
+  <link rel="stylesheet" href="/styles/admin.css" />
+  <link rel="stylesheet" href="/styles/adminprofile.css" />
+</head>
+<body>
+  <div class="admin-container">
+    <!-- Sidebar -->
+    <aside class="admin-sidebar">
+      <h2>Admin Panel</h2>
+      <nav>
+        <a href="/admin">Dashboard</a>
+        <a href="/AllUsers">All Users</a>
+        <a href="/adminExplore">Projects</a>
+        <a href="/collaborations">Collaborations</a>
+        <a href="#">Mentorships</a>
+        <a href="/admin/profile">Profile</a>
+      </nav>
+    </aside>
+
+    <!-- Main -->
+    <main class="admin-main">
+      <div class="admin-header center">
+        <h1>Admin Profile</h1>
+      </div>
+
+      <section>
+        <div class="profile-wrapper">
+          <img id="adminProfilePic" src="/assets/noprofile.jpg" alt="Profile Picture" />
+          <input type="file" id="profilePicInput" />
+          <div id="editIcon">✏️</div>
+          <div>
+            <h2 id="adminName">Admin Name</h2>
+            <p id="adminEmail">admin@email.com</p>
+          </div>
+        </div>
+
+        <hr />
+<div class="profile-actions">
+        <h2>Change Password</h2>
+        <form id="changePasswordForm" class="form-box">
+          <label for="currentPassword">Current Password:</label>
+          <input type="password" id="currentPassword" required />
+
+          <label for="newPassword">New Password:</label>
+          <input type="password" id="newPassword" required minlength="6" />
+
+          <label for="confirmPassword">Confirm New Password:</label>
+          <input type="password" id="confirmPassword" required />
+
+          <button type="submit" class="btn-primary">Update Password</button>
+        </form>
+</div>
+        <hr />
+
+        <h2>Danger Zone</h2>
+        <button id="deleteAccountBtn" class="btn-danger">Delete My Account</button>
+      </section>
+    </main>
+  </div>
+
+  <script src="/scripts/adminprofile.js"></script>
+</body>
+</html>

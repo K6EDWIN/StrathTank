@@ -336,3 +336,40 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   });
 });
+// Trigger file input when button is clicked
+document.getElementById("uploadDocumentsBtn").addEventListener("click", () => {
+  document.getElementById("documentsInput").click();
+});
+document.getElementById("uploadScreenshotsBtn").addEventListener("click", () => {
+  document.getElementById("screenshotsInput").click();
+});
+
+// Show selected file names
+function updateFileSummary(inputId, summaryId) {
+  const input = document.getElementById(inputId);
+  const summary = document.getElementById(summaryId);
+  const files = input.files;
+
+  if (files.length === 0) {
+    summary.classList.add('hidden');
+    summary.innerHTML = '';
+    return;
+  }
+
+  let content = `<strong>Selected Files (${files.length}):</strong><ul>`;
+  Array.from(files).forEach(file => {
+    content += `<li>${file.name}</li>`;
+  });
+  content += '</ul>';
+
+  summary.innerHTML = content;
+  summary.classList.remove('hidden');
+}
+
+document.getElementById("documentsInput").addEventListener("change", () => {
+  updateFileSummary("documentsInput", "documentsSummary");
+});
+
+document.getElementById("screenshotsInput").addEventListener("change", () => {
+  updateFileSummary("screenshotsInput", "screenshotsSummary");
+});
