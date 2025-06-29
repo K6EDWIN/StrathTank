@@ -23,6 +23,7 @@ router.get('/projects', (req, res) => {
     FROM projects p
     LEFT JOIN (SELECT project_id, COUNT(*) AS like_count FROM likes GROUP BY project_id) l ON p.id = l.project_id
     LEFT JOIN (SELECT project_id, COUNT(*) AS comment_count FROM comments GROUP BY project_id) c ON p.id = c.project_id
+    WHERE p.status = 'approved'
     ORDER BY ${orderBy}
   `;
 
@@ -54,6 +55,7 @@ router.get('/homepageprojects', (req, res) => {
     LEFT JOIN users u ON p.user_id = u.id
     LEFT JOIN (SELECT project_id, COUNT(*) AS like_count FROM likes GROUP BY project_id) l ON p.id = l.project_id
     LEFT JOIN (SELECT project_id, COUNT(*) AS comment_count FROM comments GROUP BY project_id) c ON p.id = c.project_id
+    WHERE p.status = 'approved'
     ORDER BY p.created_at DESC
     LIMIT ? OFFSET ?
   `;
@@ -107,6 +109,7 @@ router.get('/searchprojects', (req, res) => {
     LEFT JOIN (SELECT project_id, COUNT(*) AS like_count FROM likes GROUP BY project_id) l ON p.id = l.project_id
     LEFT JOIN (SELECT project_id, COUNT(*) AS comment_count FROM comments GROUP BY project_id) c ON p.id = c.project_id
     WHERE p.title LIKE ? OR u.name LIKE ?
+    WHERE p.status = 'approved'
     ORDER BY p.created_at DESC
   `;
 
@@ -122,6 +125,7 @@ router.get('/categories', (req, res) => {
     SELECT DISTINCT category 
     FROM projects 
     WHERE category IS NOT NULL AND category != ''
+    AND status = 'approved'
     ORDER BY category
   `;
 
@@ -151,6 +155,7 @@ router.get('/projects/by-category', (req, res) => {
     LEFT JOIN (SELECT project_id, COUNT(*) AS like_count FROM likes GROUP BY project_id) l ON p.id = l.project_id
     LEFT JOIN (SELECT project_id, COUNT(*) AS comment_count FROM comments GROUP BY project_id) c ON p.id = c.project_id
     WHERE p.category = ?
+    AND p.status = 'approved'
     ORDER BY ${orderClause}
   `;
 
@@ -311,6 +316,7 @@ router.get('/projects/by-user/:userId', (req, res) => {
     LEFT JOIN (SELECT project_id, COUNT(*) AS like_count FROM likes GROUP BY project_id) l ON p.id = l.project_id
     LEFT JOIN (SELECT project_id, COUNT(*) AS comment_count FROM comments GROUP BY project_id) c ON p.id = c.project_id
     WHERE p.user_id = ?
+    AND p.status = 'approved'
     ORDER BY p.created_at DESC
   `;
 

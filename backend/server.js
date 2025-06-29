@@ -6,6 +6,8 @@ const passport = require('./middleware/passport');
 const session = require('./config/session');
 const collaborationRoutes = require('./routes/collaboration');
 const mentorshipRoutes = require('./routes/mentorship');
+const mentorshipAssignmentRoutes = require('./routes/mentorassignment');
+const mentorRoutes = require('./routes/mentor');
 
 
 const app = express();
@@ -29,7 +31,8 @@ app.use('/api', require('./routes/project'));
 app.use('/api/collaboration', collaborationRoutes);
 app.use('/api/mentorship', mentorshipRoutes); 
 app.use('/admin', adminRoutes);
-
+app.use('/api/mentorship', mentorshipAssignmentRoutes);
+app.use('/api/mentor', mentorRoutes);
 
 
 

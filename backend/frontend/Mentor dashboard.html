@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Mentor Dashboard</title>
+  <link rel="stylesheet" href="styles/mentorHomePage.css" />
+</head>
+<body>
+  <div class="layout">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <h2>Navigation</h2>
+      <ul>
+        <li><a href="#">Home</a></li>
+        <li><a href="#">Projects</a></li>
+        <li><a href="#">Mentorship Hub</a></li>
+        <li><a href="#">My Profile</a></li>
+      </ul>
+    </aside>
+
+    <!-- Navbar -->
+    <nav class="navbar">
+      <a href="#" class="logo">
+  <img src="\assets/logo.png" alt="StrathTank Logo" class="logo-img" />
+</a>
+      <div class="nav-links">
+        <a href="#">Home</a>
+        <a href="#">Explore</a>
+        <a href="#">Mentorship</a>
+      </div>
+      <input class="search-bar" type="text" placeholder="Search..." />
+    </nav>
+
+    <!-- Main Content -->
+    <main id="mentorDashboard" class="mentor-profile">
+      <section class="mentor-banner">
+        <div class="banner-content">
+          <h1>Welcome to your dashboard, <span id="username">username</span></h1>
+          <p>Empowering developers through mentorship and collaboration.</p>
+        </div>
+      </section>
+
+   <section class="projects-section">
+  <h2>Assigned Projects</h2>
+  <div id="assignedProjects" class="projects-grid"></div>
+  <button id="openRequestPoolBtn" class="openpool2">View Unassigned Request Pool</button>
+</section>
+      <section class="projects-section">
+        <h2>All Projects</h2>
+        <div id="allProjects" class="projects-grid"></div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Request Pool Modal -->
+  <div id="requestPoolModal" class="modal">
+    <div class="modal-content">
+      <span id="closeRequestPoolModal" class="close-btn">&times;</span>
+      <h2>Request Pool of Unassigned Mentorship Requests</h2>
+      <div id="requestPoolContent" class="modal-grid"></div>
+    </div>
+  </div>
+
+  <script src="scripts/mentorDashboard.js"></script>
+</body>
+</html>

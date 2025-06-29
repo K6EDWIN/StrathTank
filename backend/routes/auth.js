@@ -12,9 +12,17 @@ function redirectByRole(req, res) {
     return res.redirect(`/collaboration/response?projectId=${projectId}&userId=${userId}&action=${action}`);
   }
 
-  const redirectUrl = user.role === 'admin' ? '/admin' : '/dashboard';
+  let redirectUrl = '/dashboard';
+
+  if (user.role === 'admin') {
+    redirectUrl = '/admin';
+  } else if (user.role === 'mentor') {
+    redirectUrl = '/mentor';
+  }
+
   res.redirect(redirectUrl);
 }
+
 
 // ✅ Google OAuth
 router.get('/google',
@@ -72,11 +80,9 @@ router.post('/login', (req, res, next) => {
     }
 
     req.login(user, (err) => {
-      
       if (err) return next(err);
-      
-  console.log('[LOCAL LOGIN] req.login successful, setting session user');
-  
+
+      console.log('[LOCAL LOGIN] req.login successful, setting session user');
 
       req.session.user = {
         id: user.id,
@@ -87,9 +93,17 @@ router.post('/login', (req, res, next) => {
 
       // If using fetch, return JSON:
       if (req.headers.accept?.includes('application/json')) {
+        let redirectUrl = '/dashboard';
+
+        if (user.role === 'admin') {
+          redirectUrl = '/admin';
+        } else if (user.role === 'mentor') {
+          redirectUrl = '/mentor';
+        }
+
         return res.json({
           success: true,
-          redirectUrl: user.role === 'admin' ? '/admin' : '/dashboard'
+          redirectUrl
         });
       }
 
@@ -98,5 +112,6 @@ router.post('/login', (req, res, next) => {
     });
   })(req, res, next);
 });
+
 
 module.exports = router;

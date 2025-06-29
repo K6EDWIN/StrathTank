@@ -67,12 +67,18 @@ async function fetchAndDisplayProjects() {
     data.forEach(p => {
       const card = document.createElement('div');
       card.className = 'card';
-      card.innerHTML = `
-        <img class="thumb" src="${p.image || '/assets/placeholder.jpg'}" alt="${p.title}" onerror="this.src='/assets/placeholder.jpg'" loading="lazy" />
-        <h3>${p.title}</h3>
-        <p>${p.description}</p>
-        <div class="meta">Author: ${p.author || 'Unknown'} <button>View</button></div>
-      `;
+    card.innerHTML = `
+  <img class="thumb" src="${p.image || '/assets/placeholder.jpg'}" alt="${p.title}" onerror="this.src='/assets/placeholder.jpg'" loading="lazy" />
+  <div class="card-body">
+    <h3>${p.title}</h3>
+    <p>${p.description}</p>
+    <div class="meta">
+      <span>By ${p.author || 'Unknown'}</span>
+      <button onclick="window.location.href='/projects/${p.id}'">View</button>
+    </div>
+  </div>
+`;
+
       container.appendChild(card);
     });
 

@@ -64,24 +64,23 @@ document.addEventListener("DOMContentLoaded", async () => {
     const formData = new FormData(form);
     const payload = Object.fromEntries(formData.entries());
 
-    
-payload.skills_expertise = payload.skills_expertise
-  ?.split(',')
-  .map(s => s.trim())
-  .filter(Boolean)
-  .join(',');
+    payload.skills_expertise = payload.skills_expertise
+      ?.split(',')
+      .map(s => s.trim())
+      .filter(Boolean)
+      .join(',');
 
-payload.availability = payload.availability
-  ?.split(',')
-  .map(s => s.trim())
-  .filter(Boolean)
-  .join(',');
+    payload.availability = payload.availability
+      ?.split(',')
+      .map(s => s.trim())
+      .filter(Boolean)
+      .join(',');
 
-payload.primary_area = payload.primary_area
-  ?.split(',')
-  .map(s => s.trim())
-  .filter(Boolean)
-  .join(',');
+    payload.primary_area = payload.primary_area
+      ?.split(',')
+      .map(s => s.trim())
+      .filter(Boolean)
+      .join(',');
 
     try {
       const res = await fetch("/api/mentorship/mentorship-request", {
@@ -91,8 +90,20 @@ payload.primary_area = payload.primary_area
       });
 
       const data = await res.json();
-      if (res.ok) {
-        showSuccessPopup();
+      if (res.ok && data.requestId) {
+        // ✅ Trigger mentor auto-assignment
+        const assignRes = await fetch(`/api/mentorship/auto-assign/${data.requestId}`, {
+          method: "POST"
+        });
+
+        const assignData = await assignRes.json();
+
+        if (assignRes.ok && assignData.success) {
+          showSuccessPopup(assignData.mentor);
+        } else {
+          alert("Mentorship request submitted, but mentor assignment failed.");
+        }
+
         form.reset();
       } else {
         alert("⚠️ " + (data.error || "Something went wrong."));
@@ -103,12 +114,18 @@ payload.primary_area = payload.primary_area
   });
 });
 
-function showSuccessPopup() {
+function showSuccessPopup(mentor = null) {
   const modal = document.createElement("div");
   modal.classList.add("popup-modal");
+
   modal.innerHTML = `
     <div class="popup-content">
       <h2>✅ Mentorship Request Submitted!</h2>
+      ${
+        mentor
+          ? `<p>Your assigned mentor is <strong>${mentor.name}</strong> (${mentor.email}).</p>`
+          : `<p>Your request has been submitted.</p>`
+      }
       <p>Would you like to submit another request or go to your dashboard?</p>
       <div class="popup-actions">
         <button id="submit-another" class="popup-btn">Submit Another</button>

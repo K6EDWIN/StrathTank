@@ -68,7 +68,7 @@ router.post('/mentorship-request', (req, res) => {
       return res.status(500).json({ error: 'Failed to submit mentorship request' });
     }
 
-    res.status(201).json({ success: true, message: 'Mentorship request submitted successfully' });
+    res.status(201).json({ success: true, message: 'Mentorship request submitted successfully', requestId: result.insertId });
   });
 });
 

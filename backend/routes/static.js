@@ -53,5 +53,10 @@ router.get('/admin/profile', (req, res) => {
   if (!req.isAuthenticated() || req.user.role !== 'admin') return res.redirect('/login');
   res.sendFile(path.join(__dirname, '../frontend/Admin Profile.html'));
 });
+router.get('/mentor', (req, res) => {
+  if (!req.isAuthenticated()) return res.redirect('/login');
+  res.sendFile(path.join(__dirname, '../frontend/Mentor dashboard.html'));
+});
+
 
 module.exports = router;
