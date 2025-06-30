@@ -148,7 +148,7 @@ router.get('/requests', ensureMentor, (req, res) => {
 
   const sql = `
     SELECT mr.*, u.name AS mentee_name, p.title AS project_title
-    FROM mentorship_request mr
+    FROM mentorship_requests mr
     LEFT JOIN Users u ON mr.mentee_id = u.id
     LEFT JOIN Projects p ON mr.project_id = p.id
     WHERE mr.mentor_id = ?
@@ -299,5 +299,160 @@ router.get('/request-pool', ensureMentor, (req, res) => {
     res.json({ success: true, pool: results });
   });
 });
+
+router.get('/stats', ensureMentor, (req, res) => {
+  const mentorId = req.session.user.id;
+
+  // MenteesGuided = distinct mentees with accepted
+  const menteesGuidedQuery = `
+    SELECT COUNT(DISTINCT mentee_id) AS count
+    FROM mentorship_requests
+    WHERE mentor_id = ? AND status = 'accepted'
+  `;
+
+  // ActiveMentorships = accepted
+  const activeMentorshipsQuery = `
+    SELECT COUNT(*) AS count
+    FROM mentorship_requests
+    WHERE mentor_id = ? AND status = 'accepted'
+  `;
+
+  // MentorshipHours = sum of hours from created_at to now for accepted
+  const mentorshipHoursQuery = `
+    SELECT IFNULL(SUM(TIMESTAMPDIFF(HOUR, created_at, NOW())), 0) AS total
+    FROM mentorship_requests
+    WHERE mentor_id = ? AND status = 'accepted'
+  `;
+
+  Promise.all([
+    new Promise((resolve, reject) => {
+      db.query(menteesGuidedQuery, [mentorId], (err, results) => {
+        if (err) return reject(err);
+        resolve(results[0].count);
+      });
+    }),
+    new Promise((resolve, reject) => {
+      db.query(activeMentorshipsQuery, [mentorId], (err, results) => {
+        if (err) return reject(err);
+        resolve(results[0].count);
+      });
+    }),
+    new Promise((resolve, reject) => {
+      db.query(mentorshipHoursQuery, [mentorId], (err, results) => {
+        if (err) return reject(err);
+        resolve(results[0].total);
+      });
+    })
+  ])
+  .then(([menteesGuided, activeMentorships, mentorshipHours]) => {
+    res.json({
+      success: true,
+      menteesGuided,
+      activeMentorships,
+      mentorshipHours
+    });
+  })
+  .catch(err => {
+    console.error('❌ Error fetching stats:', err);
+    res.status(500).json({ success: false, message: 'Database error' });
+  });
+});
+
+// ----------------------------------------
+// GET /mentor/current-mentees - List mentees with project
+// ----------------------------------------
+router.get('/current-mentees', ensureMentor, (req, res) => {
+  const mentorId = req.session.user.id;
+
+  const sql = `
+    SELECT
+      u.id AS mentee_id,
+      u.name AS mentee_name,
+      u.profile_image AS mentee_profile_image,
+      p.id AS project_id,
+      p.title AS project_title
+    FROM mentorship_requests mr
+    JOIN Users u ON mr.mentee_id = u.id
+    JOIN Projects p ON mr.project_id = p.id
+    WHERE mr.mentor_id = ?
+      AND mr.status = 'accepted'
+    ORDER BY mr.created_at DESC
+  `;
+
+  db.query(sql, [mentorId], (err, results) => {
+    if (err) {
+      console.error('❌ Error fetching current mentees:', err);
+      return res.status(500).json({ success: false, message: 'Database error' });
+    }
+
+    res.json({ success: true, mentees: results });
+  });
+});
+// ----------------------------------------
+// GET /mentor/request/:requestId/messages - Fetch chat messages
+// ----------------------------------------
+router.get('/request/:requestId/messages', ensureMentor, (req, res) => {
+  const mentorId = req.session.user.id;
+  const { requestId } = req.params;
+
+  const sql = `
+    SELECT sender, message, created_at
+    FROM mentorship_messages
+    WHERE request_id = ?
+    ORDER BY created_at ASC
+  `;
+
+  db.query(sql, [requestId], (err, results) => {
+    if (err) {
+      console.error('❌ Error fetching messages:', err);
+      return res.status(500).json({ success: false, message: 'Database error' });
+    }
+
+    res.json({ success: true, messages: results });
+  });
+});
+
+// ----------------------------------------
+// POST /mentor/request/:requestId/messages - Send new chat message
+// ----------------------------------------
+router.post('/request/:requestId/messages', ensureMentor, (req, res) => {
+  const mentorId = req.session.user.id;
+  const { requestId } = req.params;
+  const { message } = req.body;
+
+  if (!message || !message.trim()) {
+    return res.status(400).json({ success: false, message: 'Message cannot be empty' });
+  }
+
+  // Insert into mentorship_messages
+  const insertMessageSQL = `
+    INSERT INTO mentorship_messages (request_id, sender, message)
+    VALUES (?, 'mentor', ?)
+  `;
+
+  db.query(insertMessageSQL, [requestId, message], (err) => {
+    if (err) {
+      console.error('❌ Error saving message:', err);
+      return res.status(500).json({ success: false, message: 'Database error' });
+    }
+
+    // Also update mentorship_requests.feedback
+    const updateFeedbackSQL = `
+      UPDATE mentorship_requests
+      SET feedback = ?
+      WHERE id = ? AND mentor_id = ?
+    `;
+
+    db.query(updateFeedbackSQL, [message, requestId, mentorId], (err2) => {
+      if (err2) {
+        console.error('❌ Error updating feedback:', err2);
+        return res.status(500).json({ success: false, message: 'Database error' });
+      }
+
+      res.json({ success: true, message: 'Message sent and feedback updated' });
+    });
+  });
+});
+
 
 module.exports = router;

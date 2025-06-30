@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Mentor Profile</title>
+  <link rel="stylesheet" href="styles/Mentor profile.css" />
+</head>
+<body>
+
+  <!-- Sidebar -->
+  <aside class="sidebar visible">
+    <h2>StrathTank</h2>
+    <ul>
+      <li><a href="/mentor">Home</a></li>
+      <li><a href="/explorementors">Projects</a></li>
+      <li><a href="/mentorshipHub">Mentorship Hub</a></li>
+      <li><a href="#" active >My Profile</a></li>
+    </ul>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <!-- Top Navigation Bar -->
+    <nav class="navbar">
+      <a href="/" class="logo">
+        <img src="/assets/logo.png" alt="StrathTank Logo" class="logo-img" />
+      </a>
+      <div class="nav-links">
+        <a href="/mentor">Home</a>
+        <a href="/explorementors">Explore</a>
+        <a href="/mentorshipHub">Mentorship Hub</a>
+      </div>
+      <div class="search-section">
+        <input id="searchBar" class="search-bar" type="text" placeholder="Search by title or author..." />
+        <div id="search-results" class="results-container"></div>
+      </div>
+    </nav>
+
+    <!-- Profile Content -->
+    <div class="page-container">
+      <main class="profile-content">
+        <!-- Profile Header -->
+        <section class="profile-header">
+          <div class="profile-top">
+            <div class="profile-image-container">
+              <img id="mentorProfilePic" class="profile-pic" src="/assets/noprofile.jpg" alt="Mentor Picture" />
+              <label id="editIcon" class="edit-pic">
+                <input type="file" id="profilePicInput" accept="image/*" hidden />
+                <span class="edit-icon">🖉</span>
+              </label>
+            </div>
+            <div class="profile-info">
+              <h1 id="mentorName">Loading...</h1>
+              <p id="mentorEmail" class="email" style="display: none;"></p>
+              <p id="mentorBio" class="bio">Loading bio...</p>
+              <button id="openBioModal" class="edit-bio-btn">Edit Bio</button>
+
+              <!-- Bio Edit Modal -->
+              <div id="bioModal" class="modal">
+                <div class="modal-content">
+                  <h3>Edit Your Bio</h3>
+                  <textarea id="bioTextarea" placeholder="Write something about yourself..."></textarea>
+                  <div class="modal-actions">
+                    <button id="saveBioBtn">Save</button>
+                    <button id="closeBioModal" class="cancel-btn">Cancel</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Skills & Expertise -->
+        <section class="skills-section">
+          <h2>Skills & Expertise</h2>
+          <div id="mentorSkills" class="skills"></div>
+          <div id="skillsEditor">
+            <input type="text" id="newSkillInput" class="add-skill-input" placeholder="Add a new skill..." />
+            <button id="addSkillBtn" class="add-skill-btn">Add</button>
+          </div>
+        </section>
+
+        <!-- Mentorship Stats -->
+        <section class="stats-section">
+          <h2>Mentorship Stats</h2>
+          <ul>
+            <li><strong>Mentees Guided:</strong> <span id="menteesGuided">0</span></li>
+            <li><strong>Total Mentorship Hours:</strong> <span id="mentorshipHours">0</span></li>
+            <li><strong>Active Mentorships:</strong> <span id="activeMentorships">0</span></li>
+          </ul>
+        </section>
+
+        <!-- Current Mentees Section -->
+        <section class="projects-section">
+          <h2>Current Mentees</h2>
+          <div id="menteesGrid" class="projects-grid"></div>
+        </section>
+      </main>
+    </div>
+  </main>
+
+  <script src="scripts/mentorprofile.js"></script>
+</body>
+</html>

@@ -1,48 +1,72 @@
 const loginForm = document.getElementById('loginForm');
 const messageDiv = document.getElementById('login-message');
+const loader = document.getElementById('login-loader'); // Spinner element
 
-loginForm.addEventListener('submit', async function(e) {
+// Handle Email/Password Login
+loginForm.addEventListener('submit', async function (e) {
   e.preventDefault();
+
+  loader.style.display = 'flex'; // Show spinner
 
   const email = document.getElementById('email').value;
   const password = document.getElementById('password').value;
 
-  const response = await fetch('/auth/login', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-    body: JSON.stringify({ email, password })
-  });
+  try {
+    const response = await fetch('/auth/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },
+      body: JSON.stringify({ email, password }),
+    });
 
-  const data = await response.json();
-  console.log('[LOGIN RESPONSE]', data); // 🔍 Confirm what backend sends
+    const data = await response.json();
+    console.log('[LOGIN RESPONSE]', data);
 
-  if (data.success) {
-    messageDiv.textContent = '✅ Successful! Welcome to your Dashboard.';
-    messageDiv.style.color = 'green';
-    setTimeout(() => {
-      window.location.href = data.redirectUrl || '/dashboard'; // ✅ Use backend-provided URL
-    }, 2000);
-  } else {
-    messageDiv.textContent = data.message;
+    if (data.success) {
+      messageDiv.textContent = '✅ Successful! Welcome to your Dashboard.';
+      messageDiv.style.color = 'green';
+
+      setTimeout(() => {
+        window.location.href = data.redirectUrl || '/dashboard';
+      }, 1500); // Keep loader showing briefly before redirect
+    } else {
+      loader.style.display = 'none';
+      messageDiv.textContent = data.message;
+      messageDiv.style.color = 'red';
+    }
+  } catch (err) {
+    loader.style.display = 'none';
+    console.error('Login error:', err);
+    messageDiv.textContent = '⚠️ An error occurred during login.';
     messageDiv.style.color = 'red';
   }
 });
 
+// Clear message while typing
 loginForm.addEventListener('input', () => {
   messageDiv.textContent = '';
 });
 
+// Handle Social Logins with Spinner
 const googleBtn = document.getElementById('Google');
 const githubBtn = document.getElementById('Github');
 
 if (googleBtn) {
   googleBtn.addEventListener('click', () => {
-    window.location.href = '/auth/google';
+    loader.style.display = 'flex'; // Show spinner
+    setTimeout(() => {
+      window.location.href = '/auth/google';
+    }, 1000); // Delay for UX (optional)
   });
 }
 
 if (githubBtn) {
   githubBtn.addEventListener('click', () => {
-    window.location.href = '/auth/github';
+    loader.style.display = 'flex';
+    setTimeout(() => {
+      window.location.href = '/auth/github';
+    }, 1000);
   });
 }

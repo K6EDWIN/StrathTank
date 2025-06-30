@@ -18,6 +18,7 @@
         <a href="/collaborations">Collaborations</a>
         <a href="#">Mentorships</a>
         <a href="/admin/profile">Profile</a>
+        <a href="#" onclick="logoutUser()">Logout</a>
       </nav>
     </aside>
 
@@ -61,6 +62,12 @@
           <!-- JS will populate these -->
         </div>
       </section>
+      <div id="logout-loader" style="display: none;" class="logout-overlay">
+  <div class="logout-box">
+    <p>Logging out...</p>
+    <div class="spinner"></div>
+  </div>
+</div>
     </main>
   </div>
 

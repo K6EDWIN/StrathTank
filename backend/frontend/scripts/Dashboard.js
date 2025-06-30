@@ -161,3 +161,81 @@ document.addEventListener("DOMContentLoaded", () => {
   loadProjects();
   loadUserInfo();
 });
+
+
+
+function loginUser(event) {
+  event.preventDefault(); // prevent default form submission if using a form
+
+  const loader = document.getElementById('login-loader');
+  loader.style.display = 'flex'; // show spinner
+
+  const email = document.getElementById('email').value;
+  const password = document.getElementById('password').value;
+
+  fetch('/user/login', {
+    method: 'POST',
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, password })
+  })
+    .then(res => {
+      if (res.redirected) {
+        window.location.href = res.url;
+      } else {
+        loader.style.display = 'none';
+        alert('Login failed. Please check your credentials.');
+      }
+    })
+    .catch(err => {
+      loader.style.display = 'none';
+      console.error('Login error:', err);
+      alert('An error occurred during login.');
+    });
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function logoutUser() {
+  // Show logout loader
+  const loader = document.getElementById('logout-loader');
+  loader.style.display = 'flex';
+
+  // Optional delay for UX (e.g. 1.5 seconds)
+  setTimeout(() => {
+    fetch('/user/logout', {
+      method: 'GET',
+      credentials: 'include'
+    })
+      .then(res => {
+        if (res.redirected) {
+          window.location.href = res.url;
+        } else {
+          loader.style.display = 'none'; // hide loader
+          alert('Logout failed.');
+        }
+      })
+      .catch(err => {
+        loader.style.display = 'none'; // hide loader
+        console.error('Logout error:', err);
+        alert('Error logging out.');
+      });
+  }, 1500); // Show loader before logging out
+}
+
+
+

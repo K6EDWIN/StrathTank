@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Project Showcase</title>
-  <link rel="stylesheet" href="styles/Admin Explore.css">
+  <meta charset="UTF-8" />
+  <title>Explore</title>
+  <link rel="stylesheet" href="/styles/exploreProjects.css" />
 </head>
 <body>
 
@@ -13,41 +13,41 @@
       <img src="/assets/logo.png" alt="StrathTank Logo" class="logo-img" />
     </a>
     <div class="nav-links">
-      <a href="/admin">Dashboard</a>
-        <a href="/adminExplore">Projects</a>
-      <a href="#">Users</a>
-        <a href="/collaborations">Collaborations</a>
-      <a href="/admin/profile">Profile</a>
+      <a href="/mentor">Home</a>
+      <a href="#"class='active'>Explore</a>
+      <a href="/mentorshipHub">Mentorship Hub</a>
+      <a href="/mentorprofile">My Profile</a>
     </div>
     <div class="search-section">
-      <input id="searchBar" class="search-bar" type="text" placeholder="Search by title ..." />
+      <input id="searchBar" class="search-bar" type="text" placeholder="Search by subject or student..." />
       <div id="search-results" class="results-container"></div>
     </div>
   </nav>
 
   <!-- Sidebar + Main Content Container -->
   <div class="main-wrapper">
-    <div class="sidebar">
+    <aside class="sidebar">
       <h3>Categories</h3>
-      <ul id="category-list"></ul>
+      <ul id="category-list">
+        <!-- Populated dynamically -->
+      </ul>
 
       <h4>Sort By</h4>
-      <select id="sort-options">
+       <select id="sort-options">
         <option value="default">Default</option>
         <option value="newest">Newest</option>
         <option value="most-liked">Most Liked</option>
         <option value="most-commented">Most Commented</option>
       </select>
-    </div>
+    </aside>
 
-    <div class="main-content">
-      <div class="header">
-        <h2>Projects</h2>
+    <main class="main-content">
+      <div class="project-grid" id="project-grid">
+        <!-- Cards will be inserted here dynamically -->
       </div>
-      <div class="project-grid" id="project-grid"></div>
-    </div>
+    </main>
   </div>
 
-  <script src="/scripts/exploreProjects.js"></script>
+  <script src="/scripts/explorementors.js"></script>
 </body>
 </html>

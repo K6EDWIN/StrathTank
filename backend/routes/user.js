@@ -391,37 +391,54 @@ router.get('/search', (req, res) => {
 // ✅ GET /user - return logged in user (session or passport)
 // ----------------------------------------
 router.get('/', (req, res) => {
-  // Handle session login (email/password)
-  if (req.session?.user) {
-    return res.json({
-      success: true,
-      user: {
-        id: req.session.user.id,
-        name: req.session.user.name,
-        email: req.session.user.email,
-        role: req.session.user.role,
-        profile_image: req.session.user.profile_image || '/images/default-profile.png'
-      }
-    });
+  if (!req.session?.user) {
+    if (req.user) {
+      // Passport user fallback
+      return res.json({
+        success: true,
+        user: {
+          id: req.user.id,
+          name: req.user.name,
+          email: req.user.email,
+          role: req.user.role || 'student',
+          profile_image: req.user.profile_image || '/assets/noprofile.jpg',
+     bio: (user.Bio && user.Bio.trim()) ? user.Bio.trim() : 'No bio yet.',
+
+
+          skills: req.user.skills || ''
+        }
+      });
+    }
+    return res.status(401).json({ success: false, message: 'Not logged in' });
   }
 
-  // Handle passport social login (GitHub, Google, etc.)
-  if (req.user) {
-    return res.json({
+  const userId = req.session.user.id;
+
+  db.query('SELECT * FROM Users WHERE id = ?', [userId], (err, results) => {
+    if (err || results.length === 0) {
+      console.error('❌ Error loading user:', err);
+      return res.status(500).json({ success: false, message: 'Failed to load user' });
+    }
+
+    const user = results[0];
+
+    res.json({
       success: true,
       user: {
-        id: req.user.id,
-        name: req.user.name,
-        email: req.user.email,
-        role: req.user.role || 'student',
-        profile_image: req.user.profile_image || '/images/default-profile.png'
+        id: user.id,
+        name: user.name || 'Unknown',
+        email: user.email || '',
+        role: user.role || 'student',
+        profile_image: user.profile_image || '/assets/noprofile.jpg',
+      bio: (user.Bio && user.Bio.trim()) ? user.Bio.trim() : 'No bio yet.',
+
+        skills: user.skills || ''
       }
     });
-  }
-
-  // Not logged in
-  return res.status(401).json({ success: false, message: 'Not logged in' });
+  });
 });
+
+
 
 // --------------------------------------
 // PUT /user/skills - Update skills from session
@@ -532,6 +549,28 @@ router.post('/flag-project', (req, res) => {
     res.json({ success: true, message: 'Project flagged for review' });
   });
 });
+// ----------------------------------------
+// GET /user/logout - Logout user
+// ----------------------------------------
+// ----------------------------------------
+// ✅ GET /user/logout - Destroy session and logout
+// ----------------------------------------
+router.get('/logout', (req, res) => {
+  req.logout(err => {
+    if (err) {
+      console.error('Logout error:', err);
+      return res.status(500).send('Logout failed');
+    }
 
+    req.session.destroy(err => {
+      if (err) {
+        console.error('Session destroy error:', err);
+        return res.status(500).send('Could not destroy session');
+      }
 
+      res.clearCookie('connect.sid', { path: '/' });
+      res.redirect('/');
+    });
+  });
+});
 module.exports = router;

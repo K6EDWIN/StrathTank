@@ -13,9 +13,10 @@
       <h2>Navigation</h2>
       <ul>
         <li><a href="#">Home</a></li>
-        <li><a href="#">Projects</a></li>
-        <li><a href="#">Mentorship Hub</a></li>
-        <li><a href="#">My Profile</a></li>
+        <li><a href="/explorementors">Projects</a></li>
+        <li><a href="/mentorshipHub">Mentorship Hub</a></li>
+        <li><a href="/mentorprofile">My Profile</a></li>
+         <li><a href="#" onclick="logoutUser()">Logout</a></li>
       </ul>
     </aside>
 
@@ -24,10 +25,11 @@
       <a href="#" class="logo">
   <img src="\assets/logo.png" alt="StrathTank Logo" class="logo-img" />
 </a>
-      <div class="nav-links">
+     <div class="nav-links">
         <a href="#">Home</a>
-        <a href="#">Explore</a>
-        <a href="#">Mentorship</a>
+        <a href="/explorementors">Explore</a>
+        <a href="/mentorshipHub">Mentorship Hub</a>
+        <a href="#" onclick="logoutUser()">Logout</a>
       </div>
       <input class="search-bar" type="text" placeholder="Search..." />
     </nav>
@@ -61,6 +63,12 @@
       <div id="requestPoolContent" class="modal-grid"></div>
     </div>
   </div>
+<div id="logout-loader" style="display: none;" class="logout-overlay">
+  <div class="logout-box">
+    <p>Logging out...</p>
+    <div class="spinner"></div>
+  </div>
+</div>
 
   <script src="scripts/mentorDashboard.js"></script>
 </body>

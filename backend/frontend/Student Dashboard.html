@@ -14,10 +14,13 @@
       <h2>StrathTank</h2>
       <ul>
         <li><a href="#">Home</a></li>
-        <li><a href="#">Your Projects</a></li>
+        <li><a href="/explore-projects">Explore Projects</a></li>
         <li><a href="/upload-project">Upload Projects</a></li>
         <li><a href="/mentorship-request">Mentorship Hub</a></li>
         <li><a href="/profile">My Profile</a></li>
+      <li><a href="#" onclick="logoutUser()">Logout</a></li>
+
+
       </ul>
     </aside>
 
@@ -34,6 +37,7 @@
           <a href="/explore-projects">Explore</a>
           <a href="/mentorship-request">Mentorship</a>
           <a href="/profile">My Profile</a>
+          <a href="#" onclick="logoutUser()">Logout</a>
         </div>
      <div class="search-section">
   <input id="searchBar" class="search-bar" type="text" placeholder="Search by title or author..." />
@@ -80,6 +84,18 @@
     <!-- User-specific projects will be injected by JS -->
   </div>
 </section>
+
+
+
+
+<!-- Logout Loader Modal -->
+<div id="logout-loader" style="display: none;" class="logout-overlay">
+  <div class="logout-box">
+    <p>Logging out...</p>
+    <div class="spinner"></div>
+  </div>
+</div>
+
 
     </main>
   </div>

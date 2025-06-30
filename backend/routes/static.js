@@ -57,6 +57,24 @@ router.get('/mentor', (req, res) => {
   if (!req.isAuthenticated()) return res.redirect('/login');
   res.sendFile(path.join(__dirname, '../frontend/Mentor dashboard.html'));
 });
-
-
+router.get('/mentorprofile', (req, res) => {
+  if (!req.isAuthenticated()) return res.redirect('/login');
+  res.sendFile(path.join(__dirname, '../frontend/Mentor Profile.html'));  
+});
+router.get('/mentorshipHub',(req,res)=> {
+  if (!req.isAuthenticated()) return res.redirect('/login');
+  res.sendFile(path.join(__dirname, '../frontend/Mentorship hub.html'));  
+});
+router.get('/explorementors', (req, res) => {
+  if (!req.isAuthenticated()) return res.redirect('/login');
+  res.sendFile(path.join(__dirname, '../frontend/Explore for mentors.html'));   
+});
+router.get('/mentornonit', (req, res) => {
+  if (!req.isAuthenticated()) return res.redirect('/login');
+  res.sendFile(path.join(__dirname, '../frontend/Mentor view project.html'));
+});
+router.get('/mentorviewit', (req, res) => {
+  if (!req.isAuthenticated()) return res.redirect('/login');
+  res.sendFile(path.join(__dirname, '../frontend/Mentor view it project.html'));
+});
 module.exports = router;
