@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Mentorship Hub</title>
+  <link rel="stylesheet" href="/styles/hub.css" />
+  <script src="/scripts/hub.js" defer></script>
+</head>
+<body>
+  <div class="layout">
+    <!-- Sidebar -->
+    <aside class="sidebar visible" id="sidebar">
+      <h2>StrathTank</h2>
+      <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="/explore-projects">Explore Projects</a></li>
+        <li><a href="/upload-project">Upload Projects</a></li>
+        <li><a class="active" href="#">Mentorship Hub</a></li>
+        <li><a href="/profile">My Profile</a></li>
+        <li><a href="#" onclick="logoutUser()">Logout</a></li>
+      </ul>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content" id="mainContent">
+      <!-- Navigation Bar -->
+      <nav class="navbar">
+        <a href="/" class="logo">
+          <img src="/assets/logo.png" alt="StrathTank Logo" class="logo-img" />
+        </a>
+        <div class="nav-links">
+          <a href="/">Home</a>
+          <a href="/upload-project">Upload</a>
+          <a href="/explore-projects">Explore</a>
+          <a class="active" href="#">Mentorship</a>
+          <a href="/profile">My Profile</a>
+          <a href="#" onclick="logoutUser()">Logout</a>
+        </div>
+        <div class="search-section">
+          <input id="searchBar" class="search-bar" type="text" placeholder="Search by title or author..." />
+          <div id="search-results" class="results-container"></div>
+        </div>
+      </nav>
+
+      <!-- Mentorship Hub Content -->
+      <section class="mentorship-container">
+        <header class="mentorship-header">
+          <h1>Mentorship Hub</h1>
+          <p>Chat with your mentor and track your mentorship requests here.</p>
+        </header>
+
+        <section class="request-section">
+          <h2>Your Mentorship Requests</h2>
+          <div id="request-list" class="request-list">
+            <!-- Dynamically loaded requests -->
+          </div>
+        </section>
+
+        <section class="chat-section hidden" id="chatSection">
+          <h2>Conversation with Mentor</h2>
+          <div id="chat-messages" class="chat-messages"></div>
+          <form id="chat-form" class="chat-form">
+            <textarea id="chat-input" placeholder="Type your message..." required></textarea>
+            <button type="submit">Send</button>
+          </form>
+        </section>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

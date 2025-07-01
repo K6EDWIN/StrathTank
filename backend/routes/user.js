@@ -573,4 +573,98 @@ router.get('/logout', (req, res) => {
     });
   });
 });
+
+
+// ----------------------------------------
+// Mentorship Features for Users
+// ----------------------------------------
+const ensureUser = (req, res, next) => {
+  if (req.session?.user) {
+    return next();
+  }
+  res.status(401).json({ success: false, message: 'Not authenticated' });
+};
+
+
+// ✅ GET /user/mentorship/dashboard
+router.get('/mentorship/dashboard', ensureUser, (req, res) => {
+  const userId = req.session.user.id;
+
+  const sql = `
+    SELECT * FROM mentorship_requests
+    WHERE mentee_id = ?
+    ORDER BY created_at DESC
+  `;
+
+  db.query(sql, [userId], (err, results) => {
+    if (err) {
+      console.error('❌ DB error:', err);
+      return res.status(500).json({ success: false, message: 'Database error' });
+    }
+
+    res.json({ success: true, mentorshipRequests: results });
+  });
+});
+
+
+// ✅ GET /user/mentorship/request/:id/messages
+
+
+router.get('/mentorship/request/:id/messages', ensureUser, (req, res) => {
+  const userId = req.session.user.id;
+  const requestId = req.params.id;
+  const sql = `
+    SELECT * FROM mentorship_requests
+    WHERE id = ? AND mentee_id = ?
+  `;
+
+  db.query(sql, [requestId, userId], (err, results) => {
+    if (err || results.length === 0) {
+      return res.status(403).json({ success: false, message: 'Not your request' });
+    }
+
+    // ✅ Now fetch messages
+    db.query(
+      `SELECT * FROM mentorship_messages WHERE request_id = ? ORDER BY created_at ASC`,
+      [requestId],
+      (err, messages) => {
+        if (err) {
+          return res.status(500).json({ success: false, message: 'DB error' });
+        }
+        res.json({ success: true, messages });
+      }
+    );
+  });
+});
+
+
+
+// ✅ POST /user/mentorship/request/:id/messages
+router.post('/mentorship/request/:id/messages', ensureUser, (req, res) => {
+  const requestId = req.params.id;
+  const { message } = req.body;
+
+  if (!message || !message.trim()) {
+    return res.status(400).json({ success: false, message: 'Message cannot be empty' });
+  }
+
+  const sql = `
+    INSERT INTO mentorship_messages (request_id, sender, message, created_at)
+    VALUES (?, 'mentee', ?, NOW())
+  `;
+
+  db.query(sql, [requestId, message.trim()], (err) => {
+    if (err) {
+      console.error('❌ DB error:', err);
+      return res.status(500).json({ success: false, message: 'Database error' });
+    }
+
+    res.json({ success: true, message: 'Message sent' });
+  });
+});
+
+
+
+
+
 module.exports = router;

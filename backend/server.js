@@ -8,8 +8,6 @@ const collaborationRoutes = require('./routes/collaboration');
 const mentorshipRoutes = require('./routes/mentorship');
 const mentorshipAssignmentRoutes = require('./routes/mentorassignment');
 const mentorRoutes = require('./routes/mentor');
-
-
 const app = express();
 const PORT = process.env.PORT || 3000;
 const adminRoutes = require('./routes/admin');
@@ -33,7 +31,6 @@ app.use('/api/mentorship', mentorshipRoutes);
 app.use('/admin', adminRoutes);
 app.use('/api/mentorship', mentorshipAssignmentRoutes);
 app.use('/api/mentor', mentorRoutes);
-
 
 
 // ✅ Static assets
