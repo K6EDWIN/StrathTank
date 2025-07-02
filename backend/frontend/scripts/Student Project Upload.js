@@ -1,4 +1,4 @@
-/* -----------------------------------------------
+/* ----------------------------------------------- 
    Toggle IT Fields
 -------------------------------------------------*/
 function toggleITFields(checkbox) {
@@ -92,7 +92,7 @@ function addTeamMemberInput() {
             item.classList.add('suggestion-item');
             item.innerHTML = `
               <div style="display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem; cursor: pointer;">
-                <img src="${user.profile_photo ? user.profile_photo.replace(/\\/g, '/').replace(/\s+/g, '') : '/assets/noprofile.jpg'}" width="32" height="32" style="border-radius: 50%;">
+              <img src="${user.profile_photo ? encodeURI(user.profile_photo.replace(/\\/g, '/')) : '/assets/noprofile.jpg'}" width="32" height="32" style="border-radius: 50%;">
                 <span>${user.name} <small style="color: gray;">(${user.role || 'Member'})</small></span>
               </div>`;
 
@@ -242,15 +242,15 @@ function gatherFormData() {
 }
 
 /* -----------------------------------------------
-   Submit Project
+   Spinner and Submit
 -------------------------------------------------*/
 async function submitProject(e) {
   e.preventDefault();
-  showAndHideThumbsGif();
 
-  const formData = gatherFormData();
+  document.getElementById('uploadSpinner').style.display = 'flex';
 
   try {
+    const formData = gatherFormData();
     const res = await fetch("/user/upload-project", {
       method: "POST",
       body: formData,
@@ -259,15 +259,111 @@ async function submitProject(e) {
 
     const result = await res.json();
     if (res.ok && result.success) {
-      alert("✅ Project submitted successfully!");
-      window.location.href = "/explore-projects";
+      showSuccessModal();
     } else {
       alert("❌ Upload failed: " + (result.message || "Unknown error"));
     }
   } catch (err) {
     console.error("Error submitting project:", err);
     alert("❌ Upload failed due to network error.");
+  } finally {
+    document.getElementById('uploadSpinner').style.display = 'none';
   }
+}
+
+
+/* -----------------------------------------------
+   File Input Handling with PDF-only and Append Support
+-------------------------------------------------*/
+function bytesToMB(bytes) {
+  return (bytes / (1024 * 1024)).toFixed(2);
+}
+
+function handleFileInput(inputId, summaryId, fieldName, options = {}) {
+  const input = document.getElementById(inputId);
+  const summary = document.getElementById(summaryId);
+
+  if (!handleFileInput._fileStores) handleFileInput._fileStores = {};
+  if (!handleFileInput._fileStores[inputId]) handleFileInput._fileStores[inputId] = [];
+  let accumulatedFiles = handleFileInput._fileStores[inputId];
+
+  function renderSummary() {
+    summary.innerHTML = `<strong>Selected Files:</strong><ul style="list-style:none;padding:0;">`;
+    accumulatedFiles.forEach((file, index) => {
+      const listItem = document.createElement("li");
+      listItem.style.marginBottom = "10px";
+
+      let itemContent = `
+        <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+          <div>
+            ${file.name} (${bytesToMB(file.size)} MB)
+            <button style="margin-left:10px; color:red; cursor:pointer;" data-index="${index}">❌</button>
+          </div>
+      `;
+
+      if (!options.accept && file.type.startsWith("image/")) {
+        const imgURL = URL.createObjectURL(file);
+        itemContent += `
+          <img src="${imgURL}" style="max-width:150px; max-height:150px; border:1px solid #ccc; border-radius:4px;" alt="Preview">
+        `;
+      }
+
+      itemContent += `</div>`;
+      listItem.innerHTML = itemContent;
+      summary.querySelector("ul").appendChild(listItem);
+
+      listItem.querySelector("button").addEventListener("click", () => {
+        accumulatedFiles.splice(index, 1);
+        updateFileInput(input, accumulatedFiles);
+        renderSummary();
+      });
+    });
+
+    summary.classList.toggle("hidden", accumulatedFiles.length === 0);
+  }
+
+  input.addEventListener("change", () => {
+    let newFiles = Array.from(input.files);
+
+    if (options.accept === "pdf") {
+      newFiles = newFiles.filter(file => {
+        if (file.type !== "application/pdf") {
+          alert(`❌ ${file.name} is not a PDF and was skipped.`);
+          return false;
+        }
+        return true;
+      });
+    }
+
+    if (options.append) {
+      accumulatedFiles.push(...newFiles);
+    } else {
+      accumulatedFiles = newFiles;
+      handleFileInput._fileStores[inputId] = accumulatedFiles;
+    }
+
+    accumulatedFiles = accumulatedFiles.filter(file => {
+      if (file.size > 50 * 1024 * 1024) {
+        alert(`❌ ${file.name} is over 50MB and was skipped.`);
+        return false;
+      }
+      return true;
+    });
+    handleFileInput._fileStores[inputId] = accumulatedFiles;
+
+    updateFileInput(input, accumulatedFiles);
+    renderSummary();
+  });
+
+  if (accumulatedFiles.length > 0) {
+    renderSummary();
+  }
+}
+
+function updateFileInput(input, validFiles) {
+  const dataTransfer = new DataTransfer();
+  validFiles.forEach(file => dataTransfer.items.add(file));
+  input.files = dataTransfer.files;
 }
 
 /* -----------------------------------------------
@@ -286,7 +382,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   document.getElementById('selectRepoBtn').addEventListener('click', async () => {
     const input = document.getElementById('repo_url');
     let url = prompt('Paste your GitHub repo URL:', input.value || 'https://github.com/');
-
     if (!url || !url.includes('github.com')) {
       alert('❌ Invalid GitHub URL.');
       return;
@@ -299,7 +394,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     const [owner, repo] = parts;
-
     try {
       const res = await fetch(`https://api.github.com/repos/${owner}/${repo}`);
       if (!res.ok) throw new Error();
@@ -308,7 +402,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       input.value = data.html_url;
 
       const formEl = document.querySelector('form');
-
       let starsInput = document.getElementById('stars');
       if (!starsInput) {
         starsInput = document.createElement('input');
@@ -335,50 +428,31 @@ document.addEventListener("DOMContentLoaded", async () => {
       input.value = '';
     }
   });
+
+  handleFileInput("documentsInput", "documentsSummary", "documents[]", { accept: "pdf" });
+  handleFileInput("screenshotsInput", "screenshotsSummary", "screenshots[]", { append: true });
+  handleFileInput("profileImageInput", "profileImageSummary", "project_profile_picture");
 });
-// Trigger file input when button is clicked
+
+/* -----------------------------------------------
+   Custom File Upload Triggers
+-------------------------------------------------*/
 document.getElementById("uploadDocumentsBtn").addEventListener("click", () => {
   document.getElementById("documentsInput").click();
 });
 document.getElementById("uploadScreenshotsBtn").addEventListener("click", () => {
   document.getElementById("screenshotsInput").click();
 });
-
-// Show selected file names
-function updateFileSummary(inputId, summaryId) {
-  const input = document.getElementById(inputId);
-  const summary = document.getElementById(summaryId);
-  const files = input.files;
-
-  if (files.length === 0) {
-    summary.classList.add('hidden');
-    summary.innerHTML = '';
-    return;
-  }
-
-  let content = `<strong>Selected Files (${files.length}):</strong><ul>`;
-  Array.from(files).forEach(file => {
-    content += `<li>${file.name}</li>`;
-  });
-  content += '</ul>';
-
-  summary.innerHTML = content;
-  summary.classList.remove('hidden');
-}
-
-document.getElementById("documentsInput").addEventListener("change", () => {
-  updateFileSummary("documentsInput", "documentsSummary");
+document.getElementById('uploadProfileBtn').addEventListener('click', () => {
+  document.getElementById('profileImageInput').click();
 });
 
-document.getElementById("screenshotsInput").addEventListener("change", () => {
-  updateFileSummary("screenshotsInput", "screenshotsSummary");
-});
+/* -----------------------------------------------
+   Logout
+-------------------------------------------------*/
 function logoutUser() {
-  // Show logout loader
   const loader = document.getElementById('logout-loader');
   loader.style.display = 'flex';
-
-  // Optional delay for UX (e.g. 1.5 seconds)
   setTimeout(() => {
     fetch('/user/logout', {
       method: 'GET',
@@ -388,14 +462,40 @@ function logoutUser() {
         if (res.redirected) {
           window.location.href = res.url;
         } else {
-          loader.style.display = 'none'; // hide loader
+          loader.style.display = 'none';
           alert('Logout failed.');
         }
       })
       .catch(err => {
-        loader.style.display = 'none'; // hide loader
+        loader.style.display = 'none';
         console.error('Logout error:', err);
         alert('Error logging out.');
       });
-  }, 1500); // Show loader before logging out
+  }, 1500);
+}
+function showSuccessModal() {
+  const modal = document.getElementById('successModal');
+  const countdownSpan = document.getElementById('countdown');
+  let countdown = 10;
+  modal.style.display = 'flex';
+  countdownSpan.textContent = countdown;
+
+  const interval = setInterval(() => {
+    countdown--;
+    countdownSpan.textContent = countdown;
+    if (countdown <= 0) {
+      clearInterval(interval);
+      window.location.href = "/explore-projects";
+    }
+  }, 1000);
+
+  document.getElementById('cancelRedirect').onclick = () => {
+    clearInterval(interval);
+    modal.style.display = 'none';
+  };
+
+  document.getElementById('proceedNow').onclick = () => {
+    clearInterval(interval);
+    window.location.href = "/explore-projects";
+  };
 }

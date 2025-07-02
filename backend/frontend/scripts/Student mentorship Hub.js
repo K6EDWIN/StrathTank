@@ -1,7 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
   loadUserMentorshipRequests();
 
-  // Attach listener for sending a chat message
   const chatForm = document.getElementById('chat-form');
   if (chatForm) {
     chatForm.addEventListener('submit', (e) => {
@@ -103,8 +102,7 @@ function renderMessages(messages) {
 
   messages.forEach(msg => {
     const msgDiv = document.createElement('div');
-    msgDiv.classList.add('message');
-    msgDiv.classList.add(msg.sender === 'mentee' ? 'mentee' : 'mentor');
+    msgDiv.classList.add('message', msg.sender === 'mentee' ? 'mentee' : 'mentor');
     msgDiv.textContent = msg.message;
     chatContainer.appendChild(msgDiv);
   });
@@ -137,12 +135,14 @@ function sendUserMessage() {
       alert('Failed to send message.');
     });
 }
+
+/**
+ * Log out the user
+ */
 function logoutUser() {
-  // Show logout loader
   const loader = document.getElementById('logout-loader');
   loader.style.display = 'flex';
 
-  // Optional delay for UX (e.g. 1.5 seconds)
   setTimeout(() => {
     fetch('/user/logout', {
       method: 'GET',
@@ -152,14 +152,14 @@ function logoutUser() {
         if (res.redirected) {
           window.location.href = res.url;
         } else {
-          loader.style.display = 'none'; // hide loader
+          loader.style.display = 'none';
           alert('Logout failed.');
         }
       })
       .catch(err => {
-        loader.style.display = 'none'; // hide loader
+        loader.style.display = 'none';
         console.error('Logout error:', err);
         alert('Error logging out.');
       });
-  }, 1500); // Show loader before logging out
+  }, 1500);
 }

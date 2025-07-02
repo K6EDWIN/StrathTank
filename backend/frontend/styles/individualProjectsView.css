@@ -1,3 +1,6 @@
+/* -----------------------------------------------
+   Base & Body
+-------------------------------------------------*/
 body {
   font-family: 'Segoe UI', sans-serif;
   margin: 0;
@@ -8,6 +11,9 @@ body {
   max-width: 100%;
 }
 
+/* -----------------------------------------------
+   Hero Section
+-------------------------------------------------*/
 .hero {
   background-color: transparent;
   background-size: cover;
@@ -26,16 +32,21 @@ body {
   justify-content: center;
   padding: 2rem;
 }
+
 #hero .overlay h1 {
   font-size: 2rem;
   margin-bottom: 1rem;
   color: white;
 }
+
 #hero .overlay p {
   font-size: 1.5rem;
   font-weight: 300;
 }
 
+/* -----------------------------------------------
+   Main Container & Headings
+-------------------------------------------------*/
 .container {
   margin: auto;
   padding: 2rem;
@@ -46,6 +57,9 @@ h1, h2 {
   color: #2c3e50;
 }
 
+/* -----------------------------------------------
+   Tags
+-------------------------------------------------*/
 .tags span {
   display: inline-block;
   background: #e0f0ff;
@@ -56,6 +70,9 @@ h1, h2 {
   font-size: 0.9rem;
 }
 
+/* -----------------------------------------------
+   Details Grid
+-------------------------------------------------*/
 .details-grid {
   display: flex;
   flex-wrap: wrap;
@@ -63,7 +80,8 @@ h1, h2 {
   margin-top: 2rem;
 }
 
-.technical, .info {
+.technical,
+.info {
   flex: 1 1 45%;
   border: 1px solid #c4b9b9;
   border-radius: 20px;
@@ -71,6 +89,9 @@ h1, h2 {
   background: #fff;
 }
 
+/* -----------------------------------------------
+   Lists
+-------------------------------------------------*/
 ul {
   list-style: none;
   padding: 0;
@@ -80,6 +101,9 @@ li {
   margin-bottom: 0.5rem;
 }
 
+/* -----------------------------------------------
+   Buttons
+-------------------------------------------------*/
 .buttons {
   margin: 1rem 0;
   display: flex;
@@ -101,12 +125,16 @@ button {
   color: white;
 }
 
-.collaborate, .flagproject {
+.collaborate,
+.flagproject {
   background-color: #007acc;
   color: white;
   border-radius: 20px;
 }
-.collaborate:hover, .viewGitHub:hover, .flagproject:hover {
+
+.collaborate:hover,
+.viewGitHub:hover,
+.flagproject:hover {
   background-color: #e9486d;
 }
 
@@ -115,10 +143,14 @@ button {
   color: white;
   border-radius: 20px;
 }
+
 #GitHub:hover {
   background-color: #e9486d;
 }
 
+/* -----------------------------------------------
+   Heart Icon
+-------------------------------------------------*/
 .heart {
   font-size: 1.5rem;
   margin-top: 1rem;
@@ -127,12 +159,15 @@ button {
   user-select: none;
   text-align: center;
 }
+
 .heart:hover {
   transform: scale(1.2);
   color: red;
 }
 
-/* Updated Screenshots Section */
+/* -----------------------------------------------
+   Designs Section
+-------------------------------------------------*/
 .designs .design-grid {
   display: flex;
   flex-wrap: wrap;
@@ -156,7 +191,6 @@ button {
   height: auto;
   max-height: 400px;
   object-fit: contain;
-
   background: #fefefe;
   padding: 10px;
   border: 2px solid #e0e6eb;
@@ -170,7 +204,11 @@ button {
   box-shadow: 0 6px 16px rgba(0,0,0,0.15);
 }
 
-.documents, .team {
+/* -----------------------------------------------
+   Documents & Team
+-------------------------------------------------*/
+.documents,
+.team {
   margin-top: 2rem;
   border: 1px solid #c4b9b9;
   border-radius: 20px;
@@ -178,6 +216,9 @@ button {
   background: #fff;
 }
 
+/* -----------------------------------------------
+   Comments Section
+-------------------------------------------------*/
 .comments {
   margin-top: 2rem;
   background: #ffffff;
@@ -198,6 +239,7 @@ button {
   box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
   transition: border-color 0.2s ease;
 }
+
 .comments textarea:focus {
   outline: none;
   border-color: #007acc;
@@ -214,6 +256,7 @@ button {
   cursor: pointer;
   transition: background 0.3s ease;
 }
+
 .comments button:hover {
   background-color: #e9486d;
 }
@@ -227,23 +270,30 @@ button {
   box-shadow: 0 2px 4px rgba(0,0,0,0.03);
   transition: transform 0.2s ease;
 }
+
 .comment:hover {
   transform: translateY(-2px);
 }
+
 .comment strong {
   color: #2c3e50;
   font-size: 1.05rem;
 }
+
 .comment p {
   margin: 0.5rem 0;
   color: #333;
   font-size: 0.96rem;
 }
+
 .comment small {
   color: #888;
   font-size: 0.85rem;
 }
 
+/* -----------------------------------------------
+   Responsive Layout
+-------------------------------------------------*/
 @media (max-width: 768px) {
   .details-grid {
     flex-direction: column;
@@ -258,6 +308,9 @@ button {
   }
 }
 
+/* -----------------------------------------------
+   Card Row
+-------------------------------------------------*/
 .card-row {
   display: flex;
   flex-wrap: wrap;
@@ -301,16 +354,21 @@ button {
   border-radius: 20px;
   cursor: pointer;
 }
+
 .card button:hover {
   background-color: #e9486d;
 }
 
-/* Scrollbar */
+/* -----------------------------------------------
+   Scrollbar Hiding
+-------------------------------------------------*/
 *::-webkit-scrollbar {
   display: none;
 }
 
-/* Navigation */
+/* -----------------------------------------------
+   Navbar
+-------------------------------------------------*/
 .navbar {
   position: sticky;
   top: 0;
@@ -324,6 +382,7 @@ button {
   flex-wrap: wrap;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
+
 .nav-links a {
   margin: 0 0.75rem;
   color: white;
@@ -355,7 +414,9 @@ button {
   margin-top: 0.5rem;
 }
 
-/* Overlay Viewer */
+/* -----------------------------------------------
+   Overlay Viewer
+-------------------------------------------------*/
 .overlay-viewer {
   position: fixed;
   top: 0;
@@ -395,7 +456,9 @@ button {
   border-radius: 4px;
 }
 
-/* Popup */
+/* -----------------------------------------------
+   Popup
+-------------------------------------------------*/
 .popup-overlay {
   position: fixed;
   top: 0;
@@ -450,16 +513,22 @@ button {
   color: #fff;
 }
 
+/* -----------------------------------------------
+   Utility - Hidden
+-------------------------------------------------*/
 .hidden {
   display: none;
 }
 
-/* Comments Nested Replies */
+/* -----------------------------------------------
+   Comments Nested Replies
+-------------------------------------------------*/
 .comment-header {
   display: flex;
   align-items: center;
   margin-bottom: 0.5rem;
 }
+
 .comment-avatar {
   width: 40px;
   height: 40px;
@@ -468,27 +537,31 @@ button {
   margin-right: 0.75rem;
   border: 2px solid #ddd;
 }
+
 .comment-meta {
   display: flex;
   flex-direction: column;
 }
+
 .comment-user {
   font-weight: 600;
   color: #2c3e50;
 }
+
 .comment-time {
   font-size: 0.85rem;
   color: #888;
   margin-top: 2px;
 }
+
 .comment-content {
   font-size: 0.95rem;
   color: #333;
   margin: 0;
 }
+
 .nested-replies {
   margin-left: 20px;
   border-left: 2px solid #ddd;
   padding-left: 10px;
 }
-  

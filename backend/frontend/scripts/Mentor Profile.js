@@ -4,7 +4,9 @@ document.addEventListener('DOMContentLoaded', () => {
   loadCurrentMentees(); // NEW
 });
 
-// === 1. Load mentor profile from server ===
+// ==========================
+// 1. LOAD MENTOR PROFILE FROM SERVER
+// ==========================
 async function loadMentorProfile() {
   try {
     const res = await fetch('/user', { credentials: 'include' });
@@ -18,7 +20,9 @@ async function loadMentorProfile() {
   }
 }
 
-// === 2. Render the entire profile ===
+// ==========================
+// 2. RENDER MENTOR PROFILE
+// ==========================
 function renderMentorProfile(user) {
   renderTextField('mentorName', user.name || 'Unknown');
   renderTextField('mentorEmail', user.email || 'No email available');
@@ -38,13 +42,17 @@ function renderMentorProfile(user) {
   renderSkills(skills);
 }
 
-// === 3. Utility to fill text content ===
+// ==========================
+// 3. UTILITY TO FILL TEXT CONTENT
+// ==========================
 function renderTextField(id, value) {
   const el = document.getElementById(id);
   if (el) el.textContent = value;
 }
 
-// === 4. Render skills list ===
+// ==========================
+// 4. RENDER SKILLS LIST
+// ==========================
 function renderSkills(skills) {
   const skillsContainer = document.getElementById('mentorSkills');
   skillsContainer.innerHTML = '';
@@ -79,7 +87,9 @@ function renderSkills(skills) {
   });
 }
 
-// === 5. Save updated skills to server ===
+// ==========================
+// 5. SAVE UPDATED SKILLS TO SERVER
+// ==========================
 async function saveSkills(skills) {
   try {
     const res = await fetch('/user/skills', {
@@ -95,7 +105,9 @@ async function saveSkills(skills) {
   }
 }
 
-// === 6. BIO modal handling ===
+// ==========================
+// 6. BIO MODAL HANDLING
+// ==========================
 document.getElementById('openBioModal')?.addEventListener('click', () => {
   const bioModal = document.getElementById('bioModal');
   const bioTextarea = document.getElementById('bioTextarea');
@@ -137,7 +149,9 @@ document.getElementById('saveBioBtn')?.addEventListener('click', async () => {
   }
 });
 
-// === 7. Add new skills ===
+// ==========================
+// 7. ADD NEW SKILLS
+// ==========================
 document.getElementById('addSkillBtn')?.addEventListener('click', async () => {
   const newSkillInput = document.getElementById('newSkillInput');
   const input = newSkillInput.value.trim();
@@ -153,7 +167,9 @@ document.getElementById('addSkillBtn')?.addEventListener('click', async () => {
   newSkillInput.value = '';
 });
 
-// === 8. Profile picture upload ===
+// ==========================
+// 8. PROFILE PICTURE UPLOAD
+// ==========================
 document.getElementById('profilePicInput')?.addEventListener('change', async (e) => {
   const file = e.target.files[0];
   if (!file) return;
@@ -180,7 +196,9 @@ document.getElementById('profilePicInput')?.addEventListener('change', async (e)
   }
 });
 
-// === 9. Load mentorship stats ===
+// ==========================
+// 9. LOAD MENTORSHIP STATS
+// ==========================
 async function loadMentorshipStats() {
   try {
     const res = await fetch('/api/mentor/stats', { credentials: 'include' });
@@ -199,7 +217,9 @@ async function loadMentorshipStats() {
   }
 }
 
-// === 10. Load current mentees ===
+// ==========================
+// 10. LOAD CURRENT MENTEES
+// ==========================
 async function loadCurrentMentees() {
   try {
     const res = await fetch('/api/mentor/current-mentees', { credentials: 'include' });
@@ -216,7 +236,9 @@ async function loadCurrentMentees() {
   }
 }
 
-// === 11. Render current mentees ===
+// ==========================
+// 11. RENDER CURRENT MENTEES
+// ==========================
 function renderCurrentMentees(mentees) {
   const grid = document.getElementById('menteesGrid');
   if (!grid) return;
@@ -255,4 +277,34 @@ function renderCurrentMentees(mentees) {
 
     grid.appendChild(card);
   });
+}
+
+// ==========================
+// LOGOUT USER
+// ==========================
+function logoutUser() {
+  // Show logout loader
+  const loader = document.getElementById('logout-loader');
+  loader.style.display = 'flex';
+
+  // Optional delay for UX (e.g. 1.5 seconds)
+  setTimeout(() => {
+    fetch('/user/logout', {
+      method: 'GET',
+      credentials: 'include'
+    })
+      .then(res => {
+        if (res.redirected) {
+          window.location.href = res.url;
+        } else {
+          loader.style.display = 'none'; // hide loader
+          alert('Logout failed.');
+        }
+      })
+      .catch(err => {
+        loader.style.display = 'none'; // hide loader
+        console.error('Logout error:', err);
+        alert('Error logging out.');
+      });
+  }, 1500); // Show loader before logging out
 }

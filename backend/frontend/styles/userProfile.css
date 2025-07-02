@@ -1,4 +1,6 @@
-/* Reset & Base Styles */
+/* ====================================================
+   RESET & BASE STYLES
+==================================================== */
 * {
   box-sizing: border-box;
   margin: 0;
@@ -12,19 +14,23 @@ body {
   line-height: 1.6;
 }
 
-/* Layout */
+/* ====================================================
+   LAYOUT
+==================================================== */
 .page-container {
   display: flex;
   min-height: 100vh;
 }
 
-
-/* Shift Main Content When Sidebar is Visible */
+/* Shift main content when sidebar is visible */
 .main-content {
   transition: margin-left 0.3s ease-in-out;
   margin-left: 0;
 }
 
+/* ====================================================
+   NAVBAR
+==================================================== */
 .navbar {
   display: flex;
   align-items: center;
@@ -55,12 +61,11 @@ body {
   height: 60px;
   width: 60px;
   object-fit: cover;
-  border-radius: 50%; 
-  border: 2px solid #f39c12; 
-  background-color: white;   
-  padding: 5px;              
+  border-radius: 50%;
+  border: 2px solid #f39c12;
+  background-color: white;
+  padding: 5px;
 }
-
 
 .search-bar {
   padding: 0.5rem;
@@ -69,9 +74,11 @@ body {
   margin-left: auto;
 }
 
-/* === Profile Content === */
+/* ====================================================
+   PROFILE CONTENT
+==================================================== */
 .profile-content {
-  margin-left:0;
+  margin-left: 0;
   padding: 30px;
   flex: 1;
   background-color: #fff;
@@ -79,7 +86,7 @@ body {
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
 }
 
-/* === Profile Header === */
+/* Profile header */
 .profile-top {
   display: flex;
   align-items: flex-start;
@@ -140,12 +147,15 @@ body {
   background-color: #e9486d;
 }
 
-/* === Modal Popup === */
+/* ====================================================
+   MODAL POPUP
+==================================================== */
 .modal {
   display: none;
   position: fixed;
   z-index: 9999;
-  left: 0; top: 0;
+  left: 0; 
+  top: 0;
   width: 100%;
   height: 100%;
   background-color: rgba(0, 0, 0, 0.4);
@@ -208,7 +218,9 @@ body {
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* === Skills Section === */
+/* ====================================================
+   SKILLS SECTION
+==================================================== */
 .skills-section {
   margin-top: 2rem;
 }
@@ -222,7 +234,6 @@ body {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
-
   margin: 1rem 0;
 }
 
@@ -261,7 +272,7 @@ body {
 }
 
 #addSkillBtn {
-  background-color:black;
+  background-color: black;
   color: white;
   border: none;
   padding: 0.5rem 1rem;
@@ -273,7 +284,9 @@ body {
   background-color: #e9486d;
 }
 
-/* === Statistics Section === */
+/* ====================================================
+   STATISTICS SECTION
+==================================================== */
 .stats-section {
   margin-top: 2rem;
 }
@@ -295,7 +308,9 @@ body {
   min-width: 150px;
 }
 
-/* === Project Sections === */
+/* ====================================================
+   PROJECTS & COLLABORATIONS SECTIONS
+==================================================== */
 .projects-section,
 .collaborations-section {
   margin-top: 2rem;
@@ -352,6 +367,7 @@ body {
   background-color: #8e44ad;
 }
 
+/* Collaboration overrides */
 .collaboration {
   border-left-color: #3498db;
   border-right-color: #3498db;
@@ -365,25 +381,33 @@ body {
   background-color: #2980b9;
 }
 
+/* ====================================================
+   SCROLLBAR & RESPONSIVE
+==================================================== */
 /* Hide Scrollbar */
 *::-webkit-scrollbar {
   display: none;
 }
 
-/* Responsive */
+/* Responsive adjustments */
 @media (max-width: 600px) {
   .sidebar {
     display: none;
   }
+
   .main-content {
     margin-left: 0 !important;
   }
+
   .projects-grid,
   .collaborations-grid {
     grid-template-columns: 1fr;
   }
 }
-/* Message for no projects or collaborations */
+
+/* ====================================================
+   MESSAGES FOR EMPTY SECTIONS
+==================================================== */
 .no-projects-msg,
 .no-collabs-msg {
   padding: 1rem;
@@ -398,7 +422,6 @@ body {
   transition: all 0.3s ease;
 }
 
-/* Optional: subtle hover effect */
 .no-projects-msg:hover,
 .no-collabs-msg:hover {
   background-color: #f1f1f1;

@@ -1,5 +1,3 @@
-// scripts/otherProfile.js
-
 // Get userId from query params
 const params = new URLSearchParams(window.location.search);
 const userId = params.get("userId");

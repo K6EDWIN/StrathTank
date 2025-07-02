@@ -1,3 +1,6 @@
+/* ====================================================
+   BODY & CONTAINER
+==================================================== */
 body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   background: linear-gradient(to right, #9b59b6, #3498db);
@@ -21,12 +24,18 @@ body {
   animation: slideUp 0.4s ease;
 }
 
+/* ====================================================
+   HEADINGS
+==================================================== */
 h2 {
   margin-bottom: 1.5rem;
   color: #2c3e50;
   font-size: 1.6rem;
 }
 
+/* ====================================================
+   FORM & INPUTS
+==================================================== */
 form {
   display: flex;
   flex-direction: column;
@@ -55,6 +64,9 @@ input[type="text"]:focus {
   box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.15);
 }
 
+/* ====================================================
+   BUTTONS
+==================================================== */
 button {
   padding: 0.75rem;
   background-color: #000000;
@@ -80,6 +92,9 @@ button:hover {
   background-color: #5a6268;
 }
 
+/* ====================================================
+   MESSAGES
+==================================================== */
 #verify-message {
   margin-top: 1rem;
   font-size: 0.95rem;
@@ -87,7 +102,9 @@ button:hover {
   animation: fadeIn 0.3s ease-in-out;
 }
 
-/* Animations */
+/* ====================================================
+   ANIMATIONS
+==================================================== */
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
@@ -97,6 +114,10 @@ button:hover {
   from { transform: translateY(20px); opacity: 0; }
   to { transform: translateY(0); opacity: 1; }
 }
+
+/* ====================================================
+   SCROLLBAR HIDE (Webkit)
+==================================================== */
 *::-webkit-scrollbar {
   display: none;
 }

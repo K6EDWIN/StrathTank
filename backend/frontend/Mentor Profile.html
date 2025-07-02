@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Mentor Profile</title>
+  <link rel="stylesheet" href="styles/userProfile.css" />
   <link rel="stylesheet" href="styles/Mentor profile.css" />
 </head>
 <body>
@@ -15,7 +16,7 @@
       <li><a href="/mentor">Home</a></li>
       <li><a href="/explorementors">Projects</a></li>
       <li><a href="/mentorshipHub">Mentorship Hub</a></li>
-      <li><a href="#" active >My Profile</a></li>
+      <li><a href="#" active>My Profile</a></li>
     </ul>
   </aside>
 
@@ -30,6 +31,7 @@
         <a href="/mentor">Home</a>
         <a href="/explorementors">Explore</a>
         <a href="/mentorshipHub">Mentorship Hub</a>
+        <a href="#" onclick="logoutUser()">Logout</a>
       </div>
       <div class="search-section">
         <input id="searchBar" class="search-bar" type="text" placeholder="Search by title or author..." />
@@ -40,20 +42,21 @@
     <!-- Profile Content -->
     <div class="page-container">
       <main class="profile-content">
-        <!-- Profile Header -->
+
+        <!-- ✅ Profile Header (updated to match user profile) -->
         <section class="profile-header">
           <div class="profile-top">
             <div class="profile-image-container">
-              <img id="mentorProfilePic" class="profile-pic" src="/assets/noprofile.jpg" alt="Mentor Picture" />
-              <label id="editIcon" class="edit-pic">
+              <img id="mentorProfilePic" class="profile-pic" alt="Mentor Picture" />
+              <label id="editIcon" class="edit-pic" style="display: none;">
                 <input type="file" id="profilePicInput" accept="image/*" hidden />
                 <span class="edit-icon">🖉</span>
               </label>
             </div>
             <div class="profile-info">
               <h1 id="mentorName">Loading...</h1>
-              <p id="mentorEmail" class="email" style="display: none;"></p>
-              <p id="mentorBio" class="bio">Loading bio...</p>
+              <p id="mentorEmail" style="display: none;"></p>
+              <p id="mentorBio" class="bio">No bio yet.</p>
               <button id="openBioModal" class="edit-bio-btn">Edit Bio</button>
 
               <!-- Bio Edit Modal -->

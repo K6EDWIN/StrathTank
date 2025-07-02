@@ -1,9 +1,13 @@
-// Scroll to Projects when Explore arrow is clicked
+// ==========================
+// ✅ Scroll to Projects when Explore arrow is clicked
+// ==========================
 document.querySelector('.explore').addEventListener('click', function () {
   document.querySelector('#projects').scrollIntoView({ behavior: 'smooth' });
 });
 
-// Smooth scroll from #projects to #cta when #projects is visible
+// ==========================
+// ✅ Smooth scroll from #projects to #cta when #projects is mostly visible
+// ==========================
 document.addEventListener("DOMContentLoaded", function () {
   const cta = document.querySelector('#cta');
   const projects = document.querySelector('#projects');
@@ -13,7 +17,7 @@ document.addEventListener("DOMContentLoaded", function () {
       if (entries[0].isIntersecting) {
         setTimeout(() => {
           cta.scrollIntoView({ behavior: 'smooth' });
-        }, 5000); // small delay to feel more natural
+        }, 5000); // small delay for natural feel
         observer.disconnect(); // only scroll once
       }
     },
@@ -25,7 +29,9 @@ document.addEventListener("DOMContentLoaded", function () {
   observer.observe(projects);
 });
 
-// Handle button clicks
+// ==========================
+// ✅ Handle button clicks for signin/signup (top and bottom buttons)
+// ==========================
 document.addEventListener("DOMContentLoaded", function () {
   // Top buttons
   document.getElementById("signinbtn").addEventListener("click", function () {
@@ -46,7 +52,9 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 });
 
-// Fetch projects and display them
+// ==========================
+// ✅ Fetch projects and display them with pagination and rotation
+// ==========================
 let offset = 0;
 const limit = 3;
 const intervalTime = 5000;
@@ -60,24 +68,25 @@ async function fetchAndDisplayProjects() {
     container.innerHTML = ''; // Clear existing cards
 
     if (data.length === 0) {
-      offset = 0; // Reset if no results
+      offset = 0; // Reset offset if no more results
       return;
     }
 
     data.forEach(p => {
       const card = document.createElement('div');
       card.className = 'card';
-    card.innerHTML = `
-  <img class="thumb" src="${p.image || '/assets/placeholder.jpg'}" alt="${p.title}" onerror="this.src='/assets/placeholder.jpg'" loading="lazy" />
-  <div class="card-body">
-    <h3>${p.title}</h3>
-    <p>${p.description}</p>
-    <div class="meta">
-      <span>By ${p.author || 'Unknown'}</span>
-      <button onclick="window.location.href='/projects/${p.id}'">View</button>
-    </div>
-  </div>
-`;
+
+      card.innerHTML = `
+        <img class="thumb" src="${p.image || '/assets/placeholder.jpg'}" alt="${p.title}" onerror="this.src='/assets/placeholder.jpg'" loading="lazy" />
+        <div class="card-body">
+          <h3>${p.title}</h3>
+          <p>${p.description}</p>
+          <div class="meta">
+            <span>By ${p.author || 'Unknown'}</span>
+            <button onclick="window.location.href='/projects/${p.id}'">View</button>
+          </div>
+        </div>
+      `;
 
       container.appendChild(card);
     });
@@ -93,7 +102,7 @@ async function fetchAndDisplayProjects() {
   }
 }
 
-// Initial load
+// Initial load of projects
 fetchAndDisplayProjects();
 
 // Rotate projects every 5 seconds

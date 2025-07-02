@@ -1,3 +1,6 @@
+/* -----------------------------------------------
+   Reset & Base Styles
+-------------------------------------------------*/
 * {
   margin: 0;
   padding: 0;
@@ -13,6 +16,9 @@ body {
   height: 100vh;
 }
 
+/* -----------------------------------------------
+   Login Container
+-------------------------------------------------*/
 .login-container {
   background-color: #fff;
   padding: 40px 30px;
@@ -28,6 +34,9 @@ body {
   transform: translateY(-4px);
 }
 
+/* -----------------------------------------------
+   Headings & Text
+-------------------------------------------------*/
 h2 {
   margin-bottom: 12px;
   color: #222;
@@ -40,7 +49,9 @@ p {
   font-size: 14px;
 }
 
-/* Social Buttons */
+/* -----------------------------------------------
+   Social Login Buttons
+-------------------------------------------------*/
 .social-login {
   display: flex;
   justify-content: center;
@@ -79,7 +90,9 @@ p {
   background-color: #db4437;
 }
 
-/* Form Styling */
+/* -----------------------------------------------
+   Form Styling
+-------------------------------------------------*/
 .form-group {
   text-align: left;
   margin-bottom: 18px;
@@ -107,7 +120,9 @@ input:focus {
   box-shadow: 0 0 6px rgba(0, 119, 181, 0.3);
 }
 
-/* Login Button */
+/* -----------------------------------------------
+   Login Button
+-------------------------------------------------*/
 button.login-btn {
   margin-top: 10px;
   width: 100%;
@@ -126,7 +141,9 @@ button.login-btn:hover {
   background-color: #0077b5;
 }
 
-/* Links */
+/* -----------------------------------------------
+   Links
+-------------------------------------------------*/
 .register-link,
 .forgot-link {
   display: block;
@@ -144,12 +161,18 @@ button.login-btn:hover {
   text-decoration: underline;
 }
 
-/* Message */
+/* -----------------------------------------------
+   Login Message
+-------------------------------------------------*/
 #login-message {
   margin-top: 12px;
   font-size: 14px;
   color: red;
 }
+
+/* -----------------------------------------------
+   Login Loading Overlay
+-------------------------------------------------*/
 .login-overlay {
   position: fixed;
   top: 0;
@@ -180,6 +203,9 @@ button.login-btn:hover {
   margin-bottom: 1rem;
 }
 
+/* -----------------------------------------------
+   Spinner Animation
+-------------------------------------------------*/
 .spinner {
   width: 40px;
   height: 40px;

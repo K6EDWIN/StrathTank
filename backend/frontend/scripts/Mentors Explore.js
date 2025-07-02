@@ -7,7 +7,9 @@ let currentCategory = '';
 let currentSort = 'default';
 let currentSearchTerm = '';
 
-// Load categories from API
+// ==========================
+// LOAD CATEGORIES FROM API
+// ==========================
 function loadCategories() {
   fetch('/api/categories')
     .then(res => res.json())
@@ -21,7 +23,9 @@ function loadCategories() {
     });
 }
 
-// Render categories in sidebar
+// ==========================
+// RENDER CATEGORY LIST
+// ==========================
 function renderCategoryList(categories) {
   categoryList.innerHTML = '';
 
@@ -39,7 +43,9 @@ function renderCategoryList(categories) {
   });
 }
 
-// Handle category selection
+// ==========================
+// HANDLE CATEGORY SELECTION
+// ==========================
 function selectCategory(category) {
   document.querySelectorAll('#category-list li').forEach(el => el.classList.remove('selected'));
   [...categoryList.children].find(li => li.textContent === (category || 'All')).classList.add('selected');
@@ -47,7 +53,9 @@ function selectCategory(category) {
   loadProjects(currentSearchTerm);
 }
 
-// Load projects from API
+// ==========================
+// LOAD PROJECTS FROM API
+// ==========================
 function loadProjects(searchTerm = '') {
   let url;
   if (currentCategory) {
@@ -68,7 +76,9 @@ function loadProjects(searchTerm = '') {
     });
 }
 
-// Filter projects by search
+// ==========================
+// FILTER PROJECTS BY SEARCH TERM
+// ==========================
 function filterProjects(projects, searchTerm) {
   const term = searchTerm.toLowerCase();
   return projects.filter(project =>
@@ -77,7 +87,9 @@ function filterProjects(projects, searchTerm) {
   );
 }
 
-// Render projects grid
+// ==========================
+// RENDER PROJECT GRID
+// ==========================
 function renderProjectGrid(projects) {
   projectGrid.innerHTML = '';
 
@@ -128,7 +140,9 @@ function renderProjectGrid(projects) {
   });
 }
 
-// Event listeners
+// ==========================
+// EVENT LISTENERS
+// ==========================
 sortOptions.addEventListener('change', () => {
   currentSort = sortOptions.value;
   loadProjects(currentSearchTerm);
@@ -139,5 +153,35 @@ searchBar.addEventListener('input', e => {
   loadProjects(currentSearchTerm);
 });
 
-// Initialize
+// ==========================
+// INITIALIZE
+// ==========================
 loadCategories();
+
+// ==========================
+// LOGOUT USER
+// ==========================
+function logoutUser() {
+  const loader = document.getElementById('logout-loader');
+  loader.style.display = 'flex';
+
+  setTimeout(() => {
+    fetch('/user/logout', {
+      method: 'GET',
+      credentials: 'include'
+    })
+      .then(res => {
+        if (res.redirected) {
+          window.location.href = res.url;
+        } else {
+          loader.style.display = 'none';
+          alert('Logout failed.');
+        }
+      })
+      .catch(err => {
+        loader.style.display = 'none';
+        console.error('Logout error:', err);
+        alert('Error logging out.');
+      });
+  }, 1500);
+}

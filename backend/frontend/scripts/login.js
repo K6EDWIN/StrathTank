@@ -1,12 +1,17 @@
+// ==========================
+// ✅ DOM Elements
+// ==========================
 const loginForm = document.getElementById('loginForm');
 const messageDiv = document.getElementById('login-message');
 const loader = document.getElementById('login-loader'); // Spinner element
 
-// Handle Email/Password Login
+// ==========================
+// ✅ Handle Email/Password Login Submission
+// ==========================
 loginForm.addEventListener('submit', async function (e) {
   e.preventDefault();
 
-  loader.style.display = 'flex'; // Show spinner
+  loader.style.display = 'flex'; // Show spinner during login process
 
   const email = document.getElementById('email').value;
   const password = document.getElementById('password').value;
@@ -28,9 +33,10 @@ loginForm.addEventListener('submit', async function (e) {
       messageDiv.textContent = '✅ Successful! Welcome to your Dashboard.';
       messageDiv.style.color = 'green';
 
+      // Brief delay before redirect to keep spinner visible
       setTimeout(() => {
         window.location.href = data.redirectUrl || '/dashboard';
-      }, 1500); // Keep loader showing briefly before redirect
+      }, 1500);
     } else {
       loader.style.display = 'none';
       messageDiv.textContent = data.message;
@@ -44,29 +50,33 @@ loginForm.addEventListener('submit', async function (e) {
   }
 });
 
-// Clear message while typing
+// ==========================
+// ✅ Clear login message on input
+// ==========================
 loginForm.addEventListener('input', () => {
   messageDiv.textContent = '';
 });
 
-// Handle Social Logins with Spinner
+// ==========================
+// ✅ Handle Social Logins with Spinner
+// ==========================
 const googleBtn = document.getElementById('Google');
 const githubBtn = document.getElementById('Github');
 
 if (googleBtn) {
   googleBtn.addEventListener('click', () => {
-    loader.style.display = 'flex'; // Show spinner
+    loader.style.display = 'flex'; // Show spinner before redirect
     setTimeout(() => {
       window.location.href = '/auth/google';
-    }, 1000); // Delay for UX (optional)
+    }, 1000); // Delay for better UX
   });
 }
 
 if (githubBtn) {
   githubBtn.addEventListener('click', () => {
-    loader.style.display = 'flex';
+    loader.style.display = 'flex'; // Show spinner before redirect
     setTimeout(() => {
       window.location.href = '/auth/github';
-    }, 1000);
+    }, 1000); // Delay for better UX
   });
 }

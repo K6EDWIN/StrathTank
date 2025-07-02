@@ -21,10 +21,9 @@ document.getElementById('verifyForm').addEventListener('submit', async function 
   messageDiv.style.color = data.success ? 'green' : 'red';
 
   if (data.success) {
-    // Delay redirect to login
     setTimeout(() => {
       window.location.href = '/dashboard';
-    }, 2000); // 2 seconds delay
+    }, 2000);
   }
 });
 

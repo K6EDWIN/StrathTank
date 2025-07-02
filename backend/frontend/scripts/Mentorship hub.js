@@ -7,7 +7,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   let currentRequestId = null;
 
-  // Load all assigned requests
+  // ==========================
+  // LOAD ALL ASSIGNED REQUESTS
+  // ==========================
   function loadRequests() {
     fetch('/api/mentor/requests')
       .then(res => res.json())
@@ -18,7 +20,9 @@ document.addEventListener('DOMContentLoaded', () => {
       .catch(err => console.error('Error loading requests:', err));
   }
 
-  // Display request list with Select buttons
+  // ==========================
+  // DISPLAY REQUEST LIST
+  // ==========================
   function displayRequestList(requests) {
     requestListContainer.innerHTML = '';
 
@@ -50,7 +54,9 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Load messages for the selected request
+  // ==========================
+  // LOAD MESSAGES FOR SELECTED REQUEST
+  // ==========================
   function loadMessages(requestId) {
     fetch(`/api/mentor/request/${requestId}/messages`)
       .then(res => res.json())
@@ -58,16 +64,15 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!data.success) throw new Error('Failed to load messages');
         renderMessages(data.messages);
 
-        // Show chat section
         chatSection.classList.remove('hidden');
-
-        // Scroll to chat
         chatSection.scrollIntoView({ behavior: 'smooth' });
       })
       .catch(err => console.error('Error loading messages:', err));
   }
 
-  // Render chat messages
+  // ==========================
+  // RENDER CHAT MESSAGES
+  // ==========================
   function renderMessages(messages) {
     chatMessages.innerHTML = '';
 
@@ -86,9 +91,12 @@ document.addEventListener('DOMContentLoaded', () => {
     chatMessages.scrollTop = chatMessages.scrollHeight;
   }
 
-  // Handle sending new messages
+  // ==========================
+  // HANDLE SENDING NEW MESSAGE
+  // ==========================
   chatForm.addEventListener('submit', e => {
     e.preventDefault();
+
     if (!currentRequestId) {
       alert('Please select a request to chat.');
       return;
@@ -111,6 +119,36 @@ document.addEventListener('DOMContentLoaded', () => {
     .catch(err => console.error('Error sending message:', err));
   });
 
-  // Initialize
+  // ==========================
+  // INITIALIZE
+  // ==========================
   loadRequests();
 });
+
+// ==========================
+// LOGOUT USER
+// ==========================
+function logoutUser() {
+  const loader = document.getElementById('logout-loader');
+  loader.style.display = 'flex';
+
+  setTimeout(() => {
+    fetch('/user/logout', {
+      method: 'GET',
+      credentials: 'include'
+    })
+    .then(res => {
+      if (res.redirected) {
+        window.location.href = res.url;
+      } else {
+        loader.style.display = 'none';
+        alert('Logout failed.');
+      }
+    })
+    .catch(err => {
+      loader.style.display = 'none';
+      console.error('Logout error:', err);
+      alert('Error logging out.');
+    });
+  }, 1500);
+}

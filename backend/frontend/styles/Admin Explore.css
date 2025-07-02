@@ -1,4 +1,6 @@
-/* Global */
+/* -----------------------------------------------
+   Global Styles
+-------------------------------------------------*/
 * {
   margin: 0;
   padding: 0;
@@ -18,7 +20,9 @@ body {
   overflow: hidden;
 }
 
-/* Navigation */
+/* -----------------------------------------------
+   Navigation Bar
+-------------------------------------------------*/
 .navbar {
   display: flex;
   align-items: center;
@@ -52,13 +56,18 @@ body {
   margin-left: auto;
 }
 
-/* Main Layout */
+/* -----------------------------------------------
+   Main Layout
+-------------------------------------------------*/
 .main-wrapper {
   display: flex;
   flex: 1;
   overflow: hidden;
 }
 
+/* -----------------------------------------------
+   Sidebar
+-------------------------------------------------*/
 .sidebar {
   width: 250px;
   background-color: #f4f4f4;
@@ -108,11 +117,14 @@ body {
   border: 1px solid #ccc;
 }
 
+/* -----------------------------------------------
+   Main Content Area
+-------------------------------------------------*/
 .main-content {
   flex: 1;
   padding: 20px 30px;
   overflow-y: auto;
- background: linear-gradient(to right, #e7eaeb, #ffffff);
+  background: linear-gradient(to right, #e7eaeb, #ffffff);
 }
 
 .header {
@@ -122,6 +134,9 @@ body {
   margin-bottom: 10px;
 }
 
+/* -----------------------------------------------
+   Project Grid and Cards
+-------------------------------------------------*/
 .project-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -165,7 +180,7 @@ body {
 .project-card button {
   margin-top: 10px;
   padding: 8px 12px;
-  background-color:#000000;
+  background-color: #000000;
   color: white;
   border: none;
   border-radius: 4px;
@@ -177,6 +192,9 @@ body {
   background-color: #e9486d;
 }
 
+/* -----------------------------------------------
+   Interactions Section
+-------------------------------------------------*/
 .interactions {
   display: flex;
   justify-content: center;

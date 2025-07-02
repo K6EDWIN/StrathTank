@@ -1,4 +1,6 @@
-/* Reset & Base */
+/* ====================================================
+   RESET & BASE
+==================================================== */
 * {
   box-sizing: border-box;
   margin: 0;
@@ -12,7 +14,9 @@ body {
   line-height: 1.5;
 }
 
-/* Sidebar */
+/* ====================================================
+   SIDEBAR
+==================================================== */
 .sidebar {
   position: fixed;
   top: 0;
@@ -48,13 +52,28 @@ body {
   color: #3498db;
 }
 
-/* Main Content */
+/* ====================================================
+   MAIN CONTENT
+==================================================== */
 .main-content {
   margin-left: 220px;
-  padding: 0;
+  padding-top: 80px;
 }
 
-/* Navbar */
+@media (max-width: 768px) {
+  .sidebar {
+    display: none;
+  }
+
+  .main-content {
+    margin-left: 0;
+    padding-top: 80px;
+  }
+}
+
+/* ====================================================
+   NAVBAR
+==================================================== */
 .navbar {
   position: fixed;
   top: 0;
@@ -65,24 +84,22 @@ body {
   display: flex;
   align-items: center;
   padding: 0 2rem;
-  box-sizing: border-box;
-  z-index: 999;
   color: white;
-  transition: left 0.3s ease-in-out;
+  z-index: 999;
   gap: 2rem;
+  transition: left 0.3s ease-in-out;
 }
 
-/* LOGO link wrapper */
+/* Logo */
 .logo {
   display: flex;
   align-items: center;
   text-decoration: none;
 }
 
-/* IMAGE itself */
 .logo-img {
-  height: 50px;
-  width: 50px;
+  height: 40px;
+  width: 40px;
   object-fit: cover;
   border-radius: 50%;
   border: 2px solid #f39c12;
@@ -90,7 +107,7 @@ body {
   padding: 5px;
 }
 
-/* NAV LINKS container (fills space between logo and search) */
+/* Nav Links */
 .nav-links {
   display: flex;
   align-items: center;
@@ -99,6 +116,7 @@ body {
 }
 
 .nav-links a {
+  margin-left: 1rem;
   color: white;
   text-decoration: none;
   font-weight: bold;
@@ -111,7 +129,7 @@ body {
   background-color: #34495e;
 }
 
-/* SEARCH input */
+/* Search Bar */
 .search-bar {
   padding: 0.5rem 1rem;
   border-radius: 20px;
@@ -126,7 +144,7 @@ body {
   color: #7f8c8d;
 }
 
-/* Mobile responsive */
+/* Navbar Mobile Responsive */
 @media (max-width: 600px) {
   .navbar {
     left: 0;
@@ -135,28 +153,15 @@ body {
     padding: 0.5rem 1rem;
   }
 
-  .nav-links {
-    display: none;
-  }
-
+  .nav-links,
   .search-bar {
     display: none;
   }
 }
 
-
-.logo-img {
-  height: 40px;
-}
-
-.nav-links a {
-  margin-left: 1rem;
-  color: white;
-  text-decoration: none;
-}
-
-
-/* Mentorship Container */
+/* ====================================================
+   MENTORSHIP CONTAINER
+==================================================== */
 .mentorship-container {
   max-width: 900px;
   margin: 2rem auto;
@@ -175,7 +180,9 @@ body {
   color: #555;
 }
 
-/* Sections */
+/* ====================================================
+   SECTIONS
+==================================================== */
 .request-section,
 .chat-section {
   background-color: #fff;
@@ -185,7 +192,9 @@ body {
   margin-bottom: 2rem;
 }
 
-/* Request List Buttons */
+/* ====================================================
+   REQUEST LIST BUTTONS
+==================================================== */
 #request-list {
   display: flex;
   flex-wrap: wrap;
@@ -206,7 +215,9 @@ body {
   background-color: #2980b9;
 }
 
-/* Chat Messages */
+/* ====================================================
+   CHAT MESSAGES
+==================================================== */
 .chat-messages {
   border: 1px solid #ecf0f1;
   border-radius: 12px;
@@ -239,7 +250,9 @@ body {
   align-self: flex-start;
 }
 
-/* Chat Form */
+/* ====================================================
+   CHAT FORM
+==================================================== */
 .chat-form {
   display: flex;
   gap: 0.75rem;
@@ -273,32 +286,9 @@ body {
   background-color: #2980b9;
 }
 
-/* Utilities */
-.hidden {
-  display: none;
-}
-
-@media (max-width: 768px) {
-  .sidebar {
-    display: none;
-  }
-  .main-content {
-    margin-left: 0;
-  }
-}
-
-/* Make space for fixed navbar */
-.main-content {
-  margin-left: 220px;
-  padding-top: 80px; /* Equal to navbar height */
-}
-
-@media (max-width: 768px) {
-  .main-content {
-    margin-left: 0;
-    padding-top: 80px;
-  }
-}
+/* ====================================================
+   REQUEST CARD
+==================================================== */
 .request-card {
   display: flex;
   flex-direction: column;
@@ -347,3 +337,9 @@ body {
   background-color: #2980b9;
 }
 
+/* ====================================================
+   UTILITIES
+==================================================== */
+.hidden {
+  display: none;
+}

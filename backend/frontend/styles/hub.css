@@ -1,4 +1,6 @@
-/* Reset & Base */
+/* -----------------------------------------------
+   Reset & Base Styles
+-------------------------------------------------*/
 * {
   box-sizing: border-box;
   margin: 0;
@@ -12,7 +14,9 @@ body {
   line-height: 1.5;
 }
 
-/* Sidebar */
+/* -----------------------------------------------
+   Sidebar
+-------------------------------------------------*/
 .sidebar {
   position: fixed;
   top: 0;
@@ -48,13 +52,17 @@ body {
   color: #3498db;
 }
 
-/* Main Content */
+/* -----------------------------------------------
+   Main Content
+-------------------------------------------------*/
 .main-content {
   margin-left: 220px;
   padding-top: 80px;
 }
 
-/* Navbar */
+/* -----------------------------------------------
+   Navbar
+-------------------------------------------------*/
 .navbar {
   position: fixed;
   top: 0;
@@ -120,7 +128,9 @@ body {
   color: #7f8c8d;
 }
 
-/* Responsive */
+/* -----------------------------------------------
+   Responsive Styles
+-------------------------------------------------*/
 @media (max-width: 768px) {
   .sidebar {
     display: none;
@@ -143,7 +153,9 @@ body {
   }
 }
 
-/* Mentorship Container */
+/* -----------------------------------------------
+   Mentorship Container
+-------------------------------------------------*/
 .mentorship-container {
   max-width: 900px;
   margin: 2rem auto;
@@ -161,7 +173,9 @@ body {
   color: #555;
 }
 
-/* Sections */
+/* -----------------------------------------------
+   Sections
+-------------------------------------------------*/
 .request-section,
 .chat-section {
   background-color: #fff;
@@ -171,7 +185,9 @@ body {
   margin-bottom: 2rem;
 }
 
-/* Request List Buttons */
+/* -----------------------------------------------
+   Request List Buttons
+-------------------------------------------------*/
 #request-list {
   display: flex;
   flex-wrap: wrap;
@@ -192,7 +208,9 @@ body {
   background-color: #2980b9;
 }
 
-/* Chat Messages */
+/* -----------------------------------------------
+   Chat Messages
+-------------------------------------------------*/
 .chat-messages {
   border: 1px solid #ecf0f1;
   border-radius: 12px;
@@ -225,7 +243,9 @@ body {
   align-self: flex-start;
 }
 
-/* Chat Form */
+/* -----------------------------------------------
+   Chat Form
+-------------------------------------------------*/
 .chat-form {
   display: flex;
   gap: 0.75rem;
@@ -259,7 +279,9 @@ body {
   background-color: #2980b9;
 }
 
-/* Request Cards */
+/* -----------------------------------------------
+   Request Cards
+-------------------------------------------------*/
 .request-card {
   display: flex;
   flex-direction: column;
@@ -308,7 +330,9 @@ body {
   background-color: #2980b9;
 }
 
-/* Hide Elements */
+/* -----------------------------------------------
+   Utility - Hide Elements
+-------------------------------------------------*/
 .hidden {
   display: none;
 }

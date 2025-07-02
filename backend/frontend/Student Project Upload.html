@@ -108,10 +108,16 @@
             </div>
           </section>
 
-          <section>
-            <h2>Project Profile Image</h2>
-            <input type="file" name="project_profile_picture" accept="image/png, image/jpeg" />
-          </section>
+        <section>
+  <h2>Project Profile Image</h2>
+
+  <div class="custom-upload">
+    <button type="button" id="uploadProfileBtn">📷 Upload Profile Image</button>
+    <input type="file" id="profileImageInput" name="project_profile_picture" accept="image/png, image/jpeg" hidden />
+    <div id="profileImageSummary" class="file-summary hidden"></div>
+  </div>
+</section>
+
 
           <!-- Conditional Fields for IT Projects -->
           <div id="itFields" style="display: none;">
@@ -167,5 +173,30 @@
     </form>
   </div>
   
+
+<!-- Upload spinner -->
+<div id="uploadSpinner" style="display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); justify-content:center; align-items:center; z-index:9999;">
+  <div style="background:white; padding:2rem; border-radius:8px; text-align:center;">
+    <div class="loader"></div>
+    <p>Uploading project...</p>
+  </div>
+</div>
+
+<!-- Success modal --> 
+<div id="successModal">
+  <div class="modal-content">
+    <h3>🎉 Project Submitted</h3>
+    <p>
+      Your project has been successfully uploaded and is pending admin review.<br>
+      Redirecting to dashboard in <span id="countdown">10</span> seconds...
+    </p>
+    <div class="modal-actions">
+      <button id="cancelRedirect">Cancel</button>
+      <button id="proceedNow">Proceed Now</button>
+    </div>
+  </div>
+</div>
+
+
 </body>
 </html>

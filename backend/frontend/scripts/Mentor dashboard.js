@@ -1,11 +1,18 @@
+// ==========================
+// DOMContentLoaded: Initialize dashboard and request pool
+// ==========================
 document.addEventListener("DOMContentLoaded", async () => {
   await loadDashboard();
-  await loadRequestPool(); // Preload the pool so it's ready
+  await loadRequestPool(); // Preload request pool for quick access
 });
 
+// ==========================
+// Load Mentor Dashboard Data
+// ==========================
 async function loadDashboard() {
   try {
     const res = await fetch("/api/mentor/dashboard", { credentials: "include" });
+
     if (!res.ok) {
       if (res.status === 401 || res.status === 403) {
         alert("Access denied. Please log in with a mentor account.");
@@ -16,6 +23,7 @@ async function loadDashboard() {
     }
 
     const data = await res.json();
+
     if (!data.success) {
       alert(data.message || "Failed to load dashboard data.");
       return;
@@ -23,13 +31,11 @@ async function loadDashboard() {
 
     const { mentor, assignedProjects, allProjects } = data;
 
-    // Set mentor name
+    // Display mentor's name
     document.getElementById("username").textContent = mentor.name;
 
-    // Render assigned projects
+    // Render projects
     renderProjects(assignedProjects, document.getElementById("assignedProjects"), true);
-
-    // Render all projects
     renderProjects(allProjects, document.getElementById("allProjects"));
 
   } catch (err) {
@@ -38,12 +44,15 @@ async function loadDashboard() {
   }
 }
 
+// ==========================
+// Render Projects into Container
+// ==========================
 function renderProjects(projects, container, isAssigned = false) {
   container.innerHTML = "";
 
   if (!projects || projects.length === 0) {
     if (isAssigned) {
-      // If no assigned projects - show a button to open the pool
+      // Show request pool button if no assigned projects
       container.innerHTML = `
         <div class="empty-message">
           <p>No projects have been assigned to you yet.</p>
@@ -63,6 +72,9 @@ function renderProjects(projects, container, isAssigned = false) {
   });
 }
 
+// ==========================
+// Create Single Project Card Element
+// ==========================
 function createProjectCard(project) {
   const card = document.createElement("div");
   card.className = "card";
@@ -83,18 +95,20 @@ function createProjectCard(project) {
       <span>💬 ${project.comments ?? 0}</span>
     </div>
   `;
+
   return card;
 }
 
-// ================================
+// ==========================
 // Request Pool Modal Logic
-// ================================
+// ==========================
 let requestPoolData = [];
 
 async function loadRequestPool() {
   try {
     const res = await fetch('/api/mentor/request-pool', { credentials: 'include' });
     if (!res.ok) throw new Error(`Server error ${res.status}`);
+
     const data = await res.json();
     if (!data.success) throw new Error(data.message || "Failed to load request pool");
 
@@ -111,9 +125,7 @@ function openRequestPoolModal() {
   container.innerHTML = "";
 
   if (!requestPoolData || requestPoolData.length === 0) {
-    container.innerHTML = `
-      <p>No unassigned mentorship requests at the moment.</p>
-    `;
+    container.innerHTML = `<p>No unassigned mentorship requests at the moment.</p>`;
   } else {
     requestPoolData.forEach(item => {
       const card = createRequestPoolCard(item);
@@ -128,18 +140,17 @@ function closeRequestPoolModal() {
   document.getElementById("requestPoolModal").style.display = "none";
 }
 
+// ==========================
+// Create Request Pool Card Element
+// ==========================
 function createRequestPoolCard(item) {
   const card = document.createElement("div");
   card.className = "card request-pool-card";
 
   const imageUrl = item.image || '/assets/noprofile.jpg';
   const description = item.short_description || 'No description provided.';
-  const projectDate = item.project_created_at
-    ? new Date(item.project_created_at).toLocaleDateString()
-    : '';
-  const requestDate = item.request_created_at
-    ? new Date(item.request_created_at).toLocaleDateString()
-    : '';
+  const projectDate = item.project_created_at ? new Date(item.project_created_at).toLocaleDateString() : '';
+  const requestDate = item.request_created_at ? new Date(item.request_created_at).toLocaleDateString() : '';
 
   card.innerHTML = `
     <img src="${imageUrl}" alt="Project Image" />
@@ -160,12 +171,15 @@ function createRequestPoolCard(item) {
     </div>
   `;
 
-  // Add listener for assignment
+  // Assignment button event listener
   card.querySelector('.assign-btn').addEventListener('click', () => assignYourselfToRequest(item.mentorship_request_id));
 
   return card;
 }
 
+// ==========================
+// Assign Mentor to Request
+// ==========================
 async function assignYourselfToRequest(requestId) {
   if (!confirm("Are you sure you want to assign yourself to this request?")) return;
 
@@ -182,7 +196,7 @@ async function assignYourselfToRequest(requestId) {
 
     alert("Successfully assigned!");
     closeRequestPoolModal();
-    await loadDashboard();   // Refresh dashboard to show new assigned project
+    await loadDashboard();   // Refresh dashboard to show new assignment
     await loadRequestPool(); // Refresh pool data
   } catch (err) {
     console.error("❌ Error assigning to request:", err);
@@ -190,9 +204,9 @@ async function assignYourselfToRequest(requestId) {
   }
 }
 
-// ================================
-// Modal Close Button
-// ================================
+// ==========================
+// Modal Close Handling
+// ==========================
 document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("closeRequestPoolModal").addEventListener("click", closeRequestPoolModal);
   window.addEventListener("click", (event) => {
@@ -202,14 +216,17 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 });
-document.getElementById("openRequestPoolBtn").addEventListener("click", openRequestPoolModal);
 
+// Make sure openRequestPoolBtn listener exists (may be dynamically created)
+document.getElementById("openRequestPoolBtn")?.addEventListener("click", openRequestPoolModal);
+
+// ==========================
+// Logout User Function
+// ==========================
 function logoutUser() {
-  // Show logout loader
   const loader = document.getElementById('logout-loader');
   loader.style.display = 'flex';
 
-  // Optional delay for UX (e.g. 1.5 seconds)
   setTimeout(() => {
     fetch('/user/logout', {
       method: 'GET',
@@ -219,14 +236,14 @@ function logoutUser() {
         if (res.redirected) {
           window.location.href = res.url;
         } else {
-          loader.style.display = 'none'; // hide loader
+          loader.style.display = 'none';
           alert('Logout failed.');
         }
       })
       .catch(err => {
-        loader.style.display = 'none'; // hide loader
+        loader.style.display = 'none';
         console.error('Logout error:', err);
         alert('Error logging out.');
       });
-  }, 1500); // Show loader before logging out
+  }, 1500);
 }

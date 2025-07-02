@@ -1,3 +1,4 @@
+// ✅ Initialize all admin data on DOM load
 document.addEventListener("DOMContentLoaded", () => {
   loadStats();
   loadUsers();
@@ -5,6 +6,9 @@ document.addEventListener("DOMContentLoaded", () => {
   loadFlaggedProjects();
 });
 
+// ==============================
+// ✅ Load and display admin statistics
+// ==============================
 async function loadStats() {
   const container = document.querySelector(".admin-stats");
 
@@ -22,10 +26,13 @@ async function loadStats() {
       <div class="stat-card">Collaborations: <strong>${totalCollaborations}</strong></div>
     `;
   } catch (err) {
-    console.error("Error loading stats:", err);
+    console.error("[LOAD STATS] Error loading stats:", err);
   }
 }
 
+// ==============================
+// ✅ Load and render users table
+// ==============================
 function loadUsers() {
   const tbody = document.querySelector(".admin-table tbody");
   tbody.innerHTML = "";
@@ -36,8 +43,8 @@ function loadUsers() {
       if (!data.success) throw new Error("Failed to fetch users");
 
       data.users.forEach(user => {
-        const row = document.createElement("tr");
         const suspended = user.suspended === 1 || user.suspended === true;
+        const row = document.createElement("tr");
         row.innerHTML = `
           <td>${user.name}</td>
           <td>${user.email}</td>
@@ -55,19 +62,20 @@ function loadUsers() {
       attachUserActionListeners();
     })
     .catch(err => {
-      console.error("Failed to load users:", err);
+      console.error("[LOAD USERS] Failed to load users:", err);
     });
 }
 
+// ==============================
+// ✅ Attach suspend and delete action listeners to user buttons
+// ==============================
 function attachUserActionListeners() {
+  // Suspend / Unsuspend user
   document.querySelectorAll(".suspend-btn").forEach(btn => {
     btn.addEventListener("click", () => {
       const userId = btn.dataset.id;
       const currentlySuspended = btn.dataset.suspended === 'true';
-
-      const confirmMsg = currentlySuspended
-        ? "Unsuspend this user?"
-        : "Suspend this user?";
+      const confirmMsg = currentlySuspended ? "Unsuspend this user?" : "Suspend this user?";
 
       if (!confirm(confirmMsg)) return;
 
@@ -88,6 +96,7 @@ function attachUserActionListeners() {
     });
   });
 
+  // Delete user
   document.querySelectorAll(".delete-btn").forEach(btn => {
     btn.addEventListener("click", () => {
       const userId = btn.dataset.id;
@@ -107,6 +116,9 @@ function attachUserActionListeners() {
   });
 }
 
+// ==============================
+// ✅ Load pending project approvals and display them
+// ==============================
 async function loadApprovals() {
   const list = document.querySelector(".approval-list");
   list.innerHTML = "";
@@ -130,10 +142,13 @@ async function loadApprovals() {
       list.appendChild(card);
     });
   } catch (err) {
-    console.error("Error loading approvals:", err);
+    console.error("[LOAD APPROVALS] Error loading approvals:", err);
   }
 }
 
+// ==============================
+// ✅ Load flagged projects and display them
+// ==============================
 async function loadFlaggedProjects() {
   const list = document.querySelector(".flagged-list");
   list.innerHTML = "";
@@ -157,10 +172,13 @@ async function loadFlaggedProjects() {
       list.appendChild(card);
     });
   } catch (err) {
-    console.error("Error loading flagged projects:", err);
+    console.error("[LOAD FLAGGED] Error loading flagged projects:", err);
   }
 }
 
+// ==============================
+// ✅ Approve a project by ID
+// ==============================
 async function approveProject(projectId) {
   try {
     const res = await fetch(`/admin/approve/${projectId}`, { method: "POST" });
@@ -173,10 +191,13 @@ async function approveProject(projectId) {
       alert("❌ Approval failed");
     }
   } catch (err) {
-    console.error("Error approving project:", err);
+    console.error("[APPROVE PROJECT] Error approving project:", err);
   }
 }
 
+// ==============================
+// ✅ Reject a project by ID
+// ==============================
 async function rejectProject(projectId) {
   try {
     const res = await fetch(`/admin/reject/${projectId}`, { method: "POST" });
@@ -189,17 +210,22 @@ async function rejectProject(projectId) {
       alert("❌ Rejection failed");
     }
   } catch (err) {
-    console.error("Error rejecting project:", err);
+    console.error("[REJECT PROJECT] Error rejecting project:", err);
   }
 }
+
+// ==============================
+// ✅ Smooth scroll to users section and reload user table on link click
+// ==============================
 document.getElementById("users-link").addEventListener("click", (e) => {
-e.preventDefault();
-document.querySelector(".admin-main").scrollIntoView({ behavior: "smooth" });
-loadUsers(); // This will reload the users table
+  e.preventDefault();
+  document.querySelector(".admin-main").scrollIntoView({ behavior: "smooth" });
+  loadUsers(); // Reload users table
 });
 
-
-
+// ==============================
+// ✅ Logout user with loader and redirect handling
+// ==============================
 function logoutUser() {
   // Show logout loader
   const loader = document.getElementById('logout-loader');
@@ -221,9 +247,8 @@ function logoutUser() {
       })
       .catch(err => {
         loader.style.display = 'none'; // hide loader
-        console.error('Logout error:', err);
+        console.error('[LOGOUT USER] Error:', err);
         alert('Error logging out.');
       });
   }, 1500); // Show loader before logging out
 }
-

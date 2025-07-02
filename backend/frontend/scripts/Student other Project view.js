@@ -79,9 +79,9 @@ const docRow = document.getElementById("documents");
 docRow.innerHTML = '';
 
 project.documents.forEach(doc => {
-  const fileUrl = doc.replace(/^\/?uploads[\\/]/, '/uploads/'); // Normalize slashes
-  const fullName = doc.replace(/\\/g, '/').split('/').pop();     // Replace \ with /, then get file name
-  const readableName = fullName.replace(/^\d+(?:-\d+)*-/, '');    // Remove leading numbers
+  const fileUrl = doc.replace(/^\/?uploads[\\/]/, '/uploads/');
+  const fullName = doc.replace(/\\/g, '/').split('/').pop();   
+  const readableName = fullName.replace(/^\d+(?:-\d+)*-/, '');    
 
   console.log("Original path:", doc);
   console.log("Extracted filename:", fullName);

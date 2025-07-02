@@ -9,22 +9,32 @@ const upload = require('../config/multer');
 // POST /user/submit - Register User
 // ----------------------------------------
 router.post('/submit', async (req, res) => {
-  const { username, email, password, role } = req.body;
+  if (req.session.user) {
+    return res.status(400).json({ success: false, message: 'Already logged in' });
+  }
+
+  const { username, email, password, role, skills } = req.body;
 
   db.query(
     'SELECT * FROM Users WHERE name = ? OR email = ?',
     [username, email],
     async (err, results) => {
+      if (err) {
+        console.error(err);
+        return res.status(500).json({ success: false, message: 'Database error' });
+      }
+
       if (results.length > 0) {
         return res.status(409).json({ success: false, message: 'Account exists' });
       }
 
       const hashedPassword = await bcrypt.hash(password, 10);
       const code = Math.floor(100000 + Math.random() * 900000);
+      const skillsValue = (role === 'student' || role === 'mentor') ? (skills || '') : '';
 
       db.query(
-        'INSERT INTO Users (name, email, password, role, verification_code, verified) VALUES (?, ?, ?, ?, ?, ?)',
-        [username, email, hashedPassword, role, code, false],
+        'INSERT INTO Users (name, email, password, role, skills, verification_code, verified) VALUES (?, ?, ?, ?, ?, ?, ?)',
+        [username, email, hashedPassword, role, skillsValue, code, false],
         (err) => {
           if (err) return res.status(500).json({ success: false });
 
@@ -47,6 +57,7 @@ router.post('/submit', async (req, res) => {
     }
   );
 });
+
 
 // ----------------------------------------
 // POST /user/verify - Email Verification
@@ -167,20 +178,39 @@ router.post('/reset-password', async (req, res) => {
   });
 });
 
+
 // ----------------------------------------
 // POST /user/set-role
 // ----------------------------------------
 router.post('/set-role', (req, res) => {
-  if (!req.isAuthenticated()) {
+  if (!req.isAuthenticated && !req.session?.user) {
     return res.status(401).json({ message: 'Not authenticated' });
   }
 
-  const { role } = req.body;
-  db.query('UPDATE Users SET role = ? WHERE id = ?', [role, req.user.id], (err) => {
-    if (err) return res.status(500).json({ message: 'DB error' });
-    res.json({ message: 'Role updated' });
+  const userId = req.user ? req.user.id : req.session.user.id;
+  const { role, skills } = req.body;
+
+  if (!role) {
+    return res.status(400).json({ message: 'Role is required' });
+  }
+
+  const sql = `UPDATE Users SET role = ?, skills = ? WHERE id = ?`;
+  db.query(sql, [role, skills || '', userId], (err) => {
+    if (err) {
+      console.error('❌ DB error:', err);
+      return res.status(500).json({ message: 'DB error' });
+    }
+
+    // Update session too
+    if (req.session.user) {
+      req.session.user.role = role;
+      req.session.user.skills = skills;
+    }
+
+    res.json({ success: true, message: 'Role and skills updated' });
   });
 });
+
 
 // ----------------------------------------
 // POST /user/upload-project

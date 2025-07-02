@@ -17,6 +17,7 @@ async function loadProjectData() {
   if (rawPath) {
     const normalizedPath = rawPath.replace(/\\/g, '/');
     const fullImagePath = normalizedPath.startsWith('/') ? normalizedPath : `/${normalizedPath}`;
+
     const testImage = new Image();
     testImage.onload = () => {
       heroSection.style.backgroundImage = `url('${fullImagePath}')`;
@@ -29,10 +30,12 @@ async function loadProjectData() {
     heroSection.style.backgroundImage = `url('${fallbackImage}')`;
   }
 
+  // Update project text content
   document.getElementById("project-title").textContent = project.title;
   document.getElementById("project-short-description").textContent = project.short_description;
   document.getElementById("project-overview").textContent = project.overview;
 
+  // Render tags
   const tagContainer = document.getElementById("tag-container");
   tagContainer.innerHTML = '';
   project.tags.forEach(tag => {
@@ -41,6 +44,7 @@ async function loadProjectData() {
     tagContainer.appendChild(span);
   });
 
+  // Render project details sections
   const techList = document.getElementById("project-details");
   techList.innerHTML = '';
   const headings = ["Project Focus", "Target Beneficiaries", "Methodology", "Impact Goals"];
@@ -52,6 +56,7 @@ async function loadProjectData() {
     }
   });
 
+  // Render additional project info
   const infoList = document.getElementById("project-info");
   infoList.innerHTML = `
     <li><strong>Status:</strong> ${project.status}</li>
@@ -60,8 +65,10 @@ async function loadProjectData() {
     <li><strong>Team Size:</strong> ${project.team_size}</li>
   `;
 
+  // Set likes count
   document.getElementById("like-count").textContent = project.likes;
 
+  // Render screenshots
   const screenGrid = document.getElementById("screenshots");
   screenGrid.innerHTML = '';
   project.screenshots.forEach((src, i) => {
@@ -73,6 +80,7 @@ async function loadProjectData() {
     `;
   });
 
+  // Render documents
   const docRow = document.getElementById("documents");
   docRow.innerHTML = '';
   project.documents.forEach(doc => {
@@ -92,7 +100,7 @@ async function loadProjectData() {
 }
 
 // ==========================
-// LOAD TEAM
+// NORMALIZE PROFILE IMAGE PATH
 // ==========================
 function normalizeProfileImage(path) {
   if (!path || typeof path !== "string" || path.trim() === "") {
@@ -103,6 +111,9 @@ function normalizeProfileImage(path) {
   return `/${normalized}`;
 }
 
+// ==========================
+// LOAD TEAM MEMBERS
+// ==========================
 async function loadTeam() {
   try {
     const currentUserRes = await fetch('/user');
@@ -156,6 +167,7 @@ async function loadComments() {
       return;
     }
 
+    // Group comments by parent_id
     const grouped = {};
     data.forEach(c => {
       const pid = c.parent_id || "root";
@@ -163,6 +175,7 @@ async function loadComments() {
       grouped[pid].push(c);
     });
 
+    // Recursive comment renderer
     function renderComment(c, depth = 0) {
       const rawPhoto = (c.user_profile_photo || '').trim();
       const profilePic = rawPhoto
@@ -352,3 +365,32 @@ document.getElementById('submit-flag')?.addEventListener('click', async () => {
   }
 });
 
+// ==========================
+// LOGOUT USER
+// ==========================
+function logoutUser() {
+  // Show logout loader
+  const loader = document.getElementById('logout-loader');
+  loader.style.display = 'flex';
+
+  // Optional delay for UX (e.g. 1.5 seconds)
+  setTimeout(() => {
+    fetch('/user/logout', {
+      method: 'GET',
+      credentials: 'include'
+    })
+      .then(res => {
+        if (res.redirected) {
+          window.location.href = res.url;
+        } else {
+          loader.style.display = 'none'; // hide loader
+          alert('Logout failed.');
+        }
+      })
+      .catch(err => {
+        loader.style.display = 'none'; // hide loader
+        console.error('Logout error:', err);
+        alert('Error logging out.');
+      });
+  }, 1500); // Show loader before logging out
+}

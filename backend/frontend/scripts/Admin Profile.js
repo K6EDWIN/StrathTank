@@ -1,8 +1,13 @@
+// ==========================
+// ✅ DOM elements references
+// ==========================
 const profilePic = document.getElementById('adminProfilePic');
 const profilePicInput = document.getElementById('profilePicInput');
 const editIcon = document.getElementById('editIcon');
 
-// Show edit icon on hover
+// ==========================
+// ✅ Show/hide edit icon on profile picture hover
+// ==========================
 profilePic.addEventListener('mouseenter', () => editIcon.style.display = 'block');
 profilePic.addEventListener('mouseleave', () => {
   setTimeout(() => {
@@ -11,9 +16,13 @@ profilePic.addEventListener('mouseleave', () => {
 });
 editIcon.addEventListener('mouseenter', () => editIcon.style.display = 'block');
 editIcon.addEventListener('mouseleave', () => editIcon.style.display = 'none');
+
+// Open file input when edit icon clicked
 editIcon.addEventListener('click', () => profilePicInput.click());
 
-// Upload image
+// ==========================
+// ✅ Upload profile picture
+// ==========================
 profilePicInput.addEventListener('change', async (e) => {
   const file = e.target.files[0];
   if (!file) return;
@@ -29,7 +38,9 @@ profilePicInput.addEventListener('change', async (e) => {
     });
 
     const result = await res.json();
+
     if (res.ok && result.success) {
+      // Fix Windows-style backslashes in path, cache bust with timestamp
       const fixedPath = result.profile_image.replace(/\\/g, '/');
       profilePic.src = `/${fixedPath}?t=${Date.now()}`;
       alert('Profile picture updated!');
@@ -37,16 +48,19 @@ profilePicInput.addEventListener('change', async (e) => {
       alert(result.message || 'Upload failed');
     }
   } catch (err) {
-    console.error('Upload error:', err);
+    console.error('[UPLOAD ERROR]', err);
     alert('Failed to upload profile picture.');
   }
 });
 
-// Load profile
+// ==========================
+// ✅ Load admin profile data on page load
+// ==========================
 async function loadAdminProfile() {
   try {
     const res = await fetch('/admin/profile/info');
     const data = await res.json();
+
     if (data.success) {
       document.getElementById('adminName').innerText = data.user.name;
       document.getElementById('adminEmail').innerText = data.user.email;
@@ -58,12 +72,14 @@ async function loadAdminProfile() {
       alert('Could not load profile');
     }
   } catch (err) {
-    console.error(err);
+    console.error('[LOAD PROFILE ERROR]', err);
     alert('Error loading profile.');
   }
 }
 
-// Change password
+// ==========================
+// ✅ Handle change password form submission
+// ==========================
 document.getElementById('changePasswordForm').addEventListener('submit', async (e) => {
   e.preventDefault();
 
@@ -85,6 +101,7 @@ document.getElementById('changePasswordForm').addEventListener('submit', async (
     });
 
     const result = await response.json();
+
     if (result.success) {
       alert('Password updated successfully.');
       document.getElementById('changePasswordForm').reset();
@@ -92,19 +109,25 @@ document.getElementById('changePasswordForm').addEventListener('submit', async (
       alert(result.message || 'Failed to change password.');
     }
   } catch (error) {
+    console.error('[CHANGE PASSWORD ERROR]', error);
     alert('Error changing password.');
-    console.error(error);
   }
 });
 
-// Delete account
+// ==========================
+// ✅ Handle delete account button click
+// ==========================
 document.getElementById('deleteAccountBtn').addEventListener('click', async () => {
   const confirmDelete = confirm('Are you sure you want to delete your account? This action cannot be undone.');
   if (!confirmDelete) return;
 
   try {
-    const res = await fetch('/admin/delete-account', { method: 'DELETE', credentials: 'include' });
+    const res = await fetch('/admin/delete-account', {
+      method: 'DELETE',
+      credentials: 'include'
+    });
     const result = await res.json();
+
     if (result.success) {
       alert('Account deleted. Logging out...');
       window.location.href = '/logout';
@@ -112,9 +135,42 @@ document.getElementById('deleteAccountBtn').addEventListener('click', async () =
       alert('Failed to delete account.');
     }
   } catch (error) {
+    console.error('[DELETE ACCOUNT ERROR]', error);
     alert('Error deleting account.');
-    console.error(error);
   }
 });
 
+// ==========================
+// ✅ Initialize profile data on DOM ready
+// ==========================
 window.addEventListener('DOMContentLoaded', loadAdminProfile);
+
+// ==========================
+// ✅ Logout user with loader and redirect handling
+// ==========================
+function logoutUser() {
+  // Show logout loader
+  const loader = document.getElementById('logout-loader');
+  loader.style.display = 'flex';
+
+  // Optional delay for better UX (e.g., 1.5 seconds)
+  setTimeout(() => {
+    fetch('/user/logout', {
+      method: 'GET',
+      credentials: 'include'
+    })
+      .then(res => {
+        if (res.redirected) {
+          window.location.href = res.url;
+        } else {
+          loader.style.display = 'none'; // hide loader
+          alert('Logout failed.');
+        }
+      })
+      .catch(err => {
+        loader.style.display = 'none'; // hide loader
+        console.error('[LOGOUT ERROR]', err);
+        alert('Error logging out.');
+      });
+  }, 1500); // Show loader before logging out
+}

@@ -1,3 +1,13 @@
+/* ====================================================
+   RESET & BASE
+==================================================== */
+* {
+  box-sizing: border-box;
+}
+*::-webkit-scrollbar {
+  display: none;
+}
+
 body {
   font-family: 'Segoe UI', sans-serif;
   margin: 0;
@@ -8,6 +18,9 @@ body {
   max-width: 100%;
 }
 
+/* ====================================================
+   HERO SECTION
+==================================================== */
 .hero {
   background-color: transparent;
   background-size: cover;
@@ -32,26 +45,37 @@ body {
   margin-bottom: 1rem;
   color: white;
 }
+
 #hero .overlay p {
   font-size: 1.5rem;
   font-weight: 300;
 }
 
+/* ====================================================
+   TYPOGRAPHY
+==================================================== */
+h1 {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+  color: white;
+}
+
+h2 {
+  color: #2c3e50;
+}
+
+/* ====================================================
+   CONTAINER
+==================================================== */
 .container {
   margin: auto;
   padding: 2rem;
   background: white;
 }
 
-h1{
-    font-size: 2rem;
-  margin-bottom: 1rem;
-  color: white;
-}
- h2 {
-  color: #2c3e50;
-}
-
+/* ====================================================
+   TAGS
+==================================================== */
 .tags span {
   display: inline-block;
   background: #e0f0ff;
@@ -62,6 +86,9 @@ h1{
   font-size: 0.9rem;
 }
 
+/* ====================================================
+   DETAILS GRID
+==================================================== */
 .details-grid {
   display: flex;
   flex-wrap: wrap;
@@ -69,7 +96,8 @@ h1{
   margin-top: 2rem;
 }
 
-.technical, .info {
+.technical,
+.info {
   flex: 1 1 45%;
   border: 1px solid #c4b9b9;
   border-radius: 20px;
@@ -77,6 +105,9 @@ h1{
   background: #fff;
 }
 
+/* ====================================================
+   LISTS
+==================================================== */
 ul {
   list-style: none;
   padding: 0;
@@ -86,6 +117,9 @@ li {
   margin-bottom: 0.5rem;
 }
 
+/* ====================================================
+   BUTTONS
+==================================================== */
 .buttons {
   margin: 1rem 0;
   display: flex;
@@ -103,14 +137,20 @@ button {
   font-weight: 600;
 }
 
-.collaborate, .flagproject {
+.collaborate,
+.flagproject {
   background-color: #007acc;
   color: white;
 }
-.collaborate:hover, .flagproject:hover {
+
+.collaborate:hover,
+.flagproject:hover {
   background-color: #e9486d;
 }
 
+/* ====================================================
+   HEART ICON
+==================================================== */
 .heart {
   font-size: 1.5rem;
   margin-top: 1rem;
@@ -119,12 +159,18 @@ button {
   user-select: none;
   text-align: center;
 }
+
 .heart:hover {
   transform: scale(1.2);
   color: red;
 }
 
-.designs, .documents, .team {
+/* ====================================================
+   SECTIONS
+==================================================== */
+.designs,
+.documents,
+.team {
   margin-top: 2rem;
   border: 1px solid #c4b9b9;
   border-radius: 20px;
@@ -132,6 +178,9 @@ button {
   background: #fff;
 }
 
+/* ====================================================
+   DESIGN GRID
+==================================================== */
 .designs .design-grid {
   display: flex;
   flex-wrap: wrap;
@@ -162,11 +211,15 @@ button {
   box-shadow: 0 4px 12px rgba(0,0,0,0.1);
   transition: transform 0.2s ease, box-shadow 0.3s ease;
 }
+
 .design-card img:hover {
   transform: scale(1.02);
   box-shadow: 0 6px 16px rgba(0,0,0,0.15);
 }
 
+/* ====================================================
+   COMMENTS SECTION
+==================================================== */
 .comments {
   margin-top: 2rem;
   background: #ffffff;
@@ -176,7 +229,7 @@ button {
 }
 
 .comments textarea {
-margin-top: 20px;
+  margin-top: 20px;
   width: 100%;
   height: 100px;
   padding: 0.75rem;
@@ -188,6 +241,7 @@ margin-top: 20px;
   box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
   transition: border-color 0.2s ease;
 }
+
 .comments textarea:focus {
   outline: none;
   border-color: #007acc;
@@ -204,6 +258,7 @@ margin-top: 20px;
   cursor: pointer;
   transition: background 0.3s ease;
 }
+
 .comments button:hover {
   background-color: #e9486d;
 }
@@ -217,23 +272,74 @@ margin-top: 20px;
   box-shadow: 0 2px 4px rgba(0,0,0,0.03);
   transition: transform 0.2s ease;
 }
+
 .comment:hover {
   transform: translateY(-2px);
 }
+
 .comment strong {
   color: #2c3e50;
   font-size: 1.05rem;
 }
+
 .comment p {
   margin: 0.5rem 0;
   color: #333;
   font-size: 0.96rem;
 }
+
 .comment small {
   color: #888;
   font-size: 0.85rem;
 }
 
+/* Comment Header */
+.comment-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.comment-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: 0.75rem;
+  border: 2px solid #ddd;
+}
+
+.comment-meta {
+  display: flex;
+  flex-direction: column;
+}
+
+.comment-user {
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.comment-time {
+  font-size: 0.85rem;
+  color: #888;
+  margin-top: 2px;
+}
+
+.comment-content {
+  font-size: 0.95rem;
+  color: #333;
+  margin: 0;
+}
+
+.nested-replies {
+  margin-left: 20px;
+  border-left: 2px solid #ddd;
+  padding-left: 10px;
+}
+
+/* ====================================================
+   CARD GRID
+==================================================== */
 .card-row {
   display: flex;
   flex-wrap: wrap;
@@ -278,13 +384,14 @@ margin-top: 20px;
   cursor: pointer;
   font-weight: 600;
 }
+
 .card button:hover {
   background-color: #e9486d;
 }
 
-*::-webkit-scrollbar {
-  display: none;
-}
+/* ====================================================
+   NAVBAR
+==================================================== */
 .navbar {
   position: sticky;
   top: 0;
@@ -299,7 +406,6 @@ margin-top: 20px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-/* New: center the links in the navbar */
 .nav-links {
   flex: 1;
   display: flex;
@@ -313,7 +419,6 @@ margin-top: 20px;
   font-weight: bold;
 }
 
-
 .logo-img {
   height: 60px;
   width: 60px;
@@ -324,53 +429,9 @@ margin-top: 20px;
   padding: 5px;
 }
 
-@media (max-width: 768px) {
-  .details-grid {
-    flex-direction: column;
-  }
-
-  .designs .design-grid,
-  .card-row {
-    flex-direction: column;
-  }
-}
-.comment-header {
-  display: flex;
-  align-items: center;
-  margin-bottom: 0.5rem;
-}
-.comment-avatar {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  object-fit: cover;
-  margin-right: 0.75rem;
-  border: 2px solid #ddd;
-}
-.comment-meta {
-  display: flex;
-  flex-direction: column;
-}
-.comment-user {
-  font-weight: 600;
-  color: #2c3e50;
-}
-.comment-time {
-  font-size: 0.85rem;
-  color: #888;
-  margin-top: 2px;
-}
-.comment-content {
-  font-size: 0.95rem;
-  color: #333;
-  margin: 0;
-}
-.nested-replies {
-  margin-left: 20px;
-  border-left: 2px solid #ddd;
-  padding-left: 10px;
-}
-  /* Flag Popup Modal Overlay */
+/* ====================================================
+   POPUP MODAL
+==================================================== */
 .popup-overlay {
   position: fixed;
   top: 0;
@@ -437,7 +498,27 @@ margin-top: 20px;
   display: none !important;
 }
 
+/* ====================================================
+   ANIMATIONS
+==================================================== */
 @keyframes fadeIn {
-  from { opacity: 0; transform: scale(0.95); }
-  to { opacity: 1; transform: scale(1); }
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* ====================================================
+   RESPONSIVE
+==================================================== */
+@media (max-width: 768px) {
+  .details-grid,
+  .designs .design-grid,
+  .card-row {
+    flex-direction: column;
+  }
 }

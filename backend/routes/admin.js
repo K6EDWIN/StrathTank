@@ -169,9 +169,9 @@ router.post('/suspend/:userId', isAdmin, (req, res) => {
   });
 });
 
-// ----------------------------------------// DELETE /admin/users/:id - Delete User and Related Data
 // ----------------------------------------
-
+// DELETE /admin/users/:id - Delete User and Related Data + Sessions
+// ----------------------------------------
 router.delete('/users/:id', isAdmin, (req, res) => {
   const userId = parseInt(req.params.id);
 
@@ -193,20 +193,48 @@ router.delete('/users/:id', isAdmin, (req, res) => {
         return res.status(500).json({ success: false, message: 'Failed to delete user comments' });
       }
 
-      // Step 3: Remove team member associations
+      // Step 3: Remove user from project_team_members
       db.query('DELETE FROM project_team_members WHERE user_id = ?', [userId], (err) => {
         if (err) {
           console.error('❌ Failed to remove user from team_members:', err);
           return res.status(500).json({ success: false, message: 'Team member deletion failed' });
         }
 
-        // Step 4: Delete projects owned by user
-        db.query('DELETE FROM projects WHERE user_id = ?', [userId], (err) => {
+        // Step 4: Delete projects owned by user (first their team members)
+        db.query('SELECT id FROM projects WHERE user_id = ?', [userId], (err, projectRows) => {
           if (err) {
-            console.error('❌ Failed to delete user projects:', err);
-            return res.status(500).json({ success: false, message: 'Project deletion failed' });
+            console.error('❌ Failed to fetch user projects:', err);
+            return res.status(500).json({ success: false, message: 'Error fetching projects' });
           }
 
+          const projectIds = projectRows.map(p => p.id);
+          if (projectIds.length === 0) {
+            // No owned projects — skip to collaborations
+            return deleteCollaborations();
+          }
+
+          // 4a: Delete team members of those projects
+          db.query('DELETE FROM project_team_members WHERE project_id IN (?)', [projectIds], (err) => {
+            if (err) {
+              console.error('❌ Failed to delete project team members:', err);
+              return res.status(500).json({ success: false, message: 'Team member cleanup failed' });
+            }
+
+            // 4b: Delete the projects themselves
+            db.query('DELETE FROM projects WHERE id IN (?)', [projectIds], (err) => {
+              if (err) {
+                console.error('❌ Failed to delete projects:', err);
+                return res.status(500).json({ success: false, message: 'Project deletion failed' });
+              }
+
+              // Continue to collaborations
+              deleteCollaborations();
+            });
+          });
+        });
+
+        // Helper to remove from collaborations and finally delete the user
+        function deleteCollaborations() {
           // Step 5: Remove from collaborations
           db.query('DELETE FROM collaborations WHERE collaborator_id = ?', [userId], (err) => {
             if (err) {
@@ -214,7 +242,7 @@ router.delete('/users/:id', isAdmin, (req, res) => {
               return res.status(500).json({ success: false, message: 'Collaboration deletion failed' });
             }
 
-            // Step 6: Finally delete the user
+            // Step 6: Delete user record
             db.query('DELETE FROM Users WHERE id = ?', [userId], (err, result) => {
               if (err) {
                 console.error('❌ Error deleting user:', err);
@@ -225,14 +253,28 @@ router.delete('/users/:id', isAdmin, (req, res) => {
                 return res.status(404).json({ success: false, message: 'User not found' });
               }
 
-              res.json({ success: true, message: 'User and related data deleted successfully' });
+              // ✅ Step 7: Clean up sessions belonging to this user
+              db.query(
+                `DELETE FROM sessions WHERE JSON_EXTRACT(data, '$.user.id') = ?`,
+                [userId],
+                (err) => {
+                  if (err) {
+                    console.error('⚠️ Failed to clean up sessions:', err);
+                    // Don't hard-fail, just log
+                  }
+
+                  res.json({ success: true, message: 'User and related data deleted successfully' });
+                }
+              );
             });
           });
-        });
+        }
       });
     });
   });
 });
+
+
 
 
 // ----------------------------------------
