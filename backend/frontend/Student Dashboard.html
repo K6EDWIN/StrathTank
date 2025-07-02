@@ -5,15 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>StrathTank Dashboard</title>
   <link rel="stylesheet" href="/styles/userDash.css" />
-  <script src="/scripts/Dashboard.js" defer></script>
+  <script src="/scripts/Student Dashboard.js" defer></script>
 </head>
 <body>
   <div class="layout">
     <!-- Sidebar -->
     <aside class="sidebar visible" id="sidebar">
       <h2>StrathTank</h2>
+<button id="sidebarClose" class="sidebar-close">×</button>
       <ul>
-        <li><a href="#">Home</a></li>
         <li><a href="/explore-projects">Explore Projects</a></li>
         <li><a href="/upload-project">Upload Projects</a></li>
         <li><a href="/mentorship-request">Mentorship request Hub</a></li>
@@ -30,14 +30,14 @@
     <main class="main-content" id="mainContent">
       <!-- Navigation Bar -->
       <nav class="navbar">
+   
        <a href="#" class="logo">
   <img src="\assets/logo.png" alt="StrathTank Logo" class="logo-img" />
 </a>
         <div class="nav-links">
-          <a href="#">Home</a>
           <a href="/upload-project">Upload</a>
           <a href="/explore-projects">Explore</a>
-          <a href="/mentorship-request">Mentorship</a>
+          <a href="/mentorship-request">Mentorship request Hub</a>
           <a href="/hub">Mentorship Hub</a>
           <a href="/profile">My Profile</a>
           <a href="#" onclick="logoutUser()">Logout</a>

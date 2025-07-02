@@ -10,7 +10,6 @@
 body {
   background-color: #f4f6f8;
   color: #333;
-  padding-top: 100px;
 }
 
 /* Layout */
@@ -22,23 +21,26 @@ body {
 
 /* Navbar */
 .navbar {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 1001;
   display: flex;
   align-items: center;
   justify-content: space-between;
   background-color: #2c3e50;
   padding: 1rem 2rem;
   color: white;
-  width: 100%;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  position: relative;
+}
+
+.nav-links {
+  display: flex;
+  justify-content: center;
+  gap: 2rem; /* Adjust spacing */
+  flex: 1;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
 }
 
 .nav-links a {
-  margin: 0 0.75rem;
   color: white;
   text-decoration: none;
   font-weight: bold;
@@ -71,6 +73,7 @@ body {
 
 /* Header */
 .header {
+margin-top: 20px;
   position: relative;
   text-align: center;
   padding: 4rem 2rem;

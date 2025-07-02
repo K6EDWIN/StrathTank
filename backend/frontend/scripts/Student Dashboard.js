@@ -196,20 +196,6 @@ function loginUser(event) {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 function logoutUser() {
   // Show logout loader
   const loader = document.getElementById('logout-loader');
@@ -237,5 +223,12 @@ function logoutUser() {
   }, 1500); // Show loader before logging out
 }
 
+document.addEventListener('DOMContentLoaded', () => {
+  const sidebar = document.getElementById('sidebar');
+  const closeButton = document.getElementById('sidebarClose');
 
+  closeButton.addEventListener('click', () => {
+    sidebar.classList.remove('visible');
+  });
+});
 

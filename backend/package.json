@@ -2,11 +2,11 @@
     "name": "backend",
     "version": "1.0.0",
     "description": "Backend for StrathTank",
-    "main": "pilot.js",
+    "main": "server.js",
     "scripts": {
         "start": "start http://localhost:3000 && node server.js",
         "test": "echo \"Error: no test specified\" && exit 1",
-        "dev": "nodemon pilot.js"
+        "dev": "nodemon server.js"
     },
     "dependencies": {
         "axios": "^1.10.0",

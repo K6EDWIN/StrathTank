@@ -145,3 +145,29 @@ function showSuccessPopup(mentor = null) {
     window.location.href = "/dashboard";
   };
 }
+function logoutUser() {
+  // Show logout loader
+  const loader = document.getElementById('logout-loader');
+  loader.style.display = 'flex';
+
+  // Optional delay for UX (e.g. 1.5 seconds)
+  setTimeout(() => {
+    fetch('/user/logout', {
+      method: 'GET',
+      credentials: 'include'
+    })
+      .then(res => {
+        if (res.redirected) {
+          window.location.href = res.url;
+        } else {
+          loader.style.display = 'none'; // hide loader
+          alert('Logout failed.');
+        }
+      })
+      .catch(err => {
+        loader.style.display = 'none'; // hide loader
+        console.error('Logout error:', err);
+        alert('Error logging out.');
+      });
+  }, 1500); // Show loader before logging out
+}

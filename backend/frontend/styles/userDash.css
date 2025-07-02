@@ -67,9 +67,20 @@
   background-color: #2c3e50;
   padding: 1rem 2rem;
   color: white;
+  position: relative;
 }
+
+.nav-links {
+  display: flex;
+  justify-content: center;
+  gap: 2rem; /* Adjust spacing */
+  flex: 1;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
 .nav-links a {
-  margin: 0 0.75rem;
   color: white;
   text-decoration: none;
   font-weight: bold;
@@ -327,6 +338,20 @@ hr {
   }
 }
 
+.sidebar-close {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 2rem;
+  cursor: pointer;
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+}
+
+.sidebar-close:hover {
+  color: #f39c12;
+}
 
 
 

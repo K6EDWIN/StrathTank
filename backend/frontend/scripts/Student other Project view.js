@@ -1,9 +1,11 @@
 const params = new URLSearchParams(window.location.search);
 const projectId = params.get("projectId");
 
-// ============================
+let currentUserId = null;
+
+// ==========================
 // LOAD PROJECT DATA
-// ============================
+// ==========================
 async function loadProjectData() {
   const projectRes = await fetch(`/api/projects/${projectId}/details`);
   const project = await projectRes.json();
@@ -15,13 +17,11 @@ async function loadProjectData() {
   if (rawPath) {
     const normalizedPath = rawPath.replace(/\\/g, '/');
     const fullImagePath = normalizedPath.startsWith('/') ? normalizedPath : `/${normalizedPath}`;
-
     const testImage = new Image();
     testImage.onload = () => {
       heroSection.style.backgroundImage = `url('${fullImagePath}')`;
     };
     testImage.onerror = () => {
-      console.warn("⚠️ Failed to load image:", fullImagePath);
       heroSection.style.backgroundImage = `url('${fallbackImage}')`;
     };
     testImage.src = fullImagePath;
@@ -41,18 +41,15 @@ async function loadProjectData() {
     tagContainer.appendChild(span);
   });
 
-  const techList = document.getElementById("technical-details");
+  const techList = document.getElementById("project-details");
   techList.innerHTML = '';
-  const headings = ['Programming', 'Frameworks', 'Database', 'Deployment'];
-  const sections = project.technical_details.split(new RegExp(`(?=${headings.join('|')}:)`, 'g'));
-
+  const techDetails = project.technical_details || '';
+  const headings = ["Project Focus", "Target Beneficiaries", "Methodology", "Impact Goals"];
+  const sections = techDetails.split(new RegExp(`(?=${headings.join('|')}:)`, 'g'));
   sections.forEach(section => {
     const [heading, content] = section.split(":");
     if (heading && content) {
-      const lines = content.split(/[\.,]/).map(s => s.trim()).filter(line => line.length > 0);
-      techList.innerHTML += `
-        <li><strong>${heading.trim()}:</strong><br/>${lines.join("<br/>")}</li>
-      `;
+      techList.innerHTML += `<li><strong>${heading.trim()}:</strong> ${content.trim()}</li>`;
     }
   });
 
@@ -77,12 +74,18 @@ async function loadProjectData() {
     `;
   });
 
- const docRow = document.getElementById("documents");
+  // ✅ DOCUMENTS SECTION
+const docRow = document.getElementById("documents");
 docRow.innerHTML = '';
-project.documents.forEach((doc, i) => {
-  const fileUrl = doc.replace(/^\/?uploads[\\/]/, '/uploads/');
-  const fullName = doc.replace(/\\/g, '/').split('/').pop();
-  const readableName = fullName.replace(/^\d+(?:-\d+)*-/, '');
+
+project.documents.forEach(doc => {
+  const fileUrl = doc.replace(/^\/?uploads[\\/]/, '/uploads/'); // Normalize slashes
+  const fullName = doc.replace(/\\/g, '/').split('/').pop();     // Replace \ with /, then get file name
+  const readableName = fullName.replace(/^\d+(?:-\d+)*-/, '');    // Remove leading numbers
+
+  console.log("Original path:", doc);
+  console.log("Extracted filename:", fullName);
+  console.log("Readable name:", readableName);
 
   docRow.innerHTML += `
     <div class="card">
@@ -97,10 +100,10 @@ project.documents.forEach((doc, i) => {
 
 }
 
-// ============================
-// LOAD TEAM
-// ============================
 
+// ==========================
+// LOAD TEAM
+// ==========================
 function normalizeProfileImage(path) {
   if (!path || typeof path !== "string" || path.trim() === "") {
     return "/assets/noprofile.jpg";
@@ -148,9 +151,9 @@ async function loadTeam() {
  }
 }
 
-// ============================
+// ==========================
 // LOAD COMMENTS
-// ============================
+// ==========================
 async function loadComments() {
   try {
     const res = await fetch('/user');
@@ -214,12 +217,12 @@ async function loadComments() {
     }
 
     const rootComments = grouped["root"] || [];
-  commentsDiv.innerHTML = ''; // Clear existing
-rootComments.forEach(c => {
-  const wrapper = document.createElement('div');
-  wrapper.innerHTML = renderComment(c);
-  commentsDiv.appendChild(wrapper.firstElementChild);
-});
+    commentsDiv.innerHTML = '';
+    rootComments.forEach(c => {
+      const wrapper = document.createElement('div');
+      wrapper.innerHTML = renderComment(c);
+      commentsDiv.appendChild(wrapper.firstElementChild);
+    });
 
   } catch (err) {
     console.error("⚠️ Fetch error:", err);
@@ -227,9 +230,9 @@ rootComments.forEach(c => {
   }
 }
 
-// ============================
-// SUBMIT COMMENT
-// ============================
+// ==========================
+// SUBMIT NEW COMMENT
+// ==========================
 async function submitComment() {
   const content = document.getElementById("comment-text").value.trim();
   if (!content) return;
@@ -244,63 +247,10 @@ async function submitComment() {
   document.getElementById("comment-text").value = '';
   loadComments();
 }
+
 // ==========================
-// HANDLE DELETE / REPLY / TOGGLE
-// ==========================
-document.addEventListener("click", async (e) => {
-  if (e.target.classList.contains("delete-comment")) {
-    const commentId = e.target.dataset.id;
-    if (confirm("Delete this comment?")) {
-      const res = await fetch(`/api/projects/comments/${commentId}`, {
-        method: "DELETE",
-        credentials: "include"
-      });
-      const result = await res.json();
-      if (result.success) loadComments();
-      else alert(result.error || "Delete failed.");
-    }
-  }
-
-  if (e.target.classList.contains("reply-comment")) {
-    const comment = e.target.closest(".comment");
-    const replyBox = comment.querySelector(".reply-box-container");
-    replyBox.innerHTML = replyBox.innerHTML.trim() ? '' : `
-      <textarea class="reply-text" placeholder="Write a reply..."></textarea>
-      <button class="send-reply-btn" data-id="${e.target.dataset.id}">Reply</button>
-    `;
-  }
-
-  if (e.target.classList.contains("send-reply-btn")) {
-    const parentId = e.target.dataset.id;
-    const textarea = e.target.previousElementSibling;
-    const content = textarea.value.trim();
-    if (!content) return alert("Reply cannot be empty.");
-
-    await fetch(`/api/projects/${projectId}/comment`, {
-      method: "POST",
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
-      body: JSON.stringify({
-        content,
-        parent_id: parentId === undefined ? null : parseInt(parentId)
-      })
-    });
-
-    loadComments();
-  }
-
-  if (e.target.classList.contains("toggle-replies")) {
-    const commentId = e.target.dataset.id;
-    const repliesDiv = document.getElementById(`replies-${commentId}`);
-    const isHidden = repliesDiv.classList.contains("hidden");
-    repliesDiv.classList.toggle("hidden");
-    e.target.textContent = isHidden ? "➖ Hide Replies" : `➕ Show Replies (${repliesDiv.children.length})`;
-  }
-});
-
-// ============================
 // LIKE TOGGLE
-// ============================
+// ==========================
 document.getElementById("like-section").addEventListener("click", async () => {
   try {
     const res = await fetch(`/api/projects/${projectId}/like`, {
@@ -310,52 +260,62 @@ document.getElementById("like-section").addEventListener("click", async () => {
     });
 
     const data = await res.json();
-    if (!res.ok) {
-      alert(data.error || "Something went wrong.");
-      return;
-    }
-
     document.getElementById("like-count").textContent = data.newLikeCount;
-    document.getElementById("like-status").textContent = data.status === "liked" ? "❤️" : "🤍 ";
+    document.getElementById("like-status").textContent = data.status === "liked" ? "❤️ " : "🤍 ";
   } catch (err) {
-    console.error("💥 Like toggle error:", err);
     alert("Something went wrong.");
   }
 });
 
-// ============================
-// DOCUMENT VIEW OVERLAY
-// ============================
-document.addEventListener("click", async (e) => {
-  if (e.target.classList.contains("view-doc-btn")) {
-    const src = e.target.getAttribute("data-src");
-    const overlay = document.getElementById("documentOverlay");
-    const canvas = document.getElementById("pdf-canvas");
-    const ctx = canvas.getContext("2d");
+// ==========================
+// INITIALIZE (incl. PDF VIEW logic)
+// ==========================
+// Set PDF.js worker globally
+pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
-    overlay.classList.remove("hidden");
+document.addEventListener('DOMContentLoaded', () => {
+  loadProjectData();
+  loadTeam();
+  loadComments();
 
-    try {
-      const loadingTask = window['pdfjsLib'].getDocument(src);
-      const pdf = await loadingTask.promise;
-      const page = await pdf.getPage(1); // Render only page 1 for now
+  document.addEventListener("click", async (e) => {
+    // Open PDF in overlay
+    if (e.target.classList.contains("view-doc-btn")) {
+      const src = e.target.getAttribute("data-src");
+      const overlay = document.getElementById("documentOverlay");
+      const canvas = document.getElementById("pdf-canvas");
+      const ctx = canvas.getContext("2d");
 
-      const viewport = page.getViewport({ scale: 1.5 });
-      canvas.width = viewport.width;
-      canvas.height = viewport.height;
+      overlay.classList.remove("hidden");
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      const renderContext = {
-        canvasContext: ctx,
-        viewport: viewport
-      };
+      try {
+        const loadingTask = pdfjsLib.getDocument(src);
+        const pdf = await loadingTask.promise;
+        const page = await pdf.getPage(1);
+        const viewport = page.getViewport({ scale: 1.5 });
 
-      await page.render(renderContext).promise;
-    } catch (err) {
-      console.error("PDF.js error:", err);
-      alert("⚠️ Could not load PDF.");
+        canvas.width = viewport.width;
+        canvas.height = viewport.height;
+
+        await page.render({ canvasContext: ctx, viewport }).promise;
+      } catch (err) {
+        console.error("PDF.js error:", err);
+        alert("⚠️ Could not load PDF. It may be blocked or missing.");
+      }
     }
-  }
+
+    // Close overlay
+    if (e.target.id === "close-overlay") {
+      const overlay = document.getElementById("documentOverlay");
+      const canvas = document.getElementById("pdf-canvas");
+      const ctx = canvas.getContext("2d");
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      overlay.classList.add("hidden");
+    }
+  });
 });
+
 
 function closeDocumentOverlay() {
   const overlay = document.getElementById("documentOverlay");
@@ -363,59 +323,48 @@ function closeDocumentOverlay() {
   const ctx = canvas.getContext("2d");
 
   overlay.classList.add("hidden");
-  ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear canvas
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
 }
 
-
-// ============================
-// INITIALIZE ON LOAD
-// ============================
-document.addEventListener('DOMContentLoaded', () => {
-  loadProjectData();
-  loadTeam();
-  loadComments();
-
-  // ========================
-  // GITHUB VIEW BUTTON
-  // ========================
-  document.querySelector(".viewGithub").addEventListener("click", async () => {
-    try {
-      const res = await fetch(`/api/projects/${projectId}/github`);
-      if (!res.ok) {
-        if (res.status === 404) {
-          alert("🚫 No repo for this project yet, sorry.");
-        } else {
-          throw new Error("GitHub repo fetch failed");
-        }
-        return;
-      }
-
-      const data = await res.json();
-      let url = (data.repo_url || "").trim();
-
-      if (!url) {
-        alert("🚫 No repo for this project yet, sorry.");
-        return;
-      }
-
-      if (url.endsWith(".git")) url = url.slice(0, -4);
-      if (!/^https?:\/\/.+/.test(url)) {
-        alert("❗ Invalid GitHub URL");
-        return;
-      }
-
-      window.open(url, "_blank");
-    } catch (err) {
-      alert("⚠️ Could not open GitHub repo. Please try again.");
-      console.error("GitHub view error:", err);
+// ==========================
+// FLAG PROJECT
+// ==========================
+document.querySelector('.flagproject')?.addEventListener('click', () => {
+  document.getElementById('flag-popup').classList.remove('hidden');
+});
+document.getElementById('cancel-flag')?.addEventListener('click', () => {
+  document.getElementById('flag-popup').classList.add('hidden');
+  document.getElementById('flag-reason').value = '';
+});
+document.getElementById('submit-flag')?.addEventListener('click', async () => {
+  const reason = document.getElementById('flag-reason').value.trim();
+  if (!reason) return alert("Please provide a reason.");
+  try {
+    const title = document.getElementById("project-title")?.textContent || "Untitled";
+    const res = await fetch('/user/flag-project', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ project_id: projectId, name: title, reason })
+    });
+    const data = await res.json();
+    if (data.success) {
+      alert("✅ Project flagged.");
+      document.getElementById('flag-popup').classList.add('hidden');
+      document.getElementById('flag-reason').value = '';
+    } else {
+      alert("❌ Failed: " + (data.message || "Unknown error."));
     }
-  });
+  } catch (err) {
+    alert("❌ Could not flag project.");
+    console.error(err);
+  }
 });
 
-// ============================
-// COLLABORATE REQUEST
-// ============================
-document.querySelector('.collaborate').addEventListener('click', async () => {
+// ==========================
+// COLLABORATION
+// ==========================
+document.querySelector('.collaborate')?.addEventListener('click', async () => {
   try {
     const res = await fetch(`/api/collaboration/${projectId}/request`, {
       method: 'POST',
@@ -430,50 +379,29 @@ document.querySelector('.collaborate').addEventListener('click', async () => {
     alert('Error sending collaboration request.');
   }
 });
+function logoutUser() {
+  // Show logout loader
+  const loader = document.getElementById('logout-loader');
+  loader.style.display = 'flex';
 
-// ============================
-// FLAG PROJECT
-// ============================
-document.querySelector('.flagproject')?.addEventListener('click', () => {
-  document.getElementById('flag-popup').classList.remove('hidden');
-});
-
-document.getElementById('cancel-flag')?.addEventListener('click', () => {
-  document.getElementById('flag-popup').classList.add('hidden');
-  document.getElementById('flag-reason').value = '';
-});
-
-document.getElementById('submit-flag')?.addEventListener('click', async () => {
-  const reason = document.getElementById('flag-reason').value.trim();
-  if (!reason) {
-    alert("Please provide a reason.");
-    return;
-  }
-
-  try {
-    const title = document.getElementById("project-title")?.textContent || "Untitled";
-
-    const res = await fetch('/user/flag-project', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
-      body: JSON.stringify({
-        project_id: projectId,
-        name: title,
-        reason
+  // Optional delay for UX (e.g. 1.5 seconds)
+  setTimeout(() => {
+    fetch('/user/logout', {
+      method: 'GET',
+      credentials: 'include'
+    })
+      .then(res => {
+        if (res.redirected) {
+          window.location.href = res.url;
+        } else {
+          loader.style.display = 'none'; // hide loader
+          alert('Logout failed.');
+        }
       })
-    });
-
-    const data = await res.json();
-    if (data.success) {
-      alert("✅ Project flagged successfully.");
-      document.getElementById('flag-popup').classList.add('hidden');
-      document.getElementById('flag-reason').value = '';
-    } else {
-      alert("❌ Failed: " + (data.message || "Something went wrong."));
-    }
-  } catch (err) {
-    alert("❌ Could not flag project. Try again later.");
-    console.error(err);
-  }
-});
+      .catch(err => {
+        loader.style.display = 'none'; // hide loader
+        console.error('Logout error:', err);
+        alert('Error logging out.');
+      });
+  }, 1500); // Show loader before logging out
+}

@@ -179,45 +179,62 @@ router.delete('/users/:id', isAdmin, (req, res) => {
     return res.status(400).json({ success: false, message: 'Invalid user ID' });
   }
 
-  // Step 1: Remove team member associations
-  db.query('DELETE FROM project_team_members WHERE user_id = ?', [userId], (err) => {
+  // Step 1: Delete likes
+  db.query('DELETE FROM likes WHERE user_id = ?', [userId], (err) => {
     if (err) {
-      console.error('❌ Failed to remove user from team_members:', err);
-      return res.status(500).json({ success: false, message: 'Team member deletion failed' });
+      console.error('❌ Failed to delete likes:', err);
+      return res.status(500).json({ success: false, message: 'Failed to delete user likes' });
     }
 
-    // Step 2: Delete projects owned by user (or update owner if needed)
-    db.query('DELETE FROM projects WHERE user_id = ?', [userId], (err) => {
+    // Step 2: Delete comments
+    db.query('DELETE FROM comments WHERE user_id = ?', [userId], (err) => {
       if (err) {
-        console.error('❌ Failed to delete user projects:', err);
-        return res.status(500).json({ success: false, message: 'Project deletion failed' });
+        console.error('❌ Failed to delete comments:', err);
+        return res.status(500).json({ success: false, message: 'Failed to delete user comments' });
       }
 
-      // Step 3: Remove from collaborations
-        db.query('DELETE FROM collaborations WHERE collaborator_id = ?', [userId], (err) => {
+      // Step 3: Remove team member associations
+      db.query('DELETE FROM project_team_members WHERE user_id = ?', [userId], (err) => {
         if (err) {
-          console.error('❌ Failed to remove user from collaborations:', err);
-          return res.status(500).json({ success: false, message: 'Collaboration deletion failed'});
+          console.error('❌ Failed to remove user from team_members:', err);
+          return res.status(500).json({ success: false, message: 'Team member deletion failed' });
         }
 
-      // Step 4: Finally delete the user
-      db.query('DELETE FROM Users WHERE id = ?', [userId], (err, result) => {
-        if (err) {
-          console.error('❌ Error deleting user:', err);
-          return res.status(500).json({ success: false, message: 'User deletion failed' });
-        }
+        // Step 4: Delete projects owned by user
+        db.query('DELETE FROM projects WHERE user_id = ?', [userId], (err) => {
+          if (err) {
+            console.error('❌ Failed to delete user projects:', err);
+            return res.status(500).json({ success: false, message: 'Project deletion failed' });
+          }
 
-        if (result.affectedRows === 0) {
-          return res.status(404).json({ success: false, message: 'User not found' });
-        }
+          // Step 5: Remove from collaborations
+          db.query('DELETE FROM collaborations WHERE collaborator_id = ?', [userId], (err) => {
+            if (err) {
+              console.error('❌ Failed to remove user from collaborations:', err);
+              return res.status(500).json({ success: false, message: 'Collaboration deletion failed' });
+            }
 
-        res.json({ success: true, message: 'User and related data deleted successfully' });
+            // Step 6: Finally delete the user
+            db.query('DELETE FROM Users WHERE id = ?', [userId], (err, result) => {
+              if (err) {
+                console.error('❌ Error deleting user:', err);
+                return res.status(500).json({ success: false, message: 'User deletion failed' });
+              }
+
+              if (result.affectedRows === 0) {
+                return res.status(404).json({ success: false, message: 'User not found' });
+              }
+
+              res.json({ success: true, message: 'User and related data deleted successfully' });
+            });
+          });
+        });
       });
     });
   });
 });
 
-});
+
 // ----------------------------------------
 // GET /admin/collaborations - All collaboration requests
 // ----------------------------------------
