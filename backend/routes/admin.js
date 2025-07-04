@@ -98,13 +98,24 @@ router.get('/pending-projects', isAdmin, (req, res) => {
 // ----------------------------------------
 // GET /admin/flagged-projects - Flagged for Review
 // ----------------------------------------
+
 router.get('/flagged-projects', isAdmin, (req, res) => {
-  const sql = `SELECT id, name, flagged_by, flag_reason FROM FlaggedProjects ORDER BY flagged_at DESC`;
+  const sql = `
+    SELECT 
+      fp.id AS flag_id,
+      fp.project_id,
+      p.title AS name,
+      p.project_type,
+      fp.flagged_by,
+      fp.flag_reason
+    FROM FlaggedProjects fp
+    JOIN Projects p ON fp.project_id = p.id
+    ORDER BY fp.flagged_at DESC
+  `;
 
   db.query(sql, (err, results) => {
     if (err) return res.status(500).json({ success: false });
 
-    // Attach email of who flagged it
     const promises = results.map(proj => {
       return new Promise((resolve) => {
         db.query(`SELECT email FROM Users WHERE id = ?`, [proj.flagged_by], (err, userRes) => {
@@ -119,7 +130,6 @@ router.get('/flagged-projects', isAdmin, (req, res) => {
     });
   });
 });
-//
 
 
 // ----------------------------------------
@@ -401,6 +411,242 @@ router.post('/profile-picture', isAdmin, upload.single('profile_picture'), (req,
     }
 
     res.json({ success: true, imagePath });
+  });
+});
+
+
+
+// ----------------------------------------
+// GET /admin/mentorships - All mentorship requests
+// ----------------------------------------
+router.get('/mentorships', isAdmin, (req, res) => {
+  res.set('Cache-Control', 'no-store');
+
+  const sql = `
+    SELECT 
+      mr.id,
+      mr.mentee_id,
+      mr.project_id,
+      p.title AS project_name,
+      mentee.name AS mentee_name,
+      mentee.email AS mentee_email,
+      mr.subject,
+      mr.challenge,
+      mr.primary_area,
+      mr.preferred_skills,
+      mr.availability,
+      mr.status,
+      mr.mentor_id,
+      mentor.name AS mentor_name,
+      mentor.email AS mentor_email,
+      mr.created_at
+    FROM mentorship_requests mr
+    LEFT JOIN users mentee ON mr.mentee_id = mentee.id
+    LEFT JOIN users mentor ON mr.mentor_id = mentor.id
+    LEFT JOIN projects p ON mr.project_id = p.id
+    ORDER BY mr.created_at DESC
+  `;
+
+  db.query(sql, (err, results) => {
+    if (err) {
+      console.error("❌ Error fetching mentorship requests:", err);
+      return res.status(500).json({ success: false, message: "Database error" });
+    }
+
+    res.json({ success: true, mentorships: results });
+  });
+});
+
+
+// ----------------------------------------
+// GET /admin/mentorships/:requestId/messages - Chat messages for a mentorship request
+// ----------------------------------------
+router.get('/mentorships/:requestId/messages', isAdmin, (req, res) => {
+  const { requestId } = req.params;
+
+  const sql = `
+    SELECT 
+      id,
+      sender,
+      message,
+      created_at
+    FROM mentorship_messages
+    WHERE request_id = ?
+    ORDER BY created_at ASC
+  `;
+
+  db.query(sql, [requestId], (err, results) => {
+    if (err) {
+      console.error('❌ Error fetching mentorship messages:', err);
+      return res.status(500).json({ success: false, message: 'Database error' });
+    }
+
+    res.json({ success: true, messages: results });
+  });
+});
+
+
+
+// ----------------------------------------
+// suspend or unsuspend a project
+// ----------------------------------------
+
+router.post('/suspend-project/:projectId', isAdmin, (req, res) => {
+  const { projectId } = req.params;
+  const { action } = req.body;
+
+  if (!['suspend', 'unsuspend'].includes(action)) {
+    return res.status(400).json({ success: false, message: 'Invalid action. Use "suspend" or "unsuspend".' });
+  }
+
+  const newStatus = action === 'suspend' ? 'suspended' : 'approved';
+
+  db.query(`UPDATE Projects SET status = ? WHERE id = ?`, [newStatus, projectId], (err) => {
+    if (err) {
+      console.error('❌ Error updating project status:', err);
+      return res.status(500).json({ success: false, message: 'Database error' });
+    }
+
+    res.json({ success: true, message: `Project ${action}ed successfully.` });
+  });
+});
+
+// ✅ Get all projects
+router.get('/projects', (req, res) => {
+  const sort = req.query.sort || 'newest';
+
+  let orderClause = 'p.created_at DESC';
+  let whereClause = 'p.status = "approved"'; // Default
+
+  if (sort === 'most-liked') orderClause = 'likes DESC';
+  else if (sort === 'most-commented') orderClause = 'comments DESC';
+  else if (sort === 'approved') whereClause = 'p.status= "approved"';
+  else if (sort === 'suspended') whereClause = 'p.status = "suspended"';
+  else if (sort === 'pending') whereClause = 'p.status = "pending"';
+
+  const sql = `
+    SELECT 
+      p.id, p.title, p.description, p.category, p.created_at, p.status,p.project_type,
+      u.name AS author,
+      COALESCE(l.like_count, 0) AS likes,
+      COALESCE(c.comment_count, 0) AS comments,
+      p.project_profile_picture AS image
+    FROM projects p
+    LEFT JOIN users u ON p.user_id = u.id
+    LEFT JOIN (SELECT project_id, COUNT(*) AS like_count FROM likes GROUP BY project_id) l ON p.id = l.project_id
+    LEFT JOIN (SELECT project_id, COUNT(*) AS comment_count FROM comments GROUP BY project_id) c ON p.id = c.project_id
+    WHERE ${whereClause}
+    ORDER BY ${orderClause}
+  `;
+
+  db.query(sql, (err, results) => {
+    if (err) return res.status(500).json({ error: 'Database error' });
+    res.json(results);
+  });
+});
+
+// ✅ Search projects
+router.get('/searchprojects', (req, res) => {
+  const searchTerm = req.query.q;
+  if (!searchTerm || searchTerm.trim() === '') {
+    return res.status(400).json({ error: 'Missing search term' });
+  }
+
+  const likeQuery = `%${searchTerm}%`;
+  const sql = `
+    SELECT 
+      p.id, p.title, p.description, p.category, p.created_at,
+      u.name AS author,
+      COALESCE(l.like_count, 0) AS likes,
+      COALESCE(c.comment_count, 0) AS comments,
+      p.project_profile_picture AS image
+    FROM projects p
+    LEFT JOIN users u ON p.user_id = u.id
+    LEFT JOIN (SELECT project_id, COUNT(*) AS like_count FROM likes GROUP BY project_id) l ON p.id = l.project_id
+    LEFT JOIN (SELECT project_id, COUNT(*) AS comment_count FROM comments GROUP BY project_id) c ON p.id = c.project_id
+    WHERE p.title LIKE ? OR u.name LIKE ?
+    ORDER BY p.created_at DESC
+  `;
+
+  db.query(sql, [likeQuery, likeQuery], (err, results) => {
+    if (err) return res.status(500).json({ error: 'Database error' });
+    res.json(results);
+  });
+});
+
+// ✅ Get all project categories
+router.get('/categories', (req, res) => {
+  const sql = `
+    SELECT DISTINCT category 
+    FROM projects 
+    WHERE category IS NOT NULL AND category != ''
+
+    ORDER BY category
+  `;
+
+  db.query(sql, (err, results) => {
+    if (err) return res.status(500).json({ error: 'Database error' });
+    res.json(results);
+  });
+});
+
+// ✅ Get projects by category
+router.get('/projects/by-category', (req, res) => {
+  const { category, sort } = req.query;
+
+  if (!category) return res.status(400).json({ error: 'Category is required' });
+
+  let orderClause = 'p.created_at DESC';
+  if (sort === 'most-liked') orderClause = 'likes DESC';
+  else if (sort === 'most-commented') orderClause = 'comments DESC';
+
+  const sql = `
+    SELECT 
+      p.id, p.title, p.description, p.category, p.created_at,p.project_type,
+      COALESCE(l.like_count, 0) AS likes,
+      COALESCE(c.comment_count, 0) AS comments,
+      p.project_profile_picture AS image
+    FROM projects p
+    LEFT JOIN (SELECT project_id, COUNT(*) AS like_count FROM likes GROUP BY project_id) l ON p.id = l.project_id
+    LEFT JOIN (SELECT project_id, COUNT(*) AS comment_count FROM comments GROUP BY project_id) c ON p.id = c.project_id
+    WHERE p.category = ?
+
+    ORDER BY ${orderClause}
+  `;
+
+  db.query(sql, [category], (err, results) => {
+    if (err) return res.status(500).json({ error: 'Database error' });
+    res.json(results);
+  });
+});
+
+// ✅ Get project details
+router.get('/projects/:id/details', (req, res) => {
+  const { id } = req.params;
+
+  const sql = `
+    SELECT 
+      p.id, p.title, p.Short_description AS short_description,
+      p.description AS overview, p.tags, p.technical_details,
+      p.status, p.launch_date, p.project_lead, p.team_size,
+      p.Project_profile_picture AS profile_picture,
+      p.screenshots, p.documents, p.version, p.project_type, p.category,
+      COALESCE(l.like_count, 0) AS likes
+    FROM projects p
+    LEFT JOIN (SELECT project_id, COUNT(*) AS like_count FROM likes GROUP BY project_id) l ON p.id = l.project_id
+    WHERE p.id = ?
+  `;
+
+  db.query(sql, [id], (err, results) => {
+    if (err) return res.status(500).json({ error: 'Database error' });
+    if (results.length === 0) return res.status(404).json({ error: 'Project not found' });
+
+    const project = results[0];
+    project.tags = project.tags ? project.tags.split(',').map(tag => tag.trim()) : [];
+    project.screenshots = project.screenshots ? project.screenshots.split(',') : [];
+    project.documents = project.documents ? project.documents.split(',') : [];
+
+    res.json(project);
   });
 });
 

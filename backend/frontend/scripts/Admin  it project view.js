@@ -6,17 +6,14 @@ const projectId = params.get('projectId');
 let currentUserId = null;
 
 // ==========================
-// SELECTORS
-// ==========================
-const logoutLoader = document.getElementById('logout-loader');
-
-// ==========================
 // INITIALIZE
 // ==========================
 document.addEventListener('DOMContentLoaded', () => {
   loadProjectData();
   loadTeam();
   loadComments();
+document.getElementById('approve-btn')?.addEventListener('click', () => handleApprovalAction('approve'));
+document.getElementById('reject-btn')?.addEventListener('click', () => handleApprovalAction('reject'));
 
   document.querySelector('.viewGithub')?.addEventListener('click', viewGithubRepo);
   document.querySelector('.collaborate')?.addEventListener('click', sendCollaborationRequest);
@@ -31,18 +28,27 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   document.getElementById('submit-flag')?.addEventListener('click', submitFlag);
+
   document.getElementById('like-section')?.addEventListener('click', toggleLike);
+  document.getElementById('suspend-btn')?.addEventListener('click', suspendProject);
 
-  document.getElementById('confirmLogoutBtn')?.addEventListener('click', logout);
-  document.getElementById('cancelLogoutBtn')?.addEventListener('click', closeLogoutConfirm);
 
-  document.getElementById('comments-list').addEventListener('click', handleCommentClicks);
-  document.getElementById('comments-list').addEventListener('submit', handleReplySubmit);
+  // Logout modal buttons
+  const confirmLogoutBtn = document.getElementById('confirmLogoutBtn');
+  if (confirmLogoutBtn) confirmLogoutBtn.addEventListener('click', logout);
+
+  const cancelLogoutBtn = document.getElementById('cancelLogoutBtn');
+  if (cancelLogoutBtn) cancelLogoutBtn.addEventListener('click', closeLogoutConfirm);
+
+  // Other event listeners
+  document.addEventListener('click', handleCommentClicks);
 });
 
 // ==========================
 // LOGOUT MODAL & LOADER
 // ==========================
+const logoutLoader = document.getElementById('logout-loader');
+
 function openLogoutConfirm() {
   const modal = document.getElementById('logout-confirm-modal');
   if (modal) modal.style.display = 'flex';
@@ -54,18 +60,18 @@ function closeLogoutConfirm() {
 }
 
 function showLogoutLoader() {
-  logoutLoader && (logoutLoader.style.display = 'flex');
+  if (logoutLoader) logoutLoader.style.display = 'flex';
 }
 
 function hideLogoutLoader() {
-  logoutLoader && (logoutLoader.style.display = 'none');
+  if (logoutLoader) logoutLoader.style.display = 'none';
 }
 
 function logout() {
   closeLogoutConfirm();
   showLogoutLoader();
 
-  const minDelay = new Promise(resolve => setTimeout(resolve, 1500)); 
+  const minDelay = new Promise(resolve => setTimeout(resolve, 1500));
   const logoutRequest = fetch('/user/logout', {
     method: 'GET',
     credentials: 'include'
@@ -91,25 +97,46 @@ function logout() {
 // LOAD PROJECT DATA
 // ==========================
 async function loadProjectData() {
-  try {
-    const res = await fetch(`/api/projects/${projectId}/details`, { credentials: 'include' });
-    const project = await res.json();
+ try {
+  const res = await fetch(`/api/projects/${projectId}/details`, { credentials: 'include' });
+  const project = await res.json();
 
-    setHeroImage(project.file_path);
-    document.getElementById('project-title').textContent = project.title;
-    document.getElementById('project-short-description').textContent = project.short_description;
-    document.getElementById('project-overview').textContent = project.overview;
+  setHeroImage(project.file_path);
+  document.getElementById('project-title').textContent = project.title;
+  document.getElementById('project-short-description').textContent = project.short_description;
+  document.getElementById('project-overview').textContent = project.overview;
+  renderTags(project.tags);
+  renderTechnicalDetails(project.technical_details);
+  renderInfoList(project);
+  document.getElementById('like-count').textContent = project.likes;
+  renderScreenshots(project.screenshots);
+  renderDocuments(project.documents);
 
-    renderTags(project.tags);
-    renderTechnicalDetails(project.technical_details);
-    renderInfoList(project);
-    document.getElementById('like-count').textContent = project.likes;
-    renderScreenshots(project.screenshots);
-    renderDocuments(project.documents);
-  } catch (err) {
-    console.error('❌ loadProjectData failed:', err);
+  // Toggle suspend button
+  const suspendBtn = document.getElementById('suspend-btn');
+  if (suspendBtn) {
+   suspendBtn.disabled = false;
+   suspendBtn.textContent = project.status === 'suspended'
+    ? 'Unsuspend Project'
+    : 'Suspend Project';
   }
+
+  // Show/hide approve & reject buttons based on project status
+  const approveBtn = document.getElementById('approve-btn');
+  const rejectBtn = document.getElementById('reject-btn');
+  if (project.status.toLowerCase() === 'pending') {
+   approveBtn.style.display = 'inline-block';
+   rejectBtn.style.display = 'inline-block';
+  } else {
+   approveBtn.style.display = 'none';
+   rejectBtn.style.display = 'none';
+  }
+
+ } catch (err) {
+  console.error('❌ loadProjectData failed:', err);
+ }
 }
+
 
 function setHeroImage(path) {
   const heroSection = document.querySelector('.hero');
@@ -120,8 +147,12 @@ function setHeroImage(path) {
   }
   const normalized = '/' + path.trim().replace(/\\/g, '/').replace(/^\/+/, '');
   const testImg = new Image();
-  testImg.onload = () => heroSection.style.backgroundImage = `url('${normalized}')`;
-  testImg.onerror = () => heroSection.style.backgroundImage = `url('${fallback}')`;
+  testImg.onload = () => {
+    heroSection.style.backgroundImage = `url('${normalized}')`;
+  };
+  testImg.onerror = () => {
+    heroSection.style.backgroundImage = `url('${fallback}')`;
+  };
   testImg.src = normalized;
 }
 
@@ -146,7 +177,9 @@ function renderTechnicalDetails(details) {
     const [heading, content] = section.split(':');
     if (heading && content) {
       const lines = content.split(/[\.,]/).map(s => s.trim()).filter(Boolean);
-      techList.innerHTML += `<li><strong>${heading.trim()}:</strong><br/>${lines.join('<br/>')}</li>`;
+      techList.innerHTML += `
+        <li><strong>${heading.trim()}:</strong><br/>${lines.join('<br/>')}</li>
+      `;
     }
   });
 }
@@ -192,7 +225,7 @@ function renderDocuments(documents) {
 }
 
 // ==========================
-// TEAM
+// LOAD TEAM
 // ==========================
 async function loadTeam() {
   try {
@@ -402,7 +435,6 @@ async function deleteComment(commentId) {
     alert("❌ " + err.message);
   }
 }
-
 // ==========================
 // LIKE
 // ==========================
@@ -423,7 +455,47 @@ async function toggleLike() {
 }
 
 // ==========================
-// GITHUB
+// DOCUMENT VIEW
+// ==========================
+document.addEventListener('click', async (e) => {
+  if (e.target.classList.contains('view-doc-btn')) {
+    await openDocumentOverlay(e.target.getAttribute('data-src'));
+  }
+});
+
+async function openDocumentOverlay(src) {
+  const overlay = document.getElementById('documentOverlay');
+  const canvas = document.getElementById('pdf-canvas');
+  const ctx = canvas.getContext('2d');
+
+  overlay.classList.remove('hidden');
+
+  try {
+    const loadingTask = window.pdfjsLib.getDocument(src);
+    const pdf = await loadingTask.promise;
+    const page = await pdf.getPage(1);
+
+    const viewport = page.getViewport({ scale: 1.5 });
+    canvas.width = viewport.width;
+    canvas.height = viewport.height;
+
+    await page.render({ canvasContext: ctx, viewport }).promise;
+  } catch (err) {
+    console.error('PDF.js error:', err);
+    alert('⚠️ Could not load PDF.');
+  }
+}
+
+function closeDocumentOverlay() {
+  const overlay = document.getElementById('documentOverlay');
+  const canvas = document.getElementById('pdf-canvas');
+  const ctx = canvas.getContext('2d');
+  overlay.classList.add('hidden');
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+}
+
+// ==========================
+// GITHUB BUTTON
 // ==========================
 async function viewGithubRepo() {
   try {
@@ -441,49 +513,72 @@ async function viewGithubRepo() {
   }
 }
 
+
+
+
+
 // ==========================
-// COLLABORATION
+// SUSPEND PROJECT
 // ==========================
-async function sendCollaborationRequest() {
+
+async function suspendProject() {
+  const suspendBtn = document.getElementById('suspend-btn');
+  if (!suspendBtn) return;
+
+  // Determine current action based on button text
+  let action;
+  if (suspendBtn.textContent.includes('Unsuspend')) {
+    action = 'unsuspend';
+    if (!confirm('Are you sure you want to unsuspend this project?')) return;
+  } else {
+    action = 'suspend';
+    if (!confirm('Are you sure you want to suspend this project?')) return;
+  }
+
   try {
-    const res = await fetch(`/api/collaboration/${projectId}/request`, {
+    const res = await fetch(`/admin/suspend-project/${projectId}`, {
       method: 'POST',
+      credentials: 'include',
       headers: { 'Content-Type': 'application/json' },
-      credentials: 'include'
+      body: JSON.stringify({ action })
     });
+
     const data = await res.json();
-    alert(data.message || data.error);
+    if (data.success) {
+      alert(`✅ Project ${action}ed successfully.`);
+      loadProjectData();
+    } else {
+      alert('❌ Failed: ' + (data.message || 'Unknown error.'));
+    }
   } catch (err) {
-    console.error('❌ Collaborate error:', err);
-    alert('Error sending collaboration request.');
+    console.error('❌ Suspend error:', err);
+    alert('❌ Could not update project status. Try again later.');
   }
 }
 
-// ==========================
-// FLAG
-// ==========================
-async function submitFlag() {
-  const reason = document.getElementById('flag-reason').value.trim();
-  if (!reason) return alert('Please provide a reason.');
+async function handleApprovalAction(action) {
+  const confirmMsg = action === 'approve'
+    ? 'Are you sure you want to approve this project?'
+    : 'Are you sure you want to reject this project?';
+
+  if (!confirm(confirmMsg)) return;
 
   try {
-    const title = document.getElementById('project-title').textContent || 'Untitled';
-    const res = await fetch('/user/flag-project', {
+    const res = await fetch(`/admin/${action}/${projectId}`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
       credentials: 'include',
-      body: JSON.stringify({ project_id: projectId, name: title, reason })
+      headers: { 'Content-Type': 'application/json' }
     });
+
     const data = await res.json();
     if (data.success) {
-      alert('✅ Project flagged successfully.');
-      document.getElementById('flag-popup').classList.add('hidden');
-      document.getElementById('flag-reason').value = '';
+      alert(`✅ Project ${action}d successfully.`);
+      loadProjectData(); // Refresh view to hide buttons and update status
     } else {
-      alert('❌ Failed: ' + (data.message || 'Something went wrong.'));
+      alert(`❌ ${action} failed: ${data.message || 'Unknown error.'}`);
     }
   } catch (err) {
-    console.error('❌ Flag error:', err);
-    alert('❌ Could not flag project. Try again later.');
+    console.error(`[${action.toUpperCase()} ERROR]:`, err);
+    alert(`❌ Could not ${action} the project. Please try again later.`);
   }
 }

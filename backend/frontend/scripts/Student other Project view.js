@@ -230,23 +230,99 @@ async function loadComments() {
   }
 }
 
-// ==========================
-// SUBMIT NEW COMMENT
-// ==========================
-async function submitComment() {
-  const content = document.getElementById("comment-text").value.trim();
-  if (!content) return;
+// Unified comment click handler (reply + delete + toggle replies)
+document.getElementById('comments-list').addEventListener('click', async (e) => {
+  const replyBtn = e.target.closest('.reply-comment');
+  const deleteBtn = e.target.closest('.delete-comment');
+  const toggleBtn = e.target.closest('.toggle-replies');
 
-  await fetch(`/api/projects/${projectId}/comment`, {
-    method: "POST",
-    headers: { 'Content-Type': 'application/json' },
-    credentials: 'include',
-    body: JSON.stringify({ content })
-  });
+  if (replyBtn) {
+    const commentId = replyBtn.dataset.id;
+    const userName = replyBtn.dataset.user;
+    const parentComment = replyBtn.closest('.comment');
+    const container = parentComment.querySelector('.reply-box-container');
 
-  document.getElementById("comment-text").value = '';
-  loadComments();
+    if (container.querySelector('.reply-form')) {
+      container.innerHTML = '';
+      return;
+    }
+
+    container.innerHTML = `
+      <form class="reply-form" data-parent-id="${commentId}">
+        <textarea required placeholder="Reply to @${userName}" class="reply-input"></textarea>
+        <button type="submit" class="submit-reply-btn">Reply</button>
+      </form>
+    `;
+  }
+
+  if (deleteBtn) {
+    const commentId = deleteBtn.dataset.id;
+    if (confirm('Are you sure you want to delete this comment?')) {
+      await deleteComment(commentId);
+    }
+  }
+
+  if (toggleBtn) {
+    const id = toggleBtn.dataset.id;
+    const container = document.getElementById(`replies-${id}`);
+    if (!container) return;
+    const isHidden = container.classList.toggle('hidden');
+    toggleBtn.textContent = isHidden
+      ? `➕ Show Replies (${container.children.length})`
+      : `➖ Hide Replies`;
+  }
+});
+
+// Reply submit
+document.getElementById('comments-list').addEventListener('submit', async (e) => {
+  const form = e.target;
+  if (!form.classList.contains('reply-form')) return;
+
+  e.preventDefault();
+  const parentId = form.dataset.parentId;
+  const content = form.querySelector('.reply-input').value.trim();
+  if (!content) return alert("Reply cannot be empty");
+
+  try {
+    const res = await fetch(`/api/projects/${projectId}/comment`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ content, parent_id: parentId })
+    });
+
+    const result = await res.json();
+    if (!res.ok) throw new Error(result.error || "Failed to post reply");
+
+    await loadComments();
+  } catch (err) {
+    console.error("❌ Reply submit failed:", err);
+    alert("❌ " + err.message);
+  }
+});
+
+// Delete comment
+async function deleteComment(commentId) {
+  try {
+    const res = await fetch(`/api/projects/comments/${commentId}`, {
+
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" }
+    });
+
+    if (!res.ok) {
+      const text = await res.text(); // get raw text instead of json
+      console.error("❌ Delete response (not ok):", text);
+      throw new Error(`Server returned status ${res.status}`);
+    }
+
+    const data = await res.json();
+    await loadComments();
+  } catch (err) {
+    console.error("❌ Delete error:", err);
+    alert("❌ " + err.message);
+  }
 }
+
 
 // ==========================
 // LIKE TOGGLE

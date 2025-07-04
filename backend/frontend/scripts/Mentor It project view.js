@@ -140,42 +140,46 @@ async function loadTeam() {
   }
 }
 
-// ============================
+// ==========================
 // LOAD COMMENTS
-// ============================
+// ==========================
 async function loadComments() {
   try {
-    const userRes = await fetch('/user');
-    const userData = await userRes.json();
-    const currentUserId = userData?.user?.id;
+    const res = await fetch('/user');
+    const userData = await res.json();
+    currentUserId = userData?.user?.id;
 
-    const res = await fetch(`/api/projects/${projectId}/comments`);
-    const comments = await res.json();
+    const commentRes = await fetch(`/api/projects/${projectId}/comments`);
+    const data = await commentRes.json();
 
-    const list = document.getElementById("comments-list");
-    if (!Array.isArray(comments)) {
-      list.innerHTML = "<p>Error loading comments</p>";
+    const commentsDiv = document.getElementById("comments-list");
+    if (!Array.isArray(data)) {
+      commentsDiv.innerHTML = "<p>Error loading comments</p>";
       return;
     }
 
     const grouped = {};
-    comments.forEach(c => {
+    data.forEach(c => {
       const pid = c.parent_id || "root";
       grouped[pid] = grouped[pid] || [];
       grouped[pid].push(c);
     });
 
     function renderComment(c, depth = 0) {
-      const photo = (c.user_profile_photo || '').trim();
-      const avatar = photo ? `/${photo.replace(/\\/g, '/').replace(/\s/g, '%20')}` : '/assets/noprofile.jpg';
+      const rawPhoto = (c.user_profile_photo || '').trim();
+      const profilePic = rawPhoto
+        ? `/${rawPhoto.replace(/\\/g, '/').replace(/\s/g, '%20')}`
+        : '/assets/noprofile.jpg';
+
       const isOwner = currentUserId && currentUserId == c.user_id;
       const replies = grouped[c.id] || [];
 
       let repliesHTML = '';
-      if (replies.length) {
+      if (replies.length > 0) {
+        const replyList = replies.map(reply => renderComment(reply, depth + 1)).join("");
         repliesHTML = `
           <div class="replies-container hidden" id="replies-${c.id}">
-            ${replies.map(r => renderComment(r, depth + 1)).join("")}
+            ${replyList}
           </div>
           <button class="toggle-replies" data-id="${c.id}">➕ Show Replies (${replies.length})</button>
         `;
@@ -184,10 +188,10 @@ async function loadComments() {
       return `
         <div class="comment" data-comment-id="${c.id}" style="margin-left: ${depth * 20}px;">
           <div class="comment-header">
-            <img src="${avatar}" alt="${c.user_name}" class="comment-avatar" />
+            <img src="${profilePic}" alt="${c.user_name}" class="comment-avatar" />
             <div class="comment-meta">
-              <strong>${c.user_name}</strong>
-              <small>${new Date(c.created_at).toLocaleString()}</small>
+              <strong class="comment-user">${c.user_name}</strong>
+              <small class="comment-time">${new Date(c.created_at).toLocaleString()}</small>
             </div>
           </div>
           <p class="comment-content">${c.content}</p>
@@ -201,75 +205,112 @@ async function loadComments() {
       `;
     }
 
-    list.innerHTML = '';
-    (grouped["root"] || []).forEach(c => {
+    const rootComments = grouped["root"] || [];
+    commentsDiv.innerHTML = '';
+    rootComments.forEach(c => {
       const wrapper = document.createElement('div');
       wrapper.innerHTML = renderComment(c);
-      list.appendChild(wrapper.firstElementChild);
+      commentsDiv.appendChild(wrapper.firstElementChild);
     });
+
   } catch (err) {
-    console.error("⚠️ Comments error:", err);
+    console.error("⚠️ Fetch error:", err);
     document.getElementById("comments-list").innerHTML = "<p>Failed to fetch comments</p>";
   }
 }
 
-async function submitComment() {
-  const content = document.getElementById("comment-text").value.trim();
-  if (!content) return;
+// Unified comment click handler (reply + delete + toggle replies)
+document.getElementById('comments-list').addEventListener('click', async (e) => {
+  const replyBtn = e.target.closest('.reply-comment');
+  const deleteBtn = e.target.closest('.delete-comment');
+  const toggleBtn = e.target.closest('.toggle-replies');
 
-  await fetch(`/api/projects/${projectId}/comment`, {
-    method: "POST",
-    headers: { 'Content-Type': 'application/json' },
-    credentials: 'include',
-    body: JSON.stringify({ content })
-  });
+  if (replyBtn) {
+    const commentId = replyBtn.dataset.id;
+    const userName = replyBtn.dataset.user;
+    const parentComment = replyBtn.closest('.comment');
+    const container = parentComment.querySelector('.reply-box-container');
 
-  document.getElementById("comment-text").value = '';
-  loadComments();
-}
-
-// ============================
-// EVENT LISTENERS
-// ============================
-document.addEventListener("click", async (e) => {
-  if (e.target.classList.contains("delete-comment")) {
-    const id = e.target.dataset.id;
-    if (confirm("Delete this comment?")) {
-      await fetch(`/api/projects/comments/${id}`, { method: "DELETE", credentials: "include" });
-      loadComments();
+    if (container.querySelector('.reply-form')) {
+      container.innerHTML = '';
+      return;
     }
-  }
 
-  if (e.target.classList.contains("reply-comment")) {
-    const box = e.target.closest(".comment").querySelector(".reply-box-container");
-    box.innerHTML = box.innerHTML.trim() ? '' : `
-      <textarea class="reply-text" placeholder="Write a reply..."></textarea>
-      <button class="send-reply-btn" data-id="${e.target.dataset.id}">Reply</button>
+    container.innerHTML = `
+      <form class="reply-form" data-parent-id="${commentId}">
+        <textarea required placeholder="Reply to @${userName}" class="reply-input"></textarea>
+        <button type="submit" class="submit-reply-btn">Reply</button>
+      </form>
     `;
   }
 
-  if (e.target.classList.contains("send-reply-btn")) {
-    const parentId = e.target.dataset.id;
-    const textarea = e.target.previousElementSibling;
-    const content = textarea.value.trim();
-    if (!content) return alert("Reply cannot be empty.");
-
-    await fetch(`/api/projects/${projectId}/comment`, {
-      method: "POST",
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
-      body: JSON.stringify({ content, parent_id: parseInt(parentId) })
-    });
-    loadComments();
+  if (deleteBtn) {
+    const commentId = deleteBtn.dataset.id;
+    if (confirm('Are you sure you want to delete this comment?')) {
+      await deleteComment(commentId);
+    }
   }
 
-  if (e.target.classList.contains("toggle-replies")) {
-    const id = e.target.dataset.id;
-    const replies = document.getElementById(`replies-${id}`);
-    replies.classList.toggle("hidden");
-    e.target.textContent = replies.classList.contains("hidden") ? `➕ Show Replies (${replies.children.length})` : "➖ Hide Replies";
+  if (toggleBtn) {
+    const id = toggleBtn.dataset.id;
+    const container = document.getElementById(`replies-${id}`);
+    if (!container) return;
+    const isHidden = container.classList.toggle('hidden');
+    toggleBtn.textContent = isHidden
+      ? `➕ Show Replies (${container.children.length})`
+      : `➖ Hide Replies`;
   }
 });
+
+// Reply submit
+document.getElementById('comments-list').addEventListener('submit', async (e) => {
+  const form = e.target;
+  if (!form.classList.contains('reply-form')) return;
+
+  e.preventDefault();
+  const parentId = form.dataset.parentId;
+  const content = form.querySelector('.reply-input').value.trim();
+  if (!content) return alert("Reply cannot be empty");
+
+  try {
+    const res = await fetch(`/api/projects/${projectId}/comment`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ content, parent_id: parentId })
+    });
+
+    const result = await res.json();
+    if (!res.ok) throw new Error(result.error || "Failed to post reply");
+
+    await loadComments();
+  } catch (err) {
+    console.error("❌ Reply submit failed:", err);
+    alert("❌ " + err.message);
+  }
+});
+
+// Delete comment
+async function deleteComment(commentId) {
+  try {
+    const res = await fetch(`/api/projects/comments/${commentId}`, {
+
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" }
+    });
+
+    if (!res.ok) {
+      const text = await res.text(); // get raw text instead of json
+      console.error("❌ Delete response (not ok):", text);
+      throw new Error(`Server returned status ${res.status}`);
+    }
+
+    const data = await res.json();
+    await loadComments();
+  } catch (err) {
+    console.error("❌ Delete error:", err);
+    alert("❌ " + err.message);
+  }
+}
 
 // ============================
 // LIKE TOGGLE

@@ -1,5 +1,6 @@
 // ✅ Initialize all admin data on DOM load
 document.addEventListener("DOMContentLoaded", () => {
+    loadAdminName();
   loadStats();
   loadUsers();
   loadApprovals();
@@ -52,17 +53,18 @@ function loadUsers() {
       data.users.forEach(user => {
         const suspended = user.suspended === 1 || user.suspended === true;
         const row = document.createElement("tr");
-        row.innerHTML = `
-          <td>${user.name}</td>
-          <td>${user.email}</td>
-          <td>${user.role}</td>
-          <td>
-            <button class="suspend-btn" data-id="${user.id}" data-suspended="${suspended}">
-              ${suspended ? 'Unsuspend' : 'Suspend'}
-            </button>
-            <button class="delete-btn" data-id="${user.id}">Delete</button>
-          </td>
-        `;
+      row.innerHTML = `
+  <td data-label="Name">${user.name}</td>
+  <td data-label="Email">${user.email}</td>
+  <td data-label="Role">${user.role}</td>
+  <td data-label="Actions">
+    <button class="suspend-btn" data-id="${user.id}" data-suspended="${suspended}">
+      ${suspended ? 'Unsuspend' : 'Suspend'}
+    </button>
+    <button class="delete-btn" data-id="${user.id}">Delete</button>
+  </td>
+`;
+
         tbody.appendChild(row);
       });
 
@@ -127,35 +129,49 @@ function attachUserActionListeners() {
 // ✅ Load pending project approvals
 // ==============================
 async function loadApprovals() {
-  const list = document.querySelector(".approval-list");
-  list.innerHTML = "";
+ const list = document.querySelector(".approval-list");
+ list.innerHTML = "";
+ try {
+  const res = await fetch("/admin/pending-projects");
+  const data = await res.json();
+  if (!data.success) throw new Error("Failed to fetch approvals");
 
-  try {
-    const res = await fetch("/admin/pending-projects");
-    const data = await res.json();
+  data.projects.forEach(project => {
+   const card = document.createElement("div");
+   card.className = "approval-card";
 
-    if (!data.success) throw new Error("Failed to fetch approvals");
+   const projectType = (project.project_type || '').toLowerCase().trim();
+   const viewPage = projectType === 'it' ? 'adminitview' : 'adminnonitview';
 
-    data.projects.forEach(project => {
-      const card = document.createElement("div");
-      card.className = "approval-card";
-      card.innerHTML = `
-        <h3>${project.title}</h3>
-        <p>Submitted by: ${project.submittedBy}</p>
-        <p>${project.description}</p>
-        <button class="approve" onclick="approveProject(${project.id})">Approve</button>
-        <button class="reject" onclick="rejectProject(${project.id})">Reject</button>
-      `;
-      list.appendChild(card);
-    });
-  } catch (err) {
-    console.error("[LOAD APPROVALS] Error loading approvals:", err);
-  }
+   card.innerHTML = `
+    <h3>${project.title}</h3>
+    <p><strong>Submitted by:</strong> ${project.submittedBy}</p>
+    <p>${project.description}</p>
+    <div class="approval-actions">
+     <button class="view-btn" data-id="${project.id}">👁️ View</button>
+     <button class="approve-btn" onclick="approveProject(${project.id})">✅ Approve</button>
+     <button class="reject-btn" onclick="rejectProject(${project.id})">❌ Reject</button>
+    </div>
+   `;
+
+   const viewBtn = card.querySelector(".view-btn");
+   viewBtn.addEventListener("click", () => {
+    window.location.href = `/${viewPage}?projectId=${project.id}`;
+   });
+
+   list.appendChild(card);
+  });
+
+ } catch (err) {
+  console.error("[LOAD APPROVALS] Error loading approvals:", err);
+ }
 }
+
 
 // ==============================
 // ✅ Load flagged projects
 // ==============================
+
 async function loadFlaggedProjects() {
   const list = document.querySelector(".flagged-list");
   list.innerHTML = "";
@@ -163,25 +179,58 @@ async function loadFlaggedProjects() {
   try {
     const res = await fetch("/admin/flagged-projects");
     const data = await res.json();
-
     if (!data.success) throw new Error("Failed to fetch flagged projects");
 
     data.flagged.forEach(project => {
+      console.log('[Flagged Project]', project);
+
       const card = document.createElement("div");
       card.className = "flagged-card";
+
+      const projectType = (project.project_type || '').toLowerCase().trim();
+      const viewPage = projectType === 'it' ? 'adminitview' : 'adminnonitview';
+
       card.innerHTML = `
         <h3>${project.name}</h3>
-        <p>Flagged by: ${project.flaggedBy}</p>
+        <p><strong>Flagged by:</strong> ${project.flaggedBy}</p>
         <p>${project.flag_reason}</p>
-        <button class="review" onclick="alert('Review ${project.name}')">Review</button>
-        <button class="dismiss" onclick="alert('Dismissed ${project.name}')">Dismiss</button>
+        <div class="flagged-actions">
+          <button class="review-btn">👁️ Review</button>
+          <button class="dismiss-btn">🗑️ Dismiss</button>
+        </div>
       `;
+
+      // 👁️ REVIEW: Redirect to correct project view
+     // 👁️ REVIEW: Redirect to correct project view
+const reviewBtn = card.querySelector(".review-btn");
+console.log("🚨 Review Button Project ID:", project.project_id, project.id);
+
+// Fix: Safely determine projectId
+const projectId = project.project_id || project.id;
+
+reviewBtn.addEventListener("click", () => {
+  if (!projectId) {
+    alert("⚠️ Cannot open project: ID is missing");
+    return;
+  }
+  window.location.href = `/${viewPage}?projectId=${projectId}`;
+});
+
+
+      // 🗑️ DISMISS: Remove card from DOM
+      const dismissBtn = card.querySelector(".dismiss-btn");
+      dismissBtn.addEventListener("click", () => {
+        list.removeChild(card);
+      });
+
       list.appendChild(card);
     });
+
   } catch (err) {
     console.error("[LOAD FLAGGED] Error loading flagged projects:", err);
   }
 }
+
 
 // ==============================
 // ✅ Approve a project
@@ -287,3 +336,34 @@ function logout() {
 }
 
 
+
+
+document.addEventListener('DOMContentLoaded', () => {
+  const hamburgerBtn = document.getElementById('hamburgerBtn');
+  const sidebar = document.querySelector('.admin-sidebar');
+  const closeSidebarBtn = document.getElementById('closeSidebarBtn');
+
+  // Toggle sidebar open on hamburger click
+  hamburgerBtn.addEventListener('click', () => {
+    sidebar.classList.toggle('open');
+  });
+
+  // Close sidebar on X button click
+  closeSidebarBtn.addEventListener('click', () => {
+    sidebar.classList.remove('open');
+  });
+});
+
+async function loadAdminName() {
+  try {
+    const res = await fetch('/admin/profile/info');
+    const data = await res.json();
+
+    if (!data.success) throw new Error('Failed to fetch admin');
+
+    const name = data.user.name || 'Admin';
+    document.getElementById('adminWelcome').textContent = `Welcome, ${name}`;
+  } catch (err) {
+    console.error('[LOAD ADMIN NAME]', err);
+  }
+}

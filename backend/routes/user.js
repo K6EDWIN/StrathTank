@@ -126,21 +126,43 @@ router.post('/login', (req, res) => {
   const { email, password } = req.body;
 
   db.query('SELECT * FROM Users WHERE email = ?', [email], (err, results) => {
-    if (!results.length) return res.status(401).json({ success: false });
+    if (err) {
+      console.error('❌ DB error:', err);
+      return res.status(500).json({ success: false, message: 'Database error' });
+    }
 
-    bcrypt.compare(password, results[0].password, (err, isMatch) => {
-      if (!isMatch) return res.status(401).json({ success: false });
+    if (!results.length) {
+      return res.status(401).json({ success: false, message: 'Invalid email or password' });
+    }
 
-      req.session.user = results[0];
+    const user = results[0];
 
-      // ✅ Force session to be saved before sending response
+    // ✅ Check if suspended
+    if (user.suspended) {
+      return res.status(403).json({
+        success: false,
+        message: 'Your account has been suspended. Send an email to strathtank@gmail.com for assistance.'
+      });
+    }
+
+    // ✅ Check password]
+    bcrypt.compare(password, user.password, (err, isMatch) => {
+      if (err || !isMatch) {
+        return res.status(401).json({ success: false, message: 'Invalid email or password' });
+      }
+
+      req.session.user = user;
       req.session.save(err => {
-        if (err) return res.status(500).json({ success: false, message: 'Session save failed' });
+        if (err) {
+          console.error('❌ Session save error:', err);
+          return res.status(500).json({ success: false, message: 'Session save failed' });
+        }
         res.json({ success: true });
       });
     });
   });
 });
+
 
 
 // ----------------------------------------

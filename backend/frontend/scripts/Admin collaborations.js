@@ -46,16 +46,40 @@ function renderTable(data) {
 
   data.forEach(item => {
     const row = document.createElement('tr');
+
+    // Create a richer, styled project cell
+    const projectCell = `
+      <div class="project-cell">
+        <h4 class="project-title">${item.project_title}</h4>
+        <p class="project-description">${item.project_description ? item.project_description.slice(0, 100) + '...' : 'No description available.'}</p>
+      </div>
+    `;
+
     row.innerHTML = `
-      <td><strong>${item.project_title}</strong><br>${item.project_description.slice(0, 60)}...</td>
-      <td>${item.owner_name}<br><small>${item.owner_email}</small></td>
-      <td>${item.collaborator_name}<br><small>${item.collaborator_email}</small></td>
-      <td>${item.status}</td>
-      <td>${new Date(item.requested_at).toLocaleString()}</td>
+      <td>${projectCell}</td>
+      <td>
+        <div class="user-cell">
+          <strong>${item.owner_name}</strong><br>
+          <small>${item.owner_email}</small>
+        </div>
+      </td>
+      <td>
+        <div class="user-cell">
+          <strong>${item.collaborator_name}</strong><br>
+          <small>${item.collaborator_email}</small>
+        </div>
+      </td>
+      <td>
+        <span class="status-badge status-${item.status.toLowerCase()}">${item.status}</span>
+      </td>
+      <td>
+        <small>${new Date(item.requested_at).toLocaleString()}</small>
+      </td>
     `;
     tbody.appendChild(row);
   });
 }
+
 
 // ==============================
 // ✅ Filter collaborations by search term and re-render table

@@ -15,8 +15,9 @@
     <div class="nav-links">
       <a href="/admin">Dashboard</a>
         <a href="/adminExplore">Projects</a>
-      <a href="#">Users</a>
+      <a href="/AllUsers">Users</a>
         <a href="/collaborations">Collaborations</a>
+        <a href="/adminMentorships">Mentorships</a>
       <a href="/admin/profile">Profile</a>
          <a href="#" onclick="openLogoutConfirm()">Logout</a>
     </div>
@@ -35,6 +36,9 @@
       <h4>Sort By</h4>
       <select id="sort-options">
         <option value="default">Default</option>
+         <option value="pending">Pending Projects</option>
+        <option value="approved">Approved Projects</option>
+        <option value="suspended">Suspended Projects</option>
         <option value="newest">Newest</option>
         <option value="most-liked">Most Liked</option>
         <option value="most-commented">Most Commented</option>

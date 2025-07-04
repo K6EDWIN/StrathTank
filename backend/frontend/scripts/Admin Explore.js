@@ -17,7 +17,7 @@ let currentSearchTerm = '';
 // ✅ Fetch and display all categories
 // ==========================
 function fetchCategories() {
-  fetch('/api/categories')
+  fetch('/admin/categories')
     .then(res => res.json())
     .then(data => {
       categoryList.innerHTML = '';
@@ -56,9 +56,15 @@ function fetchCategories() {
 // ✅ Fetch and display projects with current filters
 // ==========================
 function fetchProjects(searchTerm = '') {
-  let endpoint = currentCategory
-    ? `/api/projects/by-category?category=${encodeURIComponent(currentCategory)}&sort=${currentSort}`
-    : `/api/projects?sort=${currentSort}`;
+ let endpoint = '';
+
+if (currentSort === 'pending') {
+  endpoint = '/admin/projects?sort=pending';
+} else {
+  endpoint = currentCategory
+    ? `/admin/projects/by-category?category=${encodeURIComponent(currentCategory)}&sort=${currentSort}`
+    : `/admin/projects?sort=${currentSort}`;
+}
 
   fetch(endpoint)
     .then(res => res.json())
@@ -101,7 +107,7 @@ function fetchProjects(searchTerm = '') {
         const button = card.querySelector('.view-button');
         button.addEventListener('click', () => {
           const type = (project.project_type || '').toLowerCase().trim();
-          const file = type === 'it' ? 'project-view' : 'individualProjectsViewnonIT';
+          const file = type === 'it' ? 'adminitview' : 'adminnonitview';
           window.location.href = `/${file}?projectId=${button.dataset.id}`;
         });
 

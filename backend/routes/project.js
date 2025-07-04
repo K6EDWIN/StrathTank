@@ -424,25 +424,7 @@ console.log("🧾 Comment payload:", {
 });
 
 
-// ✅ Post a comment with optional parent_id
-router.post('/projects/:id/comment', (req, res) => {
-  const { id } = req.params;
-  const { content, parent_id } = req.body;
-  const user_id = req.session?.user?.id || req.user?.id;
 
-  if (!user_id) return res.status(401).json({ error: 'Unauthorized. Please log in.' });
-  if (!content) return res.status(400).json({ error: 'Content is required' });
-
-  const sql = `
-    INSERT INTO comments (project_id, user_id, comment, parent_id, created_at)
-    VALUES (?, ?, ?, ?, NOW())
-  `;
-
-  db.query(sql, [id, user_id, content, parent_id ?? null], (err) => {
-    if (err) return res.status(500).json({ error: 'Database error' });
-    res.json({ message: 'Comment added successfully' });
-  });
-});
 
 // ✅ DELETE comment (only own)
 router.delete('/projects/comments/:commentId', (req, res) => {

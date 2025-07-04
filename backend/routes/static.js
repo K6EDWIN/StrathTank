@@ -86,8 +86,19 @@ router.get('/AllUsers', ensureRole('admin'), (req, res) =>
 router.get('/collaborations', ensureAuth, (req, res) =>
   res.sendFile(path.join(__dirname, '../frontend/Admin collaborations.html'))
 );
+router.get('/adminMentorships', ensureRole('admin'), (req, res) =>
+  res.sendFile(path.join(__dirname, '../frontend/Admin Mentorships.html'))
+);
 router.get('/admin/profile', ensureRole('admin'), (req, res) =>
   res.sendFile(path.join(__dirname, '../frontend/Admin Profile.html'))
 );
+router.get('/adminitview', ensureRole('admin'), (req, res) => {
+  const { projectId } = req.params;
+  res.sendFile(path.join(__dirname, '../frontend/Admin IT Project view.html'));
+});
+router.get('/adminnonitview', ensureRole('admin'), (req, res) => {
+  const { projectId } = req.params;
+  res.sendFile(path.join(__dirname, '../frontend/Admin other Project view.html'));  
+});
 
 module.exports = router;

@@ -7,89 +7,115 @@ let currentUserId = null;
 // LOAD PROJECT DATA
 // ==========================
 async function loadProjectData() {
-  const res = await fetch(`/api/projects/${projectId}/details`);
-  const project = await res.json();
+  try {
+    const res = await fetch(`/api/projects/${projectId}/details`);
+    const project = await res.json();
 
-  const heroSection = document.querySelector(".hero");
-  const fallbackImage = '/assets/strath.png';
+    const heroSection = document.querySelector(".hero");
+    const fallbackImage = '/assets/strath.png';
 
-  const rawPath = project.file_path?.trim();
-  if (rawPath) {
-    const normalizedPath = rawPath.replace(/\\/g, '/');
-    const fullImagePath = normalizedPath.startsWith('/') ? normalizedPath : `/${normalizedPath}`;
+    const rawPath = project.file_path?.trim();
+    if (rawPath) {
+      const normalizedPath = rawPath.replace(/\\/g, '/');
+      const fullImagePath = normalizedPath.startsWith('/') ? normalizedPath : `/${normalizedPath}`;
 
-    const testImage = new Image();
-    testImage.onload = () => {
-      heroSection.style.backgroundImage = `url('${fullImagePath}')`;
-    };
-    testImage.onerror = () => {
+      const testImage = new Image();
+      testImage.onload = () => {
+        heroSection.style.backgroundImage = `url('${fullImagePath}')`;
+      };
+      testImage.onerror = () => {
+        heroSection.style.backgroundImage = `url('${fallbackImage}')`;
+      };
+      testImage.src = fullImagePath;
+    } else {
       heroSection.style.backgroundImage = `url('${fallbackImage}')`;
-    };
-    testImage.src = fullImagePath;
-  } else {
-    heroSection.style.backgroundImage = `url('${fallbackImage}')`;
-  }
-
-  document.getElementById("project-title").textContent = project.title;
-  document.getElementById("project-short-description").textContent = project.short_description;
-  document.getElementById("project-overview").textContent = project.overview;
-
-  const tagContainer = document.getElementById("tag-container");
-  tagContainer.innerHTML = '';
-  project.tags.forEach(tag => {
-    const span = document.createElement("span");
-    span.textContent = tag;
-    tagContainer.appendChild(span);
-  });
-
-  const techList = document.getElementById("project-details");
-  techList.innerHTML = '';
-  const headings = ["Project Focus", "Target Beneficiaries", "Methodology", "Impact Goals"];
-  const sections = (project.technical_details || '').split(new RegExp(`(?=${headings.join('|')}:)`, 'g'));
-  sections.forEach(section => {
-    const [heading, content] = section.split(":");
-    if (heading && content) {
-      techList.innerHTML += `<li><strong>${heading.trim()}:</strong> ${content.trim()}</li>`;
     }
-  });
 
-  const infoList = document.getElementById("project-info");
-  infoList.innerHTML = `
-    <li><strong>Status:</strong> ${project.status}</li>
-    <li><strong>Launch Date:</strong> ${project.launch_date}</li>
-    <li><strong>Project Lead:</strong> ${project.project_lead}</li>
-    <li><strong>Team Size:</strong> ${project.team_size}</li>
-  `;
+    document.getElementById("project-title").textContent = project.title;
+    document.getElementById("project-short-description").textContent = project.short_description;
+    document.getElementById("project-overview").textContent = project.overview;
 
-  document.getElementById("like-count").textContent = project.likes;
+    const tagContainer = document.getElementById("tag-container");
+    tagContainer.innerHTML = '';
+    project.tags.forEach(tag => {
+      const span = document.createElement("span");
+      span.textContent = tag;
+      tagContainer.appendChild(span);
+    });
 
-  const screenGrid = document.getElementById("screenshots");
-  screenGrid.innerHTML = '';
-  project.screenshots.forEach((src, i) => {
-    screenGrid.innerHTML += `
-      <div class="design-card">
-        <img src="${src}" alt="Screenshot ${i + 1}" />
-        <p>Screenshot ${i + 1}</p>
-      </div>
+    const techList = document.getElementById("project-details");
+    techList.innerHTML = '';
+    const headings = ["Project Focus", "Target Beneficiaries", "Methodology", "Impact Goals"];
+    const sections = (project.technical_details || '').split(new RegExp(`(?=${headings.join('|')}:)`, 'g'));
+    sections.forEach(section => {
+      const [heading, content] = section.split(":");
+      if (heading && content) {
+        techList.innerHTML += `<li><strong>${heading.trim()}:</strong> ${content.trim()}</li>`;
+      }
+    });
+
+    const infoList = document.getElementById("project-info");
+    infoList.innerHTML = `
+      <li><strong>Status:</strong> ${project.status}</li>
+      <li><strong>Launch Date:</strong> ${project.launch_date}</li>
+      <li><strong>Project Lead:</strong> ${project.project_lead}</li>
+      <li><strong>Team Size:</strong> ${project.team_size}</li>
     `;
-  });
 
-  const docRow = document.getElementById("documents");
-  docRow.innerHTML = '';
-  project.documents.forEach(doc => {
-    const fileUrl = doc.replace(/^\/?uploads[\\/]/, '/uploads/');
-    const fullName = doc.replace(/\\/g, '/').split('/').pop();
-    const readableName = fullName.replace(/^\d+(?:-\d+)*-/, '');
-    docRow.innerHTML += `
-      <div class="card">
-        <div class="icon">📄</div>
-        <div class="doc-info">
-          <p>${readableName}</p>
-          <button class="view-doc-btn" data-src="${fileUrl}">View</button>
+    document.getElementById("like-count").textContent = project.likes;
+
+    const screenGrid = document.getElementById("screenshots");
+    screenGrid.innerHTML = '';
+    project.screenshots.forEach((src, i) => {
+      screenGrid.innerHTML += `
+        <div class="design-card">
+          <img src="${src}" alt="Screenshot ${i + 1}" />
+          <p>Screenshot ${i + 1}</p>
         </div>
-      </div>
-    `;
-  });
+      `;
+    });
+
+    const docRow = document.getElementById("documents");
+    docRow.innerHTML = '';
+    project.documents.forEach(doc => {
+      const fileUrl = doc.replace(/^\/?uploads[\\/]/, '/uploads/').replace(/\\/g, '/');
+      const fullName = fileUrl.split('/').pop();
+      const readableName = fullName.replace(/^\d+(?:-\d+)*-/, '');
+      docRow.innerHTML += `
+        <div class="card">
+          <div class="icon">📄</div>
+          <div class="doc-info">
+            <p>${readableName}</p>
+            <button class="view-doc-btn" data-src="${fileUrl}">View</button>
+          </div>
+        </div>
+      `;
+    });
+
+    // Admin buttons
+   const approveBtn = document.getElementById('approve-btn');
+const rejectBtn = document.getElementById('reject-btn');
+
+console.log('Status from API:', project.status);
+
+if (project.status && project.status.toLowerCase() === 'pending') {
+  approveBtn.style.removeProperty('display');
+  rejectBtn.style.removeProperty('display');
+} else {
+  approveBtn.style.display = 'none';
+  rejectBtn.style.display = 'none';
+}
+
+
+    const suspendBtn = document.getElementById("suspend-btn");
+   suspendBtn.textContent = project.status.toLowerCase() === "suspended" ? "Unsuspend" : "Suspend";
+    suspendBtn.style.display = project.status.toLowerCase() !== "pending" ? "inline-block" : "none";
+
+
+  } catch (err) {
+    console.error("Error loading project:", err);
+    alert("Failed to load project.");
+  }
 }
 
 // ==========================
@@ -109,9 +135,9 @@ function normalizeProfileImage(path) {
 // ==========================
 async function loadTeam() {
   try {
-    const currentUserRes = await fetch('/user');
+    const currentUserRes = await fetch('/user', { credentials: 'include' });
     const currentUserData = await currentUserRes.json();
-    const currentUserId = currentUserData?.user?.id;
+    currentUserId = currentUserData?.user?.id;
 
     const res = await fetch(`/api/projects/${projectId}/team`);
     const team = await res.json();
@@ -136,7 +162,6 @@ async function loadTeam() {
         </div>
       `;
     });
-
   } catch (err) {
     console.error("❌ loadTeam failed:", err.message);
   }
@@ -313,15 +338,95 @@ async function deleteComment(commentId) {
     alert("❌ " + err.message);
   }
 }
+// ==========================
+// ADMIN BUTTON HANDLERS
+// ==========================
+// ==========================
+// APPROVE / REJECT HANDLERS
+// ==========================
+document.getElementById("approve-btn")?.addEventListener("click", () => handleApprovalAction("approve"));
+document.getElementById("reject-btn")?.addEventListener("click", () => handleApprovalAction("reject"));
+
+async function handleApprovalAction(action) {
+  const confirmMsg = action === "approve"
+    ? "Are you sure you want to approve this project?"
+    : "Are you sure you want to reject this project?";
+
+  if (!confirm(confirmMsg)) return;
+
+  try {
+    const res = await fetch(`/admin/${action}/${projectId}`, {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" }
+    });
+
+    const data = await res.json();
+    if (data.success) {
+      alert(`✅ Project ${action}d successfully.`);
+      await loadProjectData(); // Refresh data to update UI
+    } else {
+      alert(`❌ ${action} failed: ${data.message || "Unknown error."}`);
+    }
+  } catch (err) {
+    console.error(`[${action.toUpperCase()} ERROR]:`, err);
+    alert(`❌ Could not ${action} the project. Please try again later.`);
+  }
+}
+
+
+// ==========================
+// SUSPEND PROJECT
+// ==========================
+
+async function suspendProject() {
+  const suspendBtn = document.getElementById('suspend-btn');
+  if (!suspendBtn) return;
+
+  // Determine current action based on button text (case-insensitive check)
+  let action;
+  const isUnsuspend = suspendBtn.textContent.toLowerCase().includes('unsuspend');
+
+  if (isUnsuspend) {
+    action = 'unsuspend';
+    if (!confirm('Are you sure you want to unsuspend this project?')) return;
+  } else {
+    action = 'suspend';
+    if (!confirm('Are you sure you want to suspend this project?')) return;
+  }
+
+  try {
+    const res = await fetch(`/admin/suspend-project/${projectId}`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action })
+    });
+
+    const data = await res.json();
+    if (data.success) {
+      alert(`✅ Project ${action}ed successfully.`);
+      await loadProjectData();  // Refresh data to update button label and status
+    } else {
+      alert('❌ Failed: ' + (data.message || 'Unknown error.'));
+    }
+  } catch (err) {
+    console.error('❌ Suspend error:', err);
+    alert('❌ Could not update project status. Try again later.');
+  }
+}
+
+
+
 
 // ==========================
 // LIKE TOGGLE
 // ==========================
-document.getElementById("like-section").addEventListener("click", async () => {
+document.getElementById("like-section")?.addEventListener("click", async () => {
   try {
     const res = await fetch(`/api/projects/${projectId}/like`, {
       method: "POST",
-      headers: { 'Content-type': 'application/json' },
+      headers: { 'Content-Type': 'application/json' },
       credentials: 'include'
     });
 
@@ -334,7 +439,7 @@ document.getElementById("like-section").addEventListener("click", async () => {
 });
 
 // ==========================
-// INITIALIZE + LOGOUT SETUP
+// DOCUMENT VIEWER (PDF.js)
 // ==========================
 pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
@@ -374,14 +479,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // ✅ Logout modal buttons
   document.getElementById('confirmLogoutBtn')?.addEventListener('click', logout);
   document.getElementById('cancelLogoutBtn')?.addEventListener('click', closeLogoutConfirm);
 });
 
-// ==========================
-// DOCUMENT OVERLAY CLOSE
-// ==========================
 function closeDocumentOverlay() {
   const overlay = document.getElementById("documentOverlay");
   const canvas = document.getElementById("pdf-canvas");
@@ -392,47 +493,7 @@ function closeDocumentOverlay() {
 }
 
 // ==========================
-// FLAG PROJECT
-// ==========================
-document.querySelector('.flagproject')?.addEventListener('click', () => {
-  document.getElementById('flag-popup').classList.remove('hidden');
-});
-
-document.getElementById('cancel-flag')?.addEventListener('click', () => {
-  document.getElementById('flag-popup').classList.add('hidden');
-  document.getElementById('flag-reason').value = '';
-});
-
-document.getElementById('submit-flag')?.addEventListener('click', async () => {
-  const reason = document.getElementById('flag-reason').value.trim();
-  if (!reason) return alert("Please provide a reason.");
-
-  try {
-    const title = document.getElementById("project-title")?.textContent || "Untitled";
-
-    const res = await fetch('/user/flag-project', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
-      body: JSON.stringify({ project_id: projectId, name: title, reason })
-    });
-
-    const data = await res.json();
-    if (data.success) {
-      alert("✅ Project flagged successfully.");
-      document.getElementById('flag-popup').classList.add('hidden');
-      document.getElementById('flag-reason').value = '';
-    } else {
-      alert("❌ Failed: " + (data.message || "Something went wrong."));
-    }
-  } catch (err) {
-    alert("❌ Could not flag project. Try again later.");
-    console.error(err);
-  }
-});
-
-// ==========================
-// LOGOUT USER
+// LOGOUT
 // ==========================
 function openLogoutConfirm() {
   document.getElementById('logout-confirm-modal').style.display = 'flex';
@@ -472,7 +533,7 @@ function logout() {
     });
 }
 
-// ✅ Expose globally for inline onclick
+// Expose for inline
 window.openLogoutConfirm = openLogoutConfirm;
 window.closeLogoutConfirm = closeLogoutConfirm;
 window.logout = logout;

@@ -23,14 +23,16 @@ function redirectByRole(req, res) {
   res.redirect(redirectUrl);
 }
 
-
 // ✅ Google OAuth
 router.get('/google',
   passport.authenticate('google', { scope: ['profile', 'email'] })
 );
 
 router.get('/google/callback',
-  passport.authenticate('google', { failureRedirect: '/login' }),
+  passport.authenticate('google', {
+    failureRedirect: '/login',
+    failureMessage: true
+  }),
   (req, res) => {
     req.session.user = {
       id: req.user.id,
@@ -53,7 +55,10 @@ router.get('/github', (req, res, next) => {
 }, passport.authenticate('github', { scope: ['user:email', 'repo'] }));
 
 router.get('/github/callback',
-  passport.authenticate('github', { failureRedirect: '/login' }),
+  passport.authenticate('github', {
+    failureRedirect: '/login',
+    failureMessage: true
+  }),
   (req, res) => {
     if (req.user.githubAccessToken) {
       req.session.githubAccessToken = req.user.githubAccessToken;
@@ -76,7 +81,7 @@ router.post('/login', (req, res, next) => {
   passport.authenticate('local', (err, user, info) => {
     if (err) return next(err);
     if (!user) {
-      return res.status(401).json({ success: false, message: info.message || 'Login failed' });
+      return res.status(401).json({ success: false, message: info?.message || 'Login failed' });
     }
 
     req.login(user, (err) => {
@@ -91,7 +96,6 @@ router.post('/login', (req, res, next) => {
         role: user.role
       };
 
-      // If using fetch, return JSON:
       if (req.headers.accept?.includes('application/json')) {
         let redirectUrl = '/dashboard';
 
@@ -107,11 +111,18 @@ router.post('/login', (req, res, next) => {
         });
       }
 
-      // Otherwise standard redirect
       redirectByRole(req, res);
     });
   })(req, res, next);
 });
 
+// ✅ Middleware to attach flash error to query string for redirects
+router.use((req, res, next) => {
+  if (req.session && req.session.messages && req.session.messages.length) {
+    const msg = encodeURIComponent(req.session.messages.pop());
+    return res.redirect(`/login?error=${msg}`);
+  }
+  next();
+});
 
 module.exports = router;
