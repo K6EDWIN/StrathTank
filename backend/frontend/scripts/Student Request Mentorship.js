@@ -1,13 +1,16 @@
 document.addEventListener("DOMContentLoaded", async () => {
   const projectSelect = document.getElementById("project-id");
+  const form = document.querySelector(".mentorship-form");
 
-  // 1. Get current user
+  // ===============================
+  // 1. Fetch Current Logged-in User
+  // ===============================
   let userId = null;
   try {
     const userRes = await fetch("/api/user");
     const userData = await userRes.json();
 
-    if (!userData.success) {
+    if (!userData.success || !userData.user?.id) {
       alert("Please log in to submit a mentorship request.");
       return;
     }
@@ -15,10 +18,13 @@ document.addEventListener("DOMContentLoaded", async () => {
     userId = userData.user.id;
   } catch (err) {
     console.error("❌ Error fetching user:", err);
+    alert("⚠️ Failed to verify login status.");
     return;
   }
 
-  // 2. Get both owned and collaborated projects
+  // ===========================================
+  // 2. Fetch Projects (Owned & Collaborations)
+  // ===========================================
   try {
     const projectsRes = await fetch(`/api/mentorship/projects/for-mentorship/${userId}`);
     const projects = await projectsRes.json();
@@ -29,7 +35,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const collabOptGroup = document.createElement("optgroup");
     collabOptGroup.label = "Collaborated Projects";
 
-    if (projects.length === 0) {
+    if (!Array.isArray(projects) || projects.length === 0) {
       const option = document.createElement("option");
       option.value = "";
       option.textContent = "You have no projects yet";
@@ -49,38 +55,33 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
       });
 
-      if (ownedOptGroup.children.length > 0) projectSelect.appendChild(ownedOptGroup);
-      if (collabOptGroup.children.length > 0) projectSelect.appendChild(collabOptGroup);
+      if (ownedOptGroup.children.length) projectSelect.appendChild(ownedOptGroup);
+      if (collabOptGroup.children.length) projectSelect.appendChild(collabOptGroup);
     }
   } catch (err) {
     console.error("❌ Error fetching projects:", err);
+    alert("⚠️ Could not load your projects.");
   }
 
-  // 3. Form submission
-  const form = document.querySelector(".mentorship-form");
-  form.addEventListener("submit", async (e) => {
+  // ======================
+  // 3. Handle Form Submit
+  // ======================
+  form?.addEventListener("submit", async (e) => {
     e.preventDefault();
 
     const formData = new FormData(form);
     const payload = Object.fromEntries(formData.entries());
 
-    payload.skills_expertise = payload.skills_expertise
-      ?.split(',')
-      .map(s => s.trim())
-      .filter(Boolean)
-      .join(',');
-
-    payload.availability = payload.availability
-      ?.split(',')
-      .map(s => s.trim())
-      .filter(Boolean)
-      .join(',');
-
-    payload.primary_area = payload.primary_area
-      ?.split(',')
-      .map(s => s.trim())
-      .filter(Boolean)
-      .join(',');
+    // Sanitize comma-separated fields
+    ['skills_expertise', 'availability', 'primary_area'].forEach(key => {
+      if (payload[key]) {
+        payload[key] = payload[key]
+          .split(',')
+          .map(s => s.trim())
+          .filter(Boolean)
+          .join(',');
+      }
+    });
 
     try {
       const res = await fetch("/api/mentorship/mentorship-request", {
@@ -91,13 +92,11 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       const data = await res.json();
       if (res.ok && data.requestId) {
-        // ✅ Trigger mentor auto-assignment
         const assignRes = await fetch(`/api/mentorship/auto-assign/${data.requestId}`, {
           method: "POST"
         });
 
         const assignData = await assignRes.json();
-
         if (assignRes.ok && assignData.success) {
           showSuccessPopup(assignData.mentor);
         } else {
@@ -110,10 +109,20 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
     } catch (err) {
       console.error("❌ Error submitting request:", err);
+      alert("⚠️ Could not submit mentorship request.");
     }
   });
+
+  // ======================
+  // 4. Logout Modal Events
+  // ======================
+  document.getElementById('confirmLogoutBtn')?.addEventListener('click', logout);
+  document.getElementById('cancelLogoutBtn')?.addEventListener('click', closeLogoutConfirm);
 });
 
+// ============================
+// Success Modal Popup
+// ============================
 function showSuccessPopup(mentor = null) {
   const modal = document.createElement("div");
   modal.classList.add("popup-modal");
@@ -145,29 +154,48 @@ function showSuccessPopup(mentor = null) {
     window.location.href = "/dashboard";
   };
 }
-function logoutUser() {
-  // Show logout loader
-  const loader = document.getElementById('logout-loader');
-  loader.style.display = 'flex';
 
-  // Optional delay for UX (e.g. 1.5 seconds)
-  setTimeout(() => {
-    fetch('/user/logout', {
-      method: 'GET',
-      credentials: 'include'
+// ============================
+// Logout Flow with Spinner
+// ============================
+function openLogoutConfirm() {
+  document.getElementById('logout-confirm-modal')?.style.setProperty('display', 'flex');
+}
+
+function closeLogoutConfirm() {
+  document.getElementById('logout-confirm-modal')?.style.setProperty('display', 'none');
+}
+
+function showLogoutLoader() {
+  document.getElementById('logout-loader')?.style.setProperty('display', 'flex');
+}
+
+function hideLogoutLoader() {
+  document.getElementById('logout-loader')?.style.setProperty('display', 'none');
+}
+
+function logout() {
+  closeLogoutConfirm();
+  showLogoutLoader();
+
+  const delay = new Promise(resolve => setTimeout(resolve, 1500));
+  const logoutReq = fetch('/user/logout', {
+    method: 'GET',
+    credentials: 'include'
+  });
+
+  Promise.all([delay, logoutReq])
+    .then(([_, res]) => {
+      if (res.redirected) {
+        window.location.href = res.url;
+      } else {
+        hideLogoutLoader();
+        alert('Logout failed.');
+      }
     })
-      .then(res => {
-        if (res.redirected) {
-          window.location.href = res.url;
-        } else {
-          loader.style.display = 'none'; // hide loader
-          alert('Logout failed.');
-        }
-      })
-      .catch(err => {
-        loader.style.display = 'none'; // hide loader
-        console.error('Logout error:', err);
-        alert('Error logging out.');
-      });
-  }, 1500); // Show loader before logging out
+    .catch(err => {
+      hideLogoutLoader();
+      console.error('Logout error:', err);
+      alert('An error occurred during logout.');
+    });
 }

@@ -16,7 +16,7 @@
       <li><a href="/explorementors">Projects</a></li>
       <li><a class="active" href="#">Mentorship Hub</a></li>
       <li><a href="/mentorprofile">My Profile</a></li>
-      <a href="#" onclick="logoutUser()">Logout</a>
+      <li><a href="#" onclick="openLogoutConfirm()">Logout</a></li>
     </ul>
   </aside>
 
@@ -31,6 +31,7 @@
         <a href="/mentor">Home</a>
         <a href="/explorementors">Explore</a>
         <a class="active" href="#">Mentorship Hub</a>
+        <a href="#" onclick="openLogoutConfirm()">Logout</a>
       </div>
     </nav>
 
@@ -56,7 +57,25 @@
       </section>
     </section>
   </main>
+<!-- Logout Loader Modal -->
+<div id="logout-loader" style="display: none;" class="logout-overlay">
+  <div class="logout-box">
+    <p>Logging out...</p>
+    <div class="spinner"></div>
+  </div>
+</div>
 
+<!-- Logout Confirmation Modal -->
+<div id="logout-confirm-modal" class="modal">
+  <div class="modal-content">
+    <h3>Confirm Logout</h3>
+    <p>Do you really want to log out?</p>
+    <div class="modal-actions">
+      <button id="confirmLogoutBtn">Yes, Log Out</button>
+      <button id="cancelLogoutBtn" class="cancel-btn">Cancel</button>
+    </div>
+  </div>
+</div>
   <script src="scripts/Mentorship hub.js"></script>
 </body>
 </html>

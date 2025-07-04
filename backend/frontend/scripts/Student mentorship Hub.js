@@ -1,36 +1,43 @@
+// ==========================
+// STATE
+// ==========================
+let selectedRequestId = null;
+
+// ==========================
+// INITIALIZE
+// ==========================
 document.addEventListener('DOMContentLoaded', () => {
   loadUserMentorshipRequests();
 
-  const chatForm = document.getElementById('chat-form');
-  if (chatForm) {
-    chatForm.addEventListener('submit', (e) => {
-      e.preventDefault();
-      sendUserMessage();
-    });
-  }
+  document.getElementById('chat-form')?.addEventListener('submit', (e) => {
+    e.preventDefault();
+    sendUserMessage();
+  });
+
+  document.getElementById('logoutBtn')?.addEventListener('click', openLogoutConfirm);
+  document.getElementById('confirmLogoutBtn')?.addEventListener('click', logout);
+  document.getElementById('cancelLogoutBtn')?.addEventListener('click', closeLogoutConfirm);
 });
 
-let selectedRequestId = null;
+// ==========================
+// LOAD MENTORSHIP REQUESTS
+// ==========================
+async function loadUserMentorshipRequests() {
+  try {
+    const res = await fetch('/user/mentorship/dashboard', { credentials: 'include' });
+    const data = await res.json();
 
-/**
- * Load the user's mentorship requests from the server
- */
-function loadUserMentorshipRequests() {
-  fetch('/user/mentorship/dashboard')
-    .then(res => res.json())
-    .then(data => {
-      if (!data.success) throw new Error(data.message);
-      renderRequestList(data.mentorshipRequests);
-    })
-    .catch(err => {
-      console.error('❌ Error loading requests:', err);
-      alert('Failed to load your mentorship requests.');
-    });
+    if (!data.success) throw new Error(data.message);
+    renderRequestList(data.mentorshipRequests);
+  } catch (err) {
+    console.error('❌ Error loading requests:', err);
+    alert('Failed to load your mentorship requests.');
+  }
 }
 
-/**
- * Render the list of mentorship requests
- */
+// ==========================
+// RENDER REQUEST LIST
+// ==========================
 function renderRequestList(requests) {
   const listContainer = document.getElementById('request-list');
   listContainer.innerHTML = '';
@@ -52,45 +59,46 @@ function renderRequestList(requests) {
       <button class="select-request-btn">Open Chat</button>
     `;
 
-    const btn = card.querySelector('.select-request-btn');
-    btn.addEventListener('click', () => selectRequest(request));
-
+    card.querySelector('.select-request-btn').addEventListener('click', () => selectRequest(request));
     listContainer.appendChild(card);
   });
 }
 
-/**
- * When user selects a request to chat
- */
+// ==========================
+// SELECT A REQUEST
+// ==========================
 function selectRequest(request) {
-  console.log('✅ Selected request:', request);
   selectedRequestId = request.id;
 
-  document.getElementById('chatSection').classList.remove('hidden');
+  const chatSection = document.getElementById('chatSection');
+  chatSection.classList.remove('hidden');
   document.getElementById('chat-messages').innerHTML = '<p>Loading conversation...</p>';
+
+  // ✅ Scroll smoothly to the chat section
+  chatSection.scrollIntoView({ behavior: 'smooth' });
 
   loadMessages(selectedRequestId);
 }
 
-/**
- * Load messages for a given request
- */
-function loadMessages(requestId) {
-  fetch(`/user/mentorship/request/${requestId}/messages`)
-    .then(res => res.json())
-    .then(data => {
-      if (!data.success) throw new Error(data.message);
-      renderMessages(data.messages);
-    })
-    .catch(err => {
-      console.error('❌ Error loading messages:', err);
-      document.getElementById('chat-messages').innerHTML = '<p>Failed to load messages.</p>';
-    });
+// ==========================
+// LOAD MESSAGES
+// ==========================
+async function loadMessages(requestId) {
+  try {
+    const res = await fetch(`/user/mentorship/request/${requestId}/messages`, { credentials: 'include' });
+    const data = await res.json();
+
+    if (!data.success) throw new Error(data.message);
+    renderMessages(data.messages);
+  } catch (err) {
+    console.error('❌ Error loading messages:', err);
+    document.getElementById('chat-messages').innerHTML = '<p>Failed to load messages.</p>';
+  }
 }
 
-/**
- * Render the messages in the chat window
- */
+// ==========================
+// RENDER MESSAGES
+// ==========================
 function renderMessages(messages) {
   const chatContainer = document.getElementById('chat-messages');
   chatContainer.innerHTML = '';
@@ -110,56 +118,78 @@ function renderMessages(messages) {
   chatContainer.scrollTop = chatContainer.scrollHeight;
 }
 
-/**
- * Send a new message
- */
-function sendUserMessage() {
+// ==========================
+// SEND USER MESSAGE
+// ==========================
+async function sendUserMessage() {
   const input = document.getElementById('chat-input');
   const message = input.value.trim();
 
   if (!message || !selectedRequestId) return;
 
-  fetch(`/user/mentorship/request/${selectedRequestId}/messages`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ message })
-  })
-    .then(res => res.json())
-    .then(data => {
-      if (!data.success) throw new Error(data.message);
-      input.value = '';
-      loadMessages(selectedRequestId);
-    })
-    .catch(err => {
-      console.error('❌ Error sending message:', err);
-      alert('Failed to send message.');
+  try {
+    const res = await fetch(`/user/mentorship/request/${selectedRequestId}/messages`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ message })
     });
+    const data = await res.json();
+
+    if (!data.success) throw new Error(data.message);
+    input.value = '';
+    loadMessages(selectedRequestId);
+  } catch (err) {
+    console.error('❌ Error sending message:', err);
+    alert('Failed to send message.');
+  }
 }
 
-/**
- * Log out the user
- */
-function logoutUser() {
-  const loader = document.getElementById('logout-loader');
-  loader.style.display = 'flex';
+// =====================================================
+// ✅ Logout Flow with Spinner
+// =====================================================
+function openLogoutConfirm() {
+  const modal = document.getElementById('logout-confirm-modal');
+  if (modal) modal.style.display = 'flex';
+}
 
-  setTimeout(() => {
-    fetch('/user/logout', {
-      method: 'GET',
-      credentials: 'include'
+function closeLogoutConfirm() {
+  const modal = document.getElementById('logout-confirm-modal');
+  if (modal) modal.style.display = 'none';
+}
+
+function showLogoutLoader() {
+  const loader = document.getElementById('logout-loader');
+  if (loader) loader.style.display = 'flex';
+}
+
+function hideLogoutLoader() {
+  const loader = document.getElementById('logout-loader');
+  if (loader) loader.style.display = 'none';
+}
+
+function logout() {
+  closeLogoutConfirm();
+  showLogoutLoader();
+
+  const minDelay = new Promise(resolve => setTimeout(resolve, 1500)); 
+  const logoutRequest = fetch('/user/logout', {
+    method: 'GET',
+    credentials: 'include'
+  });
+
+  Promise.all([minDelay, logoutRequest])
+    .then(([_, res]) => {
+      if (res.redirected) {
+        window.location.href = res.url;
+      } else {
+        hideLogoutLoader();
+        alert('Logout failed.');
+      }
     })
-      .then(res => {
-        if (res.redirected) {
-          window.location.href = res.url;
-        } else {
-          loader.style.display = 'none';
-          alert('Logout failed.');
-        }
-      })
-      .catch(err => {
-        loader.style.display = 'none';
-        console.error('Logout error:', err);
-        alert('Error logging out.');
-      });
-  }, 1500);
+    .catch(err => {
+      hideLogoutLoader();
+      console.error('Logout error:', err);
+      alert('An error occurred during logout.');
+    });
 }

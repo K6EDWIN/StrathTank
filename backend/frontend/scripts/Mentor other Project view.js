@@ -30,12 +30,10 @@ async function loadProjectData() {
     heroSection.style.backgroundImage = `url('${fallbackImage}')`;
   }
 
-  // Update project text content
   document.getElementById("project-title").textContent = project.title;
   document.getElementById("project-short-description").textContent = project.short_description;
   document.getElementById("project-overview").textContent = project.overview;
 
-  // Render tags
   const tagContainer = document.getElementById("tag-container");
   tagContainer.innerHTML = '';
   project.tags.forEach(tag => {
@@ -44,7 +42,6 @@ async function loadProjectData() {
     tagContainer.appendChild(span);
   });
 
-  // Render project details sections
   const techList = document.getElementById("project-details");
   techList.innerHTML = '';
   const headings = ["Project Focus", "Target Beneficiaries", "Methodology", "Impact Goals"];
@@ -56,7 +53,6 @@ async function loadProjectData() {
     }
   });
 
-  // Render additional project info
   const infoList = document.getElementById("project-info");
   infoList.innerHTML = `
     <li><strong>Status:</strong> ${project.status}</li>
@@ -65,10 +61,8 @@ async function loadProjectData() {
     <li><strong>Team Size:</strong> ${project.team_size}</li>
   `;
 
-  // Set likes count
   document.getElementById("like-count").textContent = project.likes;
 
-  // Render screenshots
   const screenGrid = document.getElementById("screenshots");
   screenGrid.innerHTML = '';
   project.screenshots.forEach((src, i) => {
@@ -80,7 +74,6 @@ async function loadProjectData() {
     `;
   });
 
-  // Render documents
   const docRow = document.getElementById("documents");
   docRow.innerHTML = '';
   project.documents.forEach(doc => {
@@ -167,7 +160,6 @@ async function loadComments() {
       return;
     }
 
-    // Group comments by parent_id
     const grouped = {};
     data.forEach(c => {
       const pid = c.parent_id || "root";
@@ -175,7 +167,6 @@ async function loadComments() {
       grouped[pid].push(c);
     });
 
-    // Recursive comment renderer
     function renderComment(c, depth = 0) {
       const rawPhoto = (c.user_profile_photo || '').trim();
       const profilePic = rawPhoto
@@ -268,7 +259,7 @@ document.getElementById("like-section").addEventListener("click", async () => {
 });
 
 // ==========================
-// INITIALIZE (incl. PDF VIEW logic)
+// INITIALIZE + LOGOUT SETUP
 // ==========================
 pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
@@ -299,7 +290,7 @@ document.addEventListener('DOMContentLoaded', () => {
         await page.render({ canvasContext: ctx, viewport }).promise;
       } catch (err) {
         console.error("PDF.js error:", err);
-        alert("⚠️ Could not load PDF. It may be blocked or missing.");
+        alert("⚠️ Could not load PDF.");
       }
     }
 
@@ -307,8 +298,15 @@ document.addEventListener('DOMContentLoaded', () => {
       closeDocumentOverlay();
     }
   });
+
+  // ✅ Logout modal buttons
+  document.getElementById('confirmLogoutBtn')?.addEventListener('click', logout);
+  document.getElementById('cancelLogoutBtn')?.addEventListener('click', closeLogoutConfirm);
 });
 
+// ==========================
+// DOCUMENT OVERLAY CLOSE
+// ==========================
 function closeDocumentOverlay() {
   const overlay = document.getElementById("documentOverlay");
   const canvas = document.getElementById("pdf-canvas");
@@ -332,10 +330,7 @@ document.getElementById('cancel-flag')?.addEventListener('click', () => {
 
 document.getElementById('submit-flag')?.addEventListener('click', async () => {
   const reason = document.getElementById('flag-reason').value.trim();
-  if (!reason) {
-    alert("Please provide a reason.");
-    return;
-  }
+  if (!reason) return alert("Please provide a reason.");
 
   try {
     const title = document.getElementById("project-title")?.textContent || "Untitled";
@@ -344,11 +339,7 @@ document.getElementById('submit-flag')?.addEventListener('click', async () => {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       credentials: 'include',
-      body: JSON.stringify({
-        project_id: projectId,
-        name: title,
-        reason
-      })
+      body: JSON.stringify({ project_id: projectId, name: title, reason })
     });
 
     const data = await res.json();
@@ -368,29 +359,45 @@ document.getElementById('submit-flag')?.addEventListener('click', async () => {
 // ==========================
 // LOGOUT USER
 // ==========================
-function logoutUser() {
-  // Show logout loader
-  const loader = document.getElementById('logout-loader');
-  loader.style.display = 'flex';
-
-  // Optional delay for UX (e.g. 1.5 seconds)
-  setTimeout(() => {
-    fetch('/user/logout', {
-      method: 'GET',
-      credentials: 'include'
-    })
-      .then(res => {
-        if (res.redirected) {
-          window.location.href = res.url;
-        } else {
-          loader.style.display = 'none'; // hide loader
-          alert('Logout failed.');
-        }
-      })
-      .catch(err => {
-        loader.style.display = 'none'; // hide loader
-        console.error('Logout error:', err);
-        alert('Error logging out.');
-      });
-  }, 1500); // Show loader before logging out
+function openLogoutConfirm() {
+  document.getElementById('logout-confirm-modal').style.display = 'flex';
 }
+function closeLogoutConfirm() {
+  document.getElementById('logout-confirm-modal').style.display = 'none';
+}
+function showLogoutLoader() {
+  document.getElementById('logout-loader').style.display = 'flex';
+}
+function hideLogoutLoader() {
+  document.getElementById('logout-loader').style.display = 'none';
+}
+function logout() {
+  closeLogoutConfirm();
+  showLogoutLoader();
+
+  const minDelay = new Promise(resolve => setTimeout(resolve, 1500)); 
+  const logoutRequest = fetch('/user/logout', {
+    method: 'GET',
+    credentials: 'include'
+  });
+
+  Promise.all([minDelay, logoutRequest])
+    .then(([_, res]) => {
+      if (res.redirected) {
+        window.location.href = res.url;
+      } else {
+        hideLogoutLoader();
+        alert('Logout failed.');
+      }
+    })
+    .catch(err => {
+      hideLogoutLoader();
+      console.error('Logout error:', err);
+      alert('An error occurred during logout.');
+    });
+}
+
+// ✅ Expose globally for inline onclick
+window.openLogoutConfirm = openLogoutConfirm;
+window.closeLogoutConfirm = closeLogoutConfirm;
+window.logout = logout;

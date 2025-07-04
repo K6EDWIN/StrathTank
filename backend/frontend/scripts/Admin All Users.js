@@ -2,8 +2,18 @@
 document.addEventListener("DOMContentLoaded", () => {
   loadUsers();
 
-  // ✅ Attach input event listener for live user filtering
-  document.getElementById("userSearch").addEventListener("input", filterUsers);
+  // ✅ Live search
+  const userSearchInput = document.getElementById("userSearch");
+  if (userSearchInput) {
+    userSearchInput.addEventListener("input", filterUsers);
+  }
+
+  // ✅ Logout modal button handlers
+  const confirmLogoutBtn = document.getElementById('confirmLogoutBtn');
+  const cancelLogoutBtn = document.getElementById('cancelLogoutBtn');
+
+  if (confirmLogoutBtn) confirmLogoutBtn.addEventListener('click', logout);
+  if (cancelLogoutBtn) cancelLogoutBtn.addEventListener('click', closeLogoutConfirm);
 });
 
 let allUsers = [];
@@ -30,6 +40,8 @@ async function loadUsers() {
 // ==============================
 function renderUsers(users) {
   const tbody = document.getElementById("userTableBody");
+  if (!tbody) return;
+
   tbody.innerHTML = ""; // Clear existing rows
 
   users.forEach(user => {
@@ -54,10 +66,9 @@ function renderUsers(users) {
 }
 
 // ==============================
-// ✅ Attach event listeners to action buttons (Suspend, Delete)
+// ✅ Attach event listeners to action buttons
 // ==============================
 function attachActionListeners() {
-  // Suspend/Unsuspend button
   document.querySelectorAll(".suspend-btn").forEach(btn => {
     btn.addEventListener("click", async () => {
       const userId = btn.dataset.id;
@@ -87,7 +98,6 @@ function attachActionListeners() {
     });
   });
 
-  // Delete button
   document.querySelectorAll(".delete-btn").forEach(btn => {
     btn.addEventListener("click", async () => {
       const userId = btn.dataset.id;
@@ -113,7 +123,7 @@ function attachActionListeners() {
 }
 
 // ==============================
-// ✅ Filter users by search term and re-render list
+// ✅ Filter users by search term
 // ==============================
 function filterUsers() {
   const term = document.getElementById("userSearch").value.toLowerCase();
@@ -125,3 +135,53 @@ function filterUsers() {
 
   renderUsers(filtered);
 }
+
+// =====================================================
+// ✅ Logout Flow with Spinner
+// =====================================================
+function openLogoutConfirm() {
+  const modal = document.getElementById('logout-confirm-modal');
+  if (modal) modal.style.display = 'flex';
+}
+
+function closeLogoutConfirm() {
+  const modal = document.getElementById('logout-confirm-modal');
+  if (modal) modal.style.display = 'none';
+}
+
+function showLogoutLoader() {
+  const loader = document.getElementById('logout-loader');
+  if (loader) loader.style.display = 'flex';
+}
+
+function hideLogoutLoader() {
+  const loader = document.getElementById('logout-loader');
+  if (loader) loader.style.display = 'none';
+}
+
+function logout() {
+  closeLogoutConfirm();
+  showLogoutLoader();
+
+  const minDelay = new Promise(resolve => setTimeout(resolve, 1500)); 
+  const logoutRequest = fetch('/user/logout', {
+    method: 'GET',
+    credentials: 'include'
+  });
+
+  Promise.all([minDelay, logoutRequest])
+    .then(([_, res]) => {
+      if (res.redirected) {
+        window.location.href = res.url;
+      } else {
+        hideLogoutLoader();
+        alert('Logout failed.');
+      }
+    })
+    .catch(err => {
+      hideLogoutLoader();
+      console.error('Logout error:', err);
+      alert('An error occurred during logout.');
+    });
+}
+

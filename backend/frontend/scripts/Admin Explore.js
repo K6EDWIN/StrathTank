@@ -27,7 +27,6 @@ function fetchCategories() {
       allLi.textContent = 'All';
       allLi.classList.add('selected');
       allLi.addEventListener('click', () => {
-        // Clear selection and reset filter
         document.querySelectorAll('#category-list li').forEach(el => el.classList.remove('selected'));
         allLi.classList.add('selected');
         currentCategory = '';
@@ -35,12 +34,11 @@ function fetchCategories() {
       });
       categoryList.appendChild(allLi);
 
-      // Create list items for each category
+      // Create category items
       data.forEach(cat => {
         const li = document.createElement('li');
         li.textContent = cat.category;
         li.addEventListener('click', () => {
-          // Update selection and filter by category
           document.querySelectorAll('#category-list li').forEach(el => el.classList.remove('selected'));
           li.classList.add('selected');
           currentCategory = cat.category;
@@ -49,31 +47,25 @@ function fetchCategories() {
         categoryList.appendChild(li);
       });
 
-      // Initial fetch of projects after loading categories
+      // Initial fetch
       fetchProjects();
     });
 }
 
 // ==========================
 // ✅ Fetch and display projects with current filters
-// @param {string} searchTerm - Term to filter projects by title/author
 // ==========================
 function fetchProjects(searchTerm = '') {
-  let endpoint = '';
-
-  // Choose API endpoint based on selected category
-  if (currentCategory) {
-    endpoint = `/api/projects/by-category?category=${encodeURIComponent(currentCategory)}&sort=${currentSort}`;
-  } else {
-    endpoint = `/api/projects?sort=${currentSort}`;
-  }
+  let endpoint = currentCategory
+    ? `/api/projects/by-category?category=${encodeURIComponent(currentCategory)}&sort=${currentSort}`
+    : `/api/projects?sort=${currentSort}`;
 
   fetch(endpoint)
     .then(res => res.json())
     .then(data => {
       const term = searchTerm.toLowerCase();
 
-      // Filter projects by search term matching title or author
+      // Filter by title or author
       const filtered = data.filter(project => {
         return (
           project.title.toLowerCase().includes(term) ||
@@ -81,15 +73,12 @@ function fetchProjects(searchTerm = '') {
         );
       });
 
-      // Clear project grid before rendering
       projectGrid.innerHTML = '';
 
-      // Create project cards for each filtered project
       filtered.forEach(project => {
         const card = document.createElement('div');
         card.className = 'project-card';
 
-        // Append project image if available
         if (project.image) {
           const img = document.createElement('img');
           img.src = project.image;
@@ -99,7 +88,6 @@ function fetchProjects(searchTerm = '') {
           card.appendChild(img);
         }
 
-        // Add project info and action button
         card.innerHTML += `
           <h3>${project.title}</h3>
           <p>${project.description}</p>
@@ -110,7 +98,6 @@ function fetchProjects(searchTerm = '') {
           <button class="view-button" data-id="${project.id}">View Details</button>
         `;
 
-        // Add click listener to the view button for navigation based on project type
         const button = card.querySelector('.view-button');
         button.addEventListener('click', () => {
           const type = (project.project_type || '').toLowerCase().trim();
@@ -118,7 +105,6 @@ function fetchProjects(searchTerm = '') {
           window.location.href = `/${file}?projectId=${button.dataset.id}`;
         });
 
-        // Append the card to the grid
         projectGrid.appendChild(card);
       });
     });
@@ -133,7 +119,7 @@ sortOptions.addEventListener('change', () => {
 });
 
 // ==========================
-// ✅ Handle search bar input for live filtering
+// ✅ Handle search bar input
 // ==========================
 searchBar.addEventListener('input', (e) => {
   currentSearchTerm = e.target.value.trim();
@@ -145,32 +131,63 @@ searchBar.addEventListener('input', (e) => {
 // ==========================
 fetchCategories();
 
-// ==========================
-// ✅ Logout user with loader and redirect handling
-// ==========================
-function logoutUser() {
-  // Show logout loader
-  const loader = document.getElementById('logout-loader');
-  loader.style.display = 'flex';
-
-  // Optional delay for better UX (e.g., 1.5 seconds)
-  setTimeout(() => {
-    fetch('/user/logout', {
-      method: 'GET',
-      credentials: 'include'
-    })
-      .then(res => {
-        if (res.redirected) {
-          window.location.href = res.url;
-        } else {
-          loader.style.display = 'none'; // hide loader
-          alert('Logout failed.');
-        }
-      })
-      .catch(err => {
-        loader.style.display = 'none'; // hide loader
-        console.error('[LOGOUT USER] Error:', err);
-        alert('Error logging out.');
-      });
-  }, 1500); // Show loader before logging out
+// =====================================================
+// ✅ Logout Flow with Spinner
+// =====================================================
+function openLogoutConfirm() {
+  const modal = document.getElementById('logout-confirm-modal');
+  if (modal) modal.style.display = 'flex';
 }
+
+function closeLogoutConfirm() {
+  const modal = document.getElementById('logout-confirm-modal');
+  if (modal) modal.style.display = 'none';
+}
+
+function showLogoutLoader() {
+  const loader = document.getElementById('logout-loader');
+  if (loader) loader.style.display = 'flex';
+}
+
+function hideLogoutLoader() {
+  const loader = document.getElementById('logout-loader');
+  if (loader) loader.style.display = 'none';
+}
+
+function logout() {
+  closeLogoutConfirm();
+  showLogoutLoader();
+
+  const minDelay = new Promise(resolve => setTimeout(resolve, 1500)); 
+  const logoutRequest = fetch('/user/logout', {
+    method: 'GET',
+    credentials: 'include'
+  });
+
+  Promise.all([minDelay, logoutRequest])
+    .then(([_, res]) => {
+      if (res.redirected) {
+        window.location.href = res.url;
+      } else {
+        hideLogoutLoader();
+        alert('Logout failed.');
+      }
+    })
+    .catch(err => {
+      hideLogoutLoader();
+      console.error('Logout error:', err);
+      alert('An error occurred during logout.');
+    });
+}
+
+
+// ==========================
+// ✅ Attach modal confirm/cancel buttons on DOM load
+// ==========================
+document.addEventListener("DOMContentLoaded", () => {
+  const confirmLogoutBtn = document.getElementById('confirmLogoutBtn');
+  const cancelLogoutBtn = document.getElementById('cancelLogoutBtn');
+
+  if (confirmLogoutBtn) confirmLogoutBtn.addEventListener('click', logout);
+  if (cancelLogoutBtn) cancelLogoutBtn.addEventListener('click', closeLogoutConfirm);
+});

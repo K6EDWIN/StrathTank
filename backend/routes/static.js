@@ -67,10 +67,10 @@ router.get('/explorementors', ensureAuth, (req, res) =>
   res.sendFile(path.join(__dirname, '../frontend/Mentors Explore.html'))
 );
 router.get('/mentornonit', ensureAuth, (req, res) =>
-  res.sendFile(path.join(__dirname, '../frontend/Mentor IT Project view.html'))
+  res.sendFile(path.join(__dirname, '../frontend/Mentor other Project view.html'))
 );
 router.get('/mentorviewit', ensureAuth, (req, res) =>
-  res.sendFile(path.join(__dirname, '../frontend/Mentor other Project view.html'))
+  res.sendFile(path.join(__dirname, '../frontend/Mentor IT Project view.html'))
 );
 
 // ---------- ADMIN ROUTES ----------

@@ -3,7 +3,26 @@
 // ==========================
 document.addEventListener("DOMContentLoaded", async () => {
   await loadDashboard();
-  await loadRequestPool(); // Preload request pool for quick access
+  await loadRequestPool(); 
+
+  // ✅ Wire static "open request pool" button in the HTML
+  document.getElementById("openRequestPoolBtn")?.addEventListener("click", openRequestPoolModal);
+
+  // ✅ Setup logout modal buttons
+  const confirmLogoutBtn = document.getElementById('confirmLogoutBtn');
+  const cancelLogoutBtn = document.getElementById('cancelLogoutBtn');
+
+  if (confirmLogoutBtn) confirmLogoutBtn.addEventListener('click', logout);
+  if (cancelLogoutBtn) cancelLogoutBtn.addEventListener('click', closeLogoutConfirm);
+
+  // ✅ Setup request pool modal close
+  document.getElementById("closeRequestPoolModal").addEventListener("click", closeRequestPoolModal);
+  window.addEventListener("click", (event) => {
+    const modal = document.getElementById("requestPoolModal");
+    if (event.target == modal) {
+      closeRequestPoolModal();
+    }
+  });
 });
 
 // ==========================
@@ -30,11 +49,7 @@ async function loadDashboard() {
     }
 
     const { mentor, assignedProjects, allProjects } = data;
-
-    // Display mentor's name
     document.getElementById("username").textContent = mentor.name;
-
-    // Render projects
     renderProjects(assignedProjects, document.getElementById("assignedProjects"), true);
     renderProjects(allProjects, document.getElementById("allProjects"));
 
@@ -52,14 +67,13 @@ function renderProjects(projects, container, isAssigned = false) {
 
   if (!projects || projects.length === 0) {
     if (isAssigned) {
-      // Show request pool button if no assigned projects
       container.innerHTML = `
         <div class="empty-message">
           <p>No projects have been assigned to you yet.</p>
           <button id="openRequestPoolBtn" class="open-pool-btn">View the request pool of unassigned projects</button>
         </div>
       `;
-      document.getElementById("openRequestPoolBtn").addEventListener("click", openRequestPoolModal);
+      document.getElementById("openRequestPoolBtn")?.addEventListener("click", openRequestPoolModal);
     } else {
       container.innerHTML = "<p>No projects found.</p>";
     }
@@ -171,7 +185,6 @@ function createRequestPoolCard(item) {
     </div>
   `;
 
-  // Assignment button event listener
   card.querySelector('.assign-btn').addEventListener('click', () => assignYourselfToRequest(item.mentorship_request_id));
 
   return card;
@@ -196,54 +209,59 @@ async function assignYourselfToRequest(requestId) {
 
     alert("Successfully assigned!");
     closeRequestPoolModal();
-    await loadDashboard();   // Refresh dashboard to show new assignment
-    await loadRequestPool(); // Refresh pool data
+    await loadDashboard();   
+    await loadRequestPool(); 
   } catch (err) {
     console.error("❌ Error assigning to request:", err);
     alert("Failed to assign yourself. Please try again.");
   }
 }
 
-// ==========================
-// Modal Close Handling
-// ==========================
-document.addEventListener("DOMContentLoaded", () => {
-  document.getElementById("closeRequestPoolModal").addEventListener("click", closeRequestPoolModal);
-  window.addEventListener("click", (event) => {
-    const modal = document.getElementById("requestPoolModal");
-    if (event.target == modal) {
-      closeRequestPoolModal();
-    }
-  });
-});
+// =====================================================
+// ✅ Logout Flow with Spinner
+// =====================================================
+function openLogoutConfirm() {
+  const modal = document.getElementById('logout-confirm-modal');
+  if (modal) modal.style.display = 'flex';
+}
 
-// Make sure openRequestPoolBtn listener exists (may be dynamically created)
-document.getElementById("openRequestPoolBtn")?.addEventListener("click", openRequestPoolModal);
+function closeLogoutConfirm() {
+  const modal = document.getElementById('logout-confirm-modal');
+  if (modal) modal.style.display = 'none';
+}
 
-// ==========================
-// Logout User Function
-// ==========================
-function logoutUser() {
+function showLogoutLoader() {
   const loader = document.getElementById('logout-loader');
-  loader.style.display = 'flex';
+  if (loader) loader.style.display = 'flex';
+}
 
-  setTimeout(() => {
-    fetch('/user/logout', {
-      method: 'GET',
-      credentials: 'include'
+function hideLogoutLoader() {
+  const loader = document.getElementById('logout-loader');
+  if (loader) loader.style.display = 'none';
+}
+
+function logout() {
+  closeLogoutConfirm();
+  showLogoutLoader();
+
+  const minDelay = new Promise(resolve => setTimeout(resolve, 1500)); 
+  const logoutRequest = fetch('/user/logout', {
+    method: 'GET',
+    credentials: 'include'
+  });
+
+  Promise.all([minDelay, logoutRequest])
+    .then(([_, res]) => {
+      if (res.redirected) {
+        window.location.href = res.url;
+      } else {
+        hideLogoutLoader();
+        alert('Logout failed.');
+      }
     })
-      .then(res => {
-        if (res.redirected) {
-          window.location.href = res.url;
-        } else {
-          loader.style.display = 'none';
-          alert('Logout failed.');
-        }
-      })
-      .catch(err => {
-        loader.style.display = 'none';
-        console.error('Logout error:', err);
-        alert('Error logging out.');
-      });
-  }, 1500);
+    .catch(err => {
+      hideLogoutLoader();
+      console.error('Logout error:', err);
+      alert('An error occurred during logout.');
+    });
 }

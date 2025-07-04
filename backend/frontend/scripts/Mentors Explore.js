@@ -1,11 +1,28 @@
+// ==========================
+// SELECTORS
+// ==========================
 const categoryList = document.getElementById('category-list');
 const sortOptions = document.getElementById('sort-options');
 const projectGrid = document.getElementById('project-grid');
 const searchBar = document.getElementById('searchBar');
 
+// ==========================
+// STATE
+// ==========================
 let currentCategory = '';
 let currentSort = 'default';
 let currentSearchTerm = '';
+
+// ==========================
+// INITIALIZE
+// ==========================
+document.addEventListener('DOMContentLoaded', () => {
+  loadCategories();
+
+  // Logout modal buttons
+  document.getElementById('confirmLogoutBtn')?.addEventListener('click', logout);
+  document.getElementById('cancelLogoutBtn')?.addEventListener('click', closeLogoutConfirm);
+});
 
 // ==========================
 // LOAD CATEGORIES FROM API
@@ -143,45 +160,61 @@ function renderProjectGrid(projects) {
 // ==========================
 // EVENT LISTENERS
 // ==========================
-sortOptions.addEventListener('change', () => {
+sortOptions?.addEventListener('change', () => {
   currentSort = sortOptions.value;
   loadProjects(currentSearchTerm);
 });
 
-searchBar.addEventListener('input', e => {
+searchBar?.addEventListener('input', e => {
   currentSearchTerm = e.target.value.trim();
   loadProjects(currentSearchTerm);
 });
 
-// ==========================
-// INITIALIZE
-// ==========================
-loadCategories();
+// =====================================================
+// ✅ Logout Flow with Spinner
+// =====================================================
+function openLogoutConfirm() {
+  const modal = document.getElementById('logout-confirm-modal');
+  if (modal) modal.style.display = 'flex';
+}
 
-// ==========================
-// LOGOUT USER
-// ==========================
-function logoutUser() {
+function closeLogoutConfirm() {
+  const modal = document.getElementById('logout-confirm-modal');
+  if (modal) modal.style.display = 'none';
+}
+
+function showLogoutLoader() {
   const loader = document.getElementById('logout-loader');
-  loader.style.display = 'flex';
+  if (loader) loader.style.display = 'flex';
+}
 
-  setTimeout(() => {
-    fetch('/user/logout', {
-      method: 'GET',
-      credentials: 'include'
+function hideLogoutLoader() {
+  const loader = document.getElementById('logout-loader');
+  if (loader) loader.style.display = 'none';
+}
+
+function logout() {
+  closeLogoutConfirm();
+  showLogoutLoader();
+
+  const minDelay = new Promise(resolve => setTimeout(resolve, 1500)); 
+  const logoutRequest = fetch('/user/logout', {
+    method: 'GET',
+    credentials: 'include'
+  });
+
+  Promise.all([minDelay, logoutRequest])
+    .then(([_, res]) => {
+      if (res.redirected) {
+        window.location.href = res.url;
+      } else {
+        hideLogoutLoader();
+        alert('Logout failed.');
+      }
     })
-      .then(res => {
-        if (res.redirected) {
-          window.location.href = res.url;
-        } else {
-          loader.style.display = 'none';
-          alert('Logout failed.');
-        }
-      })
-      .catch(err => {
-        loader.style.display = 'none';
-        console.error('Logout error:', err);
-        alert('Error logging out.');
-      });
-  }, 1500);
+    .catch(err => {
+      hideLogoutLoader();
+      console.error('Logout error:', err);
+      alert('An error occurred during logout.');
+    });
 }

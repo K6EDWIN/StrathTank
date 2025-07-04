@@ -131,29 +131,69 @@ document.body.addEventListener("click", async (e) => {
     }
   }
 });
-function logoutUser() {
-  // Show logout loader
-  const loader = document.getElementById('logout-loader');
-  loader.style.display = 'flex';
 
-  // Optional delay for UX (e.g. 1.5 seconds)
-  setTimeout(() => {
-    fetch('/user/logout', {
-      method: 'GET',
-      credentials: 'include'
+// =====================================================
+// ✅ Logout Flow with Spinner
+// =====================================================
+const logoutBtn = document.getElementById('logoutBtn');
+  const cancelLogoutBtn = document.getElementById('cancelLogoutBtn');
+  const confirmLogoutBtn = document.getElementById('confirmLogoutBtn');
+
+  if (logoutBtn) {
+    logoutBtn.addEventListener('click', openLogoutConfirm);
+  }
+
+  if (cancelLogoutBtn) {
+    cancelLogoutBtn.addEventListener('click', closeLogoutConfirm);
+  }
+
+  if (confirmLogoutBtn) {
+    confirmLogoutBtn.addEventListener('click', logout);
+
+  }
+  
+function openLogoutConfirm() {
+  const modal = document.getElementById('logout-confirm-modal');
+  if (modal) modal.style.display = 'flex';
+}
+
+function closeLogoutConfirm() {
+  const modal = document.getElementById('logout-confirm-modal');
+  if (modal) modal.style.display = 'none';
+}
+
+function showLogoutLoader() {
+  const loader = document.getElementById('logout-loader');
+  if (loader) loader.style.display = 'flex';
+}
+
+function hideLogoutLoader() {
+  const loader = document.getElementById('logout-loader');
+  if (loader) loader.style.display = 'none';
+}
+
+function logout() {
+  closeLogoutConfirm();
+  showLogoutLoader();
+
+  const minDelay = new Promise(resolve => setTimeout(resolve, 1500)); 
+  const logoutRequest = fetch('/user/logout', {
+    method: 'GET',
+    credentials: 'include'
+  });
+
+  Promise.all([minDelay, logoutRequest])
+    .then(([_, res]) => {
+      if (res.redirected) {
+        window.location.href = res.url;
+      } else {
+        hideLogoutLoader();
+        alert('Logout failed.');
+      }
     })
-      .then(res => {
-        if (res.redirected) {
-          window.location.href = res.url;
-        } else {
-          loader.style.display = 'none'; // hide loader
-          alert('Logout failed.');
-        }
-      })
-      .catch(err => {
-        loader.style.display = 'none'; // hide loader
-        console.error('Logout error:', err);
-        alert('Error logging out.');
-      });
-  }, 1500); // Show loader before logging out
+    .catch(err => {
+      hideLogoutLoader();
+      console.error('Logout error:', err);
+      alert('An error occurred during logout.');
+    });
 }

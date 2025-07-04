@@ -17,7 +17,9 @@ profilePic.addEventListener('mouseleave', () => {
 editIcon.addEventListener('mouseenter', () => editIcon.style.display = 'block');
 editIcon.addEventListener('mouseleave', () => editIcon.style.display = 'none');
 
-// Open file input when edit icon clicked
+// ==========================
+// ✅ Open file input when edit icon clicked
+// ==========================
 editIcon.addEventListener('click', () => profilePicInput.click());
 
 // ==========================
@@ -40,7 +42,6 @@ profilePicInput.addEventListener('change', async (e) => {
     const result = await res.json();
 
     if (res.ok && result.success) {
-      // Fix Windows-style backslashes in path, cache bust with timestamp
       const fixedPath = result.profile_image.replace(/\\/g, '/');
       profilePic.src = `/${fixedPath}?t=${Date.now()}`;
       alert('Profile picture updated!');
@@ -140,37 +141,65 @@ document.getElementById('deleteAccountBtn').addEventListener('click', async () =
   }
 });
 
-// ==========================
-// ✅ Initialize profile data on DOM ready
-// ==========================
-window.addEventListener('DOMContentLoaded', loadAdminProfile);
-
-// ==========================
-// ✅ Logout user with loader and redirect handling
-// ==========================
-function logoutUser() {
-  // Show logout loader
-  const loader = document.getElementById('logout-loader');
-  loader.style.display = 'flex';
-
-  // Optional delay for better UX (e.g., 1.5 seconds)
-  setTimeout(() => {
-    fetch('/user/logout', {
-      method: 'GET',
-      credentials: 'include'
-    })
-      .then(res => {
-        if (res.redirected) {
-          window.location.href = res.url;
-        } else {
-          loader.style.display = 'none'; // hide loader
-          alert('Logout failed.');
-        }
-      })
-      .catch(err => {
-        loader.style.display = 'none'; // hide loader
-        console.error('[LOGOUT ERROR]', err);
-        alert('Error logging out.');
-      });
-  }, 1500); // Show loader before logging out
+// =====================================================
+// ✅ Logout Flow with Spinner
+// =====================================================
+function openLogoutConfirm() {
+  const modal = document.getElementById('logout-confirm-modal');
+  if (modal) modal.style.display = 'flex';
 }
+
+function closeLogoutConfirm() {
+  const modal = document.getElementById('logout-confirm-modal');
+  if (modal) modal.style.display = 'none';
+}
+
+function showLogoutLoader() {
+  const loader = document.getElementById('logout-loader');
+  if (loader) loader.style.display = 'flex';
+}
+
+function hideLogoutLoader() {
+  const loader = document.getElementById('logout-loader');
+  if (loader) loader.style.display = 'none';
+}
+
+function logout() {
+  closeLogoutConfirm();
+  showLogoutLoader();
+
+  const minDelay = new Promise(resolve => setTimeout(resolve, 1500)); 
+  const logoutRequest = fetch('/user/logout', {
+    method: 'GET',
+    credentials: 'include'
+  });
+
+  Promise.all([minDelay, logoutRequest])
+    .then(([_, res]) => {
+      if (res.redirected) {
+        window.location.href = res.url;
+      } else {
+        hideLogoutLoader();
+        alert('Logout failed.');
+      }
+    })
+    .catch(err => {
+      hideLogoutLoader();
+      console.error('Logout error:', err);
+      alert('An error occurred during logout.');
+    });
+}
+
+
+// ==========================
+// ✅ Initialize profile data and modal button events on DOM ready
+// ==========================
+window.addEventListener('DOMContentLoaded', () => {
+  loadAdminProfile();
+
+  const confirmLogoutBtn = document.getElementById('confirmLogoutBtn');
+  const cancelLogoutBtn = document.getElementById('cancelLogoutBtn');
+
+  if (confirmLogoutBtn) confirmLogoutBtn.addEventListener('click', logout);
+  if (cancelLogoutBtn) cancelLogoutBtn.addEventListener('click', closeLogoutConfirm);
+});

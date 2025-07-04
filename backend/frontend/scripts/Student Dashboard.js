@@ -1,4 +1,6 @@
+// ========================================
 // Load all projects and render them
+// ========================================
 async function loadProjects() {
   try {
     const response = await fetch('/api/projects');
@@ -11,7 +13,9 @@ async function loadProjects() {
   }
 }
 
+// ========================================
 // Render user and recent projects
+// ========================================
 function renderProjects(projects) {
   const recentContainer = document.querySelector('#recent-projects');
   const userContainer = document.querySelector('#user-projects');
@@ -35,7 +39,9 @@ function renderProjects(projects) {
   emptyState.style.display = userHasProjects ? 'none' : 'block';
 }
 
+// ========================================
 // Generate HTML structure for a single project
+// ========================================
 function createProjectCard(project) {
   const card = document.createElement('div');
   card.className = 'card';
@@ -54,7 +60,9 @@ function createProjectCard(project) {
   return card;
 }
 
+// ========================================
 // Show user welcome name
+// ========================================
 async function loadUserInfo() {
   try {
     const res = await fetch('/api/user');
@@ -71,66 +79,10 @@ async function loadUserInfo() {
   }
 }
 
-// Search functionality
-const searchBar = document.getElementById("searchBar");
-const spinner = document.getElementById("spinner");
-const resultsContainer = document.getElementById("search-results");
-const dropdown = document.getElementById("search-dropdown");
-let debounceTimeout;
-
-searchBar.addEventListener("input", () => {
-  const query = searchBar.value.trim();
-  clearTimeout(debounceTimeout);
-
-  if (!query) {
-    dropdown.style.display = "none";
-    return;
-  }
-
-  dropdown.style.display = "block";
-  spinner && (spinner.style.display = "block");
-  resultsContainer.innerHTML = "";
-
-  debounceTimeout = setTimeout(() => {
-    fetch(`/api/searchprojects?q=${encodeURIComponent(query)}&limit=5`)
-      .then(res => res.json())
-      .then(data => {
-        spinner && (spinner.style.display = "none");
-        resultsContainer.innerHTML = "";
-
-        if (!data || data.length === 0) {
-          const noResult = document.createElement("div");
-          noResult.className = "dropdown-item";
-          noResult.innerText = "No results found.";
-          resultsContainer.appendChild(noResult);
-          return;
-        }
-
-        data.forEach(project => {
-          const item = document.createElement("div");
-          item.className = "dropdown-item";
-          item.innerHTML = `<strong>${project.title}</strong>`;
-          item.addEventListener("click", () => {
-            window.location.href = `/project/${project.id}`;
-          });
-          resultsContainer.appendChild(item);
-        });
-      })
-      .catch(err => {
-        console.error("Search error:", err);
-        spinner && (spinner.style.display = "none");
-      });
-  }, 400);
-});
-
-searchBar.addEventListener("blur", () => {
-  setTimeout(() => dropdown.style.display = "none", 200);
-});
-searchBar.addEventListener("focus", () => {
-  if (searchBar.value.trim()) dropdown.style.display = "block";
-});
-
+// ========================================
 // Sidebar toggle on scroll
+// ========================================
+/*
 let lastScrollTop = 0;
 window.addEventListener('scroll', function () {
   let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
@@ -144,9 +96,11 @@ window.addEventListener('scroll', function () {
   }
 
   lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
-});
+});*/
 
+// ========================================
 // Explore button functionality
+// ========================================
 document.addEventListener("DOMContentLoaded", () => {
   const exploreBtn = document.getElementById("explore-btn");
   if (exploreBtn) {
@@ -156,19 +110,22 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 
+// ========================================
 // Initialize dashboard
+// ========================================
 document.addEventListener("DOMContentLoaded", () => {
   loadProjects();
   loadUserInfo();
 });
 
-
-
+// ========================================
+// Login function (unchanged)
+// ========================================
 function loginUser(event) {
-  event.preventDefault(); // prevent default form submission if using a form
+  event.preventDefault();
 
   const loader = document.getElementById('login-loader');
-  loader.style.display = 'flex'; // show spinner
+  loader.style.display = 'flex';
 
   const email = document.getElementById('email').value;
   const password = document.getElementById('password').value;
@@ -194,41 +151,102 @@ function loginUser(event) {
     });
 }
 
-
-
-function logoutUser() {
-  // Show logout loader
-  const loader = document.getElementById('logout-loader');
-  loader.style.display = 'flex';
-
-  // Optional delay for UX (e.g. 1.5 seconds)
-  setTimeout(() => {
-    fetch('/user/logout', {
-      method: 'GET',
-      credentials: 'include'
-    })
-      .then(res => {
-        if (res.redirected) {
-          window.location.href = res.url;
-        } else {
-          loader.style.display = 'none'; // hide loader
-          alert('Logout failed.');
-        }
-      })
-      .catch(err => {
-        loader.style.display = 'none'; // hide loader
-        console.error('Logout error:', err);
-        alert('Error logging out.');
-      });
-  }, 1500); // Show loader before logging out
+// ========================================
+// Function to show the logout confirmation modal
+// ========================================
+function openLogoutConfirm() {
+  const modal = document.getElementById('logout-confirm-modal');
+  if (modal) {
+    modal.style.display = 'flex';
+  }
 }
 
+// ========================================
+// Function to actually log out
+// ========================================
+function logoutUser() {
+  const loader = document.getElementById('logout-loader');
+  if (loader) {
+    loader.style.display = 'flex';
+  }
+
+  fetch('/user/logout', {
+    method: 'GET',
+    credentials: 'include'
+  })
+  .then(res => {
+    if (res.redirected) {
+      window.location.href = res.url;
+    } else {
+      if (loader) loader.style.display = 'none';
+      alert('Logout failed.');
+    }
+  })
+  .catch(err => {
+    if (loader) loader.style.display = 'none';
+    console.error('Logout error:', err);
+    alert('Error logging out.');
+  });
+}
+
+// ========================================
+// Sidebar close button
+// ========================================
 document.addEventListener('DOMContentLoaded', () => {
   const sidebar = document.getElementById('sidebar');
   const closeButton = document.getElementById('sidebarClose');
 
-  closeButton.addEventListener('click', () => {
-    sidebar.classList.remove('visible');
-  });
+  if (closeButton && sidebar) {
+    closeButton.addEventListener('click', () => {
+      sidebar.classList.remove('visible');
+    });
+  }
+});
+
+// ========================================
+// Handle Logout Confirmation Modal
+// ========================================
+document.addEventListener('DOMContentLoaded', () => {
+  const confirmBtn = document.getElementById('confirmLogoutBtn');
+  const cancelBtn = document.getElementById('cancelLogoutBtn');
+  const modal = document.getElementById('logout-confirm-modal');
+
+  if (confirmBtn && cancelBtn && modal) {
+    confirmBtn.addEventListener('click', () => {
+      // Close confirmation modal first
+      modal.style.display = 'none';
+
+      // Show spinner immediately and perform logout
+      logoutUser();
+    });
+
+    cancelBtn.addEventListener('click', () => {
+      modal.style.display = 'none';
+    });
+  }
+});
+// ========================================
+// Handle Hamburger Toggle for Sidebar (Mobile)
+// ========================================
+document.addEventListener('DOMContentLoaded', () => {
+  const hamburgerBtn = document.getElementById('hamburgerBtn');
+  const sidebar = document.getElementById('sidebar');
+  const closeButton = document.getElementById('sidebarClose');
+
+  // Hamburger button toggles sidebar
+  if (hamburgerBtn && sidebar) {
+    hamburgerBtn.addEventListener('click', () => {
+      sidebar.classList.toggle('visible');
+      document.body.classList.toggle('sidebar-visible');
+    });
+  }
+
+  // Sidebar close button
+  if (closeButton && sidebar) {
+    closeButton.addEventListener('click', () => {
+      sidebar.classList.remove('visible');
+      document.body.classList.remove('sidebar-visible');
+    });
+  }
 });
 

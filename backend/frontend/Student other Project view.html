@@ -22,11 +22,7 @@
     <a href="/mentorship-request">Mentorship request Hub</a>
           <a href="/hub">Mentorship Hub</a>
       <a href="/profile">My Profile</a>
-      <a href="#" onclick="logoutUser()">Logout</a>
-    </div>
-    <div class="search-section">
-      <input id="searchBar" class="search-bar" type="text" placeholder="Search by title or author..." />
-      <div id="search-results" class="results-container"></div>
+        <a href="#" onclick="openLogoutConfirm()">Logout</a>
     </div>
   </nav>
 
@@ -122,6 +118,24 @@
 </div>
   </div>
 </div>
+<!-- Logout Loader Modal -->
+<div id="logout-loader" style="display: none;" class="logout-overlay">
+  <div class="logout-box">
+    <p>Logging out...</p>
+    <div class="spinner"></div>
+  </div>
+</div>
 
+<!-- Logout Confirmation Modal -->
+<div id="logout-confirm-modal" class="modal">
+  <div class="modal-content">
+    <h3>Confirm Logout</h3>
+    <p>Do you really want to log out?</p>
+    <div class="modal-actions">
+      <button id="confirmLogoutBtn">Yes, Log Out</button>
+      <button id="cancelLogoutBtn" class="cancel-btn">Cancel</button>
+    </div>
+  </div>
+</div>
 </body>
 </html>

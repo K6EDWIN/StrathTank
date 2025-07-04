@@ -1,7 +1,14 @@
+// ==========================
+// DOMContentLoaded
+// ==========================
 document.addEventListener('DOMContentLoaded', () => {
   loadMentorProfile();
   loadMentorshipStats();
-  loadCurrentMentees(); // NEW
+  loadCurrentMentees();
+
+  // Logout modal listeners
+  document.getElementById('confirmLogoutBtn')?.addEventListener('click', logout);
+  document.getElementById('cancelLogoutBtn')?.addEventListener('click', closeLogoutConfirm);
 });
 
 // ==========================
@@ -254,7 +261,6 @@ function renderCurrentMentees(mentees) {
     const card = document.createElement('div');
     card.className = 'mentee-card';
 
-    // Profile picture
     const img = document.createElement('img');
     let imagePath = mentee.mentee_profile_image?.replace(/\\/g, '/').trim() || '/assets/noprofile.jpg';
     if (imagePath && !imagePath.startsWith('/')) imagePath = '/' + imagePath;
@@ -262,15 +268,12 @@ function renderCurrentMentees(mentees) {
     img.alt = mentee.mentee_name;
     img.className = 'mentee-profile-pic';
 
-    // Name
     const name = document.createElement('h3');
     name.textContent = mentee.mentee_name;
 
-    // Project
     const project = document.createElement('p');
     project.textContent = `Project: ${mentee.project_title}`;
 
-    // Append to card
     card.appendChild(img);
     card.appendChild(name);
     card.appendChild(project);
@@ -279,32 +282,51 @@ function renderCurrentMentees(mentees) {
   });
 }
 
-// ==========================
-// LOGOUT USER
-// ==========================
-function logoutUser() {
-  // Show logout loader
-  const loader = document.getElementById('logout-loader');
-  loader.style.display = 'flex';
+// =====================================================
+// ✅ Logout Flow with Spinner
+// =====================================================
+function openLogoutConfirm() {
+  const modal = document.getElementById('logout-confirm-modal');
+  if (modal) modal.style.display = 'flex';
+}
 
-  // Optional delay for UX (e.g. 1.5 seconds)
-  setTimeout(() => {
-    fetch('/user/logout', {
-      method: 'GET',
-      credentials: 'include'
+function closeLogoutConfirm() {
+  const modal = document.getElementById('logout-confirm-modal');
+  if (modal) modal.style.display = 'none';
+}
+
+function showLogoutLoader() {
+  const loader = document.getElementById('logout-loader');
+  if (loader) loader.style.display = 'flex';
+}
+
+function hideLogoutLoader() {
+  const loader = document.getElementById('logout-loader');
+  if (loader) loader.style.display = 'none';
+}
+
+function logout() {
+  closeLogoutConfirm();
+  showLogoutLoader();
+
+  const minDelay = new Promise(resolve => setTimeout(resolve, 1500)); 
+  const logoutRequest = fetch('/user/logout', {
+    method: 'GET',
+    credentials: 'include'
+  });
+
+  Promise.all([minDelay, logoutRequest])
+    .then(([_, res]) => {
+      if (res.redirected) {
+        window.location.href = res.url;
+      } else {
+        hideLogoutLoader();
+        alert('Logout failed.');
+      }
     })
-      .then(res => {
-        if (res.redirected) {
-          window.location.href = res.url;
-        } else {
-          loader.style.display = 'none'; // hide loader
-          alert('Logout failed.');
-        }
-      })
-      .catch(err => {
-        loader.style.display = 'none'; // hide loader
-        console.error('Logout error:', err);
-        alert('Error logging out.');
-      });
-  }, 1500); // Show loader before logging out
+    .catch(err => {
+      hideLogoutLoader();
+      console.error('Logout error:', err);
+      alert('An error occurred during logout.');
+    });
 }

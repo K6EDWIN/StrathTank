@@ -21,7 +21,7 @@
         <a href="/explore-projects">Explore</a>
         <a href="/mentorship-request">Mentorship request Hub</a>
         <a href="/hub">Mentorship Hub</a>
-        <a href="#" onclick="logoutUser()">Logout</a>
+       <a href="#" onclick="openLogoutConfirm()">Logout</a>
       </div>
     </nav>
 
@@ -66,6 +66,8 @@
     <input type="text" id="newSkillInput" class="add-skill-input" placeholder="Add a new skill..." />
     <button id="addSkillBtn" class="add-skill-btn">Add</button>
   </div>
+ 
+
 </section>
 
 
@@ -89,9 +91,50 @@
           <h2 id="collabsHeader">Collaborated Projects</h2>
           <div id="collaborations" class="collaborations-grid"></div>
         </section>
+        <!-- Logout Loader Modal -->
+<div id="logout-loader" style="display: none;" class="logout-overlay">
+  <div class="logout-box">
+    <p>Logging out...</p>
+    <div class="spinner"></div>
+  </div>
+</div>
+
+<!-- Logout Confirmation Modal -->
+<div id="logout-confirm-modal" class="modal">
+  <div class="modal-content">
+    <h3>Confirm Logout</h3>
+    <p>Do you really want to log out?</p>
+    <div class="modal-actions">
+      <button id="confirmLogoutBtn">Yes, Log Out</button>
+      <button id="cancelLogoutBtn" class="cancel-btn">Cancel</button>
+    </div>
+  </div>
+</div>
       </main>
     </div>
   </main>
+<!-- Bio Update Loader Modal -->
+<div id="bioUpdateLoader" class="bio-update-overlay" style="display: none;">
+  <div class="bio-update-box">
+    <p id="bioUpdateMessage">Updating bio...</p>
+    <div class="spinner"></div>
+  </div>
+</div>
+<!-- Page Loading Spinner -->
+<div id="profileLoader" class="page-loader">
+  <div class="loader-box">
+    <p>Loading profile...</p>
+    <div class="spinner"></div>
+  </div>
+</div>
+<!-- Skill Update Overlay -->
+<div id="skillUpdateOverlay" class="skill-update-overlay" style="display: none;">
+  <div class="skill-update-box">
+    <p>Updating skill...</p>
+    <div class="spinner"></div>
+  </div>
+</div>
+
 
   <script src="scripts/Student My Profile.js"></script>
 </body>

@@ -164,18 +164,65 @@ router.post('/forgot-password', (req, res) => {
     });
   });
 });
+// ----------------------------------------
+// POST /user/check-password-reuse
+// ----------------------------------------
+router.post('/check-password-reuse', async (req, res) => {
+  const { email, newPassword } = req.body;
 
+  if (!email || !newPassword) {
+    return res.status(400).json({ error: 'Missing email or password' });
+  }
+
+  db.query('SELECT password FROM Users WHERE email = ?', [email], async (err, results) => {
+    if (err) {
+      console.error('❌ DB error:', err);
+      return res.status(500).json({ error: 'Database error' });
+    }
+
+    if (results.length === 0) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    const oldHashedPassword = results[0].password;
+    const isReused = await bcrypt.compare(newPassword, oldHashedPassword);
+
+    res.json({ reused: isReused });
+  });
+});
 // ----------------------------------------
 // POST /user/reset-password
 // ----------------------------------------
 router.post('/reset-password', async (req, res) => {
   const { email, resetCode, newPassword } = req.body;
-  const hashed = await bcrypt.hash(newPassword, 10);
 
-  db.query('UPDATE Users SET password = ?, reset_code = NULL WHERE email = ? AND reset_code = ?', [hashed, email, resetCode], (err) => {
-    if (err) return res.status(500).send();
-    res.send('Password reset.');
-  });
+  if (!email || !resetCode || !newPassword) {
+    return res.status(400).send('Missing required fields');
+  }
+
+  try {
+    const hashed = await bcrypt.hash(newPassword, 10);
+
+    db.query(
+      'UPDATE Users SET password = ?, reset_code = NULL WHERE email = ? AND reset_code = ?',
+      [hashed, email, resetCode],
+      (err, result) => {
+        if (err) {
+          console.error('❌ Reset error:', err);
+          return res.status(500).send('Database error');
+        }
+
+        if (result.affectedRows === 0) {
+          return res.status(400).send('Invalid reset code or email');
+        }
+
+        res.send('Password reset.');
+      }
+    );
+  } catch (err) {
+    console.error('❌ Hashing error:', err);
+    res.status(500).send('Server error');
+  }
 });
 
 

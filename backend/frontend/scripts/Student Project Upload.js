@@ -447,32 +447,75 @@ document.getElementById('uploadProfileBtn').addEventListener('click', () => {
   document.getElementById('profileImageInput').click();
 });
 
-/* -----------------------------------------------
-   Logout
--------------------------------------------------*/
-function logoutUser() {
-  const loader = document.getElementById('logout-loader');
-  loader.style.display = 'flex';
-  setTimeout(() => {
-    fetch('/user/logout', {
-      method: 'GET',
-      credentials: 'include'
-    })
-      .then(res => {
-        if (res.redirected) {
-          window.location.href = res.url;
-        } else {
-          loader.style.display = 'none';
-          alert('Logout failed.');
-        }
-      })
-      .catch(err => {
-        loader.style.display = 'none';
-        console.error('Logout error:', err);
-        alert('Error logging out.');
-      });
-  }, 1500);
+// =====================================================
+// ✅ Logout Flow with Spinner
+// =====================================================
+// =====================================================
+const logoutBtn = document.getElementById('logoutBtn');
+  const cancelLogoutBtn = document.getElementById('cancelLogoutBtn');
+  const confirmLogoutBtn = document.getElementById('confirmLogoutBtn');
+
+  if (logoutBtn) {
+    logoutBtn.addEventListener('click', openLogoutConfirm);
+  }
+
+  if (cancelLogoutBtn) {
+    cancelLogoutBtn.addEventListener('click', closeLogoutConfirm);
+  }
+
+  if (confirmLogoutBtn) {
+    confirmLogoutBtn.addEventListener('click', logout);
+
+  }
+
+// ✅ Logout Flow with Spinner (Fixed)
+// =====================================================
+function openLogoutConfirm() {
+  const modal = document.getElementById('logout-confirm-modal');
+  if (modal) modal.style.display = 'flex';
 }
+
+function closeLogoutConfirm() {
+  const modal = document.getElementById('logout-confirm-modal');
+  if (modal) modal.style.display = 'none';
+}
+
+function showLogoutLoader() {
+  const loader = document.getElementById('logout-loader');
+  if (loader) loader.style.display = 'flex';
+}
+
+function hideLogoutLoader() {
+  const loader = document.getElementById('logout-loader');
+  if (loader) loader.style.display = 'none';
+}
+
+function logout() {
+  closeLogoutConfirm();
+  showLogoutLoader();
+
+  const minDelay = new Promise(resolve => setTimeout(resolve, 1500)); 
+  const logoutRequest = fetch('/user/logout', {
+    method: 'GET',
+    credentials: 'include'
+  });
+
+  Promise.all([minDelay, logoutRequest])
+    .then(([_, res]) => {
+      hideLogoutLoader();
+      if (res.redirected && res.url) {
+        window.location.href = res.url;
+      } else {
+        alert('❌ Logout failed. Please try again.');
+      }
+    })
+    .catch(err => {
+      hideLogoutLoader();
+      console.error('Logout error:', err);
+      alert('❌ An error occurred during logout.');
+    });
+}
+
 function showSuccessModal() {
   const modal = document.getElementById('successModal');
   const countdownSpan = document.getElementById('countdown');

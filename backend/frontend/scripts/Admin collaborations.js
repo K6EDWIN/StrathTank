@@ -3,7 +3,17 @@ document.addEventListener('DOMContentLoaded', () => {
   fetchCollaborations();
 
   // ✅ Attach input event listener for live collaboration filtering
-  document.getElementById('collabSearch').addEventListener('input', filterCollaborations);
+  const searchInput = document.getElementById('collabSearch');
+  if (searchInput) {
+    searchInput.addEventListener('input', filterCollaborations);
+  }
+
+  // ✅ Attach logout modal button listeners if present
+  const confirmLogoutBtn = document.getElementById('confirmLogoutBtn');
+  const cancelLogoutBtn = document.getElementById('cancelLogoutBtn');
+
+  if (confirmLogoutBtn) confirmLogoutBtn.addEventListener('click', logout);
+  if (cancelLogoutBtn) cancelLogoutBtn.addEventListener('click', closeLogoutConfirm);
 });
 
 let allCollabs = [];
@@ -30,6 +40,8 @@ async function fetchCollaborations() {
 // ==============================
 function renderTable(data) {
   const tbody = document.getElementById('collabTableBody');
+  if (!tbody) return;
+
   tbody.innerHTML = ''; // Clear existing rows
 
   data.forEach(item => {
@@ -59,3 +71,53 @@ function filterCollaborations() {
 
   renderTable(filtered);
 }
+
+// =====================================================
+// ✅ Logout Flow with Spinner
+// =====================================================
+function openLogoutConfirm() {
+  const modal = document.getElementById('logout-confirm-modal');
+  if (modal) modal.style.display = 'flex';
+}
+
+function closeLogoutConfirm() {
+  const modal = document.getElementById('logout-confirm-modal');
+  if (modal) modal.style.display = 'none';
+}
+
+function showLogoutLoader() {
+  const loader = document.getElementById('logout-loader');
+  if (loader) loader.style.display = 'flex';
+}
+
+function hideLogoutLoader() {
+  const loader = document.getElementById('logout-loader');
+  if (loader) loader.style.display = 'none';
+}
+
+function logout() {
+  closeLogoutConfirm();
+  showLogoutLoader();
+
+  const minDelay = new Promise(resolve => setTimeout(resolve, 1500)); 
+  const logoutRequest = fetch('/user/logout', {
+    method: 'GET',
+    credentials: 'include'
+  });
+
+  Promise.all([minDelay, logoutRequest])
+    .then(([_, res]) => {
+      if (res.redirected) {
+        window.location.href = res.url;
+      } else {
+        hideLogoutLoader();
+        alert('Logout failed.');
+      }
+    })
+    .catch(err => {
+      hideLogoutLoader();
+      console.error('Logout error:', err);
+      alert('An error occurred during logout.');
+    });
+}
+

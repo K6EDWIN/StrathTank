@@ -1,189 +1,281 @@
-document.addEventListener('DOMContentLoaded', async () => {
-  const profilePic = document.getElementById('profilePic');
-  const profilePicInput = document.getElementById('profilePicInput');
-  const editIcon = document.getElementById('editIcon');
+// ==========================
+// STATE
+// ==========================
+let userId = null;
 
-  const usernameEl = document.getElementById('username');
-  const emailEl = document.getElementById('email');
-  const bioEl = document.getElementById('bio');
-  const bioTextarea = document.getElementById('bioTextarea');
-  const saveBioBtn = document.getElementById('saveBioBtn');
-  const openBioModal = document.getElementById('openBioModal');
-  const closeBioModal = document.getElementById('closeBioModal');
-  const bioModal = document.getElementById('bioModal');
+// ==========================
+// DOM READY
+// ==========================
+document.addEventListener('DOMContentLoaded', initProfilePage);
 
-  const skillsList = document.getElementById('skillsList');
-  const addSkillBtn = document.getElementById('addSkillBtn');
-  const newSkillInput = document.getElementById('newSkillInput');
-
-  const ownedProjectsEl = document.getElementById('ownedProjects');
-  const collaborationsEl = document.getElementById('collaborations');
-  const projectsCountEl = document.getElementById('projectsCreated');
-  const collabsCountEl = document.getElementById('collaborationsCount');
-  const totalLikesEl = document.getElementById('totalLikes');
-
-  let userId = null;
+async function initProfilePage() {
+  const loader = document.getElementById('profileLoader');
+  loader.style.display = 'flex';
 
   try {
-    const userRes = await fetch('/user', { credentials: 'include' });
-    if (!userRes.ok) throw new Error('User not logged in');
-    const { user } = await userRes.json();
-    userId = user.id;
-
-    usernameEl.textContent = user.name;
-    emailEl.textContent = user.email;
-    emailEl.style.display = 'block';
-
-    const profileData = await fetch(`/api/profile/${userId}`, { credentials: 'include' });
-    const profile = await profileData.json();
-
-    bioEl.textContent = profile.bio || 'No bio yet.';
-    bioTextarea.value = profile.bio || '';
-
-    let imagePath = profile.profile_image || '/assets/noprofile.jpg';
-    imagePath = imagePath.replace(/\\/g, '/').replace(/\s+/g, ' ').trim();
-    imagePath = imagePath.replace('/ ', '/');
-    if (imagePath.startsWith('/')) imagePath = imagePath.slice(1);
-    profilePic.src = `/${imagePath}`;
-
-    renderSkills(profile.skills || []);
-
-    const statsRes = await fetch(`/api/profile/${userId}/stats`, { credentials: 'include' });
-    const stats = await statsRes.json();
-    projectsCountEl.textContent = stats.projects || 0;
-    collabsCountEl.textContent = stats.collaborations || 0;
-    totalLikesEl.textContent = stats.likes || 0;
-
-    const ownRes = await fetch(`/api/projects/by-user/${userId}`, { credentials: 'include' });
-    const owned = await ownRes.json();
-    if (owned.length === 0) {
-      ownedProjectsEl.innerHTML = '<p class="no-projects-msg">No projects created yet.</p>';
-    } else {
-      owned.forEach(project => ownedProjectsEl.appendChild(renderProjectCard(project)));
-    }
-
-    const collabRes = await fetch(`/api/projects/collaborated/${userId}`, { credentials: 'include' });
-    const collabs = await collabRes.json();
-    if (collabs.length === 0) {
-      collaborationsEl.innerHTML = '<p class="no-collabs-msg">Not collaborating on any projects yet.</p>';
-    } else {
-      collabs.forEach(project => collaborationsEl.appendChild(renderCollabCard(project)));
-    }
+    await loadUserData();
+    await loadProfileData();
+    await loadStats();
+    await loadProjects();
+    await loadCollaborations();
   } catch (err) {
-    console.error('Profile load error:', err);
+    console.error('❌ Profile load error:', err);
     window.location.href = '/login';
+  } finally {
+    loader.style.display = 'none';
   }
 
-  // Bio Modal Logic
-  openBioModal.addEventListener('click', () => {
+  setupBioModal();
+  setupSkillInput();
+  setupProfilePictureHover();
+  setupProfilePictureUpload();
+
+  document.getElementById('logoutBtn')?.addEventListener('click', openLogoutConfirm);
+  document.getElementById('confirmLogoutBtn')?.addEventListener('click', logout);
+  document.getElementById('cancelLogoutBtn')?.addEventListener('click', closeLogoutConfirm);
+}
+
+
+// ==========================
+// LOAD USER DATA
+// ==========================
+async function loadUserData() {
+  const res = await fetch('/user', { credentials: 'include' });
+  if (!res.ok) throw new Error('User not logged in');
+  const { user } = await res.json();
+  userId = user.id;
+
+  document.getElementById('username').textContent = user.name;
+  const emailEl = document.getElementById('email');
+  emailEl.textContent = user.email;
+  emailEl.style.display = 'block';
+}
+
+// ==========================
+// LOAD PROFILE DATA
+// ==========================
+async function loadProfileData() {
+  const res = await fetch(`/api/profile/${userId}`, { credentials: 'include' });
+  const profile = await res.json();
+
+  document.getElementById('bio').textContent = profile.bio || 'No bio yet.';
+  document.getElementById('bioTextarea').value = profile.bio || '';
+
+  const profilePic = document.getElementById('profilePic');
+  let imagePath = normalizeImagePath(profile.profile_image || '/assets/noprofile.jpg');
+  profilePic.src = imagePath;
+
+  renderSkills(profile.skills || []);
+}
+
+// ==========================
+// LOAD STATS
+// ==========================
+async function loadStats() {
+  const res = await fetch(`/api/profile/${userId}/stats`, { credentials: 'include' });
+  const stats = await res.json();
+
+  document.getElementById('projectsCreated').textContent = stats.projects ?? 0;
+  document.getElementById('collaborationsCount').textContent = stats.collaborations ?? 0;
+  document.getElementById('totalLikes').textContent = stats.likes ?? 0;
+}
+
+// ==========================
+// LOAD OWNED PROJECTS
+// ==========================
+async function loadProjects() {
+  const res = await fetch(`/api/projects/by-user/${userId}`, { credentials: 'include' });
+  const projects = await res.json();
+
+  const ownedProjectsEl = document.getElementById('ownedProjects');
+  ownedProjectsEl.innerHTML = '';
+
+  if (!projects.length) {
+    ownedProjectsEl.innerHTML = '<p class="no-projects-msg">No projects created yet.</p>';
+    return;
+  }
+
+  projects.forEach(project => {
+    ownedProjectsEl.appendChild(renderProjectCard(project));
+  });
+}
+
+// ==========================
+// LOAD COLLABORATIONS
+// ==========================
+async function loadCollaborations() {
+  const res = await fetch(`/api/projects/collaborated/${userId}`, { credentials: 'include' });
+  const projects = await res.json();
+
+  const collaborationsEl = document.getElementById('collaborations');
+  collaborationsEl.innerHTML = '';
+
+  if (!projects.length) {
+    collaborationsEl.innerHTML = '<p class="no-collabs-msg">Not collaborating on any projects yet.</p>';
+    return;
+  }
+
+  projects.forEach(project => {
+    collaborationsEl.appendChild(renderCollabCard(project));
+  });
+}
+
+// ==========================
+// BIO MODAL
+// ==========================
+function setupBioModal() {
+  const bioModal = document.getElementById('bioModal');
+  const bioTextarea = document.getElementById('bioTextarea');
+  const bioEl = document.getElementById('bio');
+  const saveBioBtn = document.getElementById('saveBioBtn');
+
+  document.getElementById('openBioModal')?.addEventListener('click', () => {
     bioModal.style.display = 'flex';
     bioTextarea.value = bioEl.textContent.trim() === 'No bio yet.' ? '' : bioEl.textContent.trim();
   });
 
-  closeBioModal.addEventListener('click', () => {
+  document.getElementById('closeBioModal')?.addEventListener('click', () => {
     bioModal.style.display = 'none';
   });
 
   window.addEventListener('click', e => {
-    if (e.target === bioModal) {
-      bioModal.style.display = 'none';
-    }
+    if (e.target === bioModal) bioModal.style.display = 'none';
   });
 
-  saveBioBtn.addEventListener('click', async () => {
+  saveBioBtn?.addEventListener('click', async () => {
     const newBio = bioTextarea.value.trim();
-    const res = await fetch(`/user/bio`, {
-      method: 'PUT',
-      credentials: 'include',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ bio: newBio })
-    });
-    if (res.ok) {
-      bioEl.textContent = newBio || 'No bio yet.';
-      bioModal.style.display = 'none';
-      alert('Bio updated successfully');
-    } else {
-      const errData = await res.json();
-      alert('Failed to update bio: ' + (errData.message || 'Unknown error'));
-    }
-  });
+    const bioLoader = document.getElementById('bioUpdateLoader');
+    const bioMessage = document.getElementById('bioUpdateMessage');
 
-  addSkillBtn.addEventListener('click', async () => {
-    const input = newSkillInput.value.trim();
-    if (!input) return;
-    const newSkills = input.split(',').map(s => s.trim()).filter(Boolean);
-    const existingSkills = Array.from(skillsList.querySelectorAll('span.skill-name')).map(s => s.textContent.trim());
-    const uniqueSkills = [...new Set([...existingSkills, ...newSkills])];
-    newSkillInput.value = '';
-    await updateSkills(uniqueSkills);
-  });
+    // Show loader with "Updating..." text
+    bioMessage.textContent = 'Updating bio...';
+    bioLoader.style.display = 'flex';
 
-  async function updateSkills(skills) {
-    renderSkills(skills);
     try {
-      const res = await fetch(`/user/skills`, {
+      const res = await fetch(`/user/bio`, {
         method: 'PUT',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ skills })
+        body: JSON.stringify({ bio: newBio })
       });
-      if (!res.ok) throw new Error('Failed to save skills');
+
+      if (!res.ok) throw new Error('Failed to update bio');
+
+      bioEl.textContent = newBio || 'No bio yet.';
+      bioMessage.textContent = '✅ Bio updated!';
+
+      setTimeout(() => {
+        bioLoader.style.display = 'none';
+        bioModal.style.display = 'none';
+      }, 1500);
+    } catch (err) {
+      console.error('Bio update error:', err);
+      bioMessage.textContent = '❌ Failed to update bio.';
+      setTimeout(() => {
+        bioLoader.style.display = 'none';
+      }, 2000);
+    }
+  });
+}
+
+
+// ==========================
+// SKILL MANAGEMENT
+// ==========================
+function setupSkillInput() {
+  const addSkillBtn = document.getElementById('addSkillBtn');
+  const newSkillInput = document.getElementById('newSkillInput');
+  const skillOverlay = document.getElementById('skillUpdateOverlay');
+  const skillMessage = skillOverlay.querySelector('p');
+
+  addSkillBtn?.addEventListener('click', async () => {
+    const input = newSkillInput.value.trim();
+    if (!input) return;
+
+    const newSkills = input.split(',').map(s => s.trim()).filter(Boolean);
+    const existingSkills = Array.from(document.querySelectorAll('#skillsList .skill-name')).map(s => s.textContent.trim());
+    const uniqueSkills = [...new Set([...existingSkills, ...newSkills])];
+
+    newSkillInput.value = '';
+
+    skillMessage.textContent = 'Updating skill...';
+    skillOverlay.style.display = 'flex';
+
+    try {
+      await updateSkills(uniqueSkills);
+      skillMessage.textContent = '✅ Skill updated!';
     } catch (err) {
       console.error('Skill update error:', err);
-      alert('Could not save skills. Please try again.');
+      skillMessage.textContent = '❌ Failed to update skills.';
+    } finally {
+      setTimeout(() => {
+        skillOverlay.style.display = 'none';
+      }, 1500);
     }
-  }
+  });
+}
 
-  function renderSkills(skills) {
-    skillsList.innerHTML = '';
-    skills.forEach(skill => {
-      const span = document.createElement('span');
-      span.classList.add('skill-item');
-      span.style.marginRight = '10px';
-
-      const skillName = document.createElement('span');
-      skillName.className = 'skill-name';
-      skillName.textContent = skill;
-
-      const removeBtn = document.createElement('button');
-      removeBtn.textContent = '❌';
-      removeBtn.title = 'Remove skill';
-      removeBtn.style.marginLeft = '2px';
-      removeBtn.style.cursor = 'pointer';
-      removeBtn.style.border = 'none';
-      removeBtn.style.background = 'transparent';
-
-      removeBtn.addEventListener('click', async () => {
-        const filtered = Array.from(skillsList.querySelectorAll('span.skill-name'))
-          .map(el => el.textContent.trim())
-          .filter(name => name !== skill);
-        await updateSkills(filtered);
-      });
-
-      span.appendChild(skillName);
-      span.appendChild(removeBtn);
-      skillsList.appendChild(span);
+async function updateSkills(skills) {
+  renderSkills(skills);
+  try {
+    const res = await fetch(`/user/skills`, {
+      method: 'PUT',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ skills })
     });
+    if (!res.ok) throw new Error('Failed to save skills');
+  } catch (err) {
+    console.error('Skill update error:', err);
+    alert('❌ Could not save skills.');
   }
+}
 
-  // Profile Picture Upload Logic
-  profilePic.addEventListener('mouseenter', () => {
-    editIcon.style.display = 'block';
+function renderSkills(skills) {
+  const skillsList = document.getElementById('skillsList');
+  skillsList.innerHTML = '';
+
+  skills.forEach(skill => {
+    const span = document.createElement('span');
+    span.className = 'skill-item';
+
+    const skillName = document.createElement('span');
+    skillName.className = 'skill-name';
+    skillName.textContent = skill;
+
+    const removeBtn = document.createElement('button');
+    removeBtn.textContent = '❌';
+    removeBtn.title = 'Remove skill';
+    removeBtn.className = 'remove-skill';
+    removeBtn.addEventListener('click', async () => {
+      const filtered = skills.filter(s => s !== skill);
+      await updateSkills(filtered);
+    });
+
+    span.appendChild(skillName);
+    span.appendChild(removeBtn);
+    skillsList.appendChild(span);
   });
+}
 
-  profilePic.addEventListener('mouseleave', () => {
-    editIcon.style.display = 'none';
+// ==========================
+// PROFILE PICTURE HOVER
+// ==========================
+function setupProfilePictureHover() {
+  const profilePic = document.getElementById('profilePic');
+  const editIcon = document.getElementById('editIcon');
+
+  [profilePic, editIcon].forEach(el => {
+    el?.addEventListener('mouseenter', () => editIcon.style.display = 'block');
+    el?.addEventListener('mouseleave', () => editIcon.style.display = 'none');
   });
+}
 
-  editIcon.addEventListener('mouseenter', () => {
-    editIcon.style.display = 'block';
-  });
-
-  editIcon.addEventListener('mouseleave', () => {
-    editIcon.style.display = 'none';
-  });
-
-  profilePicInput.addEventListener('change', async (e) => {
+// ==========================
+// PROFILE PICTURE UPLOAD
+// ==========================
+function setupProfilePictureUpload() {
+  document.getElementById('profilePicInput')?.addEventListener('change', async (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
@@ -196,47 +288,36 @@ document.addEventListener('DOMContentLoaded', async () => {
         body: formData,
         credentials: 'include'
       });
-
       const result = await res.json();
-      if (res.ok && result.success) {
-        profilePic.src = `/${result.imagePath}?t=${Date.now()}`;
-        alert('Profile picture updated!');
-      } else {
-        alert(result.message || 'Upload failed');
-      }
+
+      if (!res.ok || !result.success) throw new Error(result.message || 'Upload failed');
+      document.getElementById('profilePic').src = `${normalizeImagePath(result.imagePath)}?t=${Date.now()}`;
+      alert('✅ Profile picture updated!');
     } catch (err) {
       console.error('Upload error:', err);
-      alert('Failed to upload profile picture.');
+      alert('❌ Failed to upload profile picture.');
     }
   });
-});
+}
 
-// View project button logic
-document.body.addEventListener('click', async (e) => {
-  if (e.target.classList.contains('view-project-btn')) {
-    const projectId = e.target.getAttribute('data-id');
-    if (!projectId) return;
-    try {
-      const res = await fetch(`/api/projects/${projectId}/details`);
-      if (!res.ok) throw new Error("Project not found");
-      const project = await res.json();
-      const type = (project.project_type || '').toLowerCase().trim();
-      const page = type === 'it' ? 'project-view' : 'individualProjectsViewnonIT';
-      window.location.href = `/${page}?projectId=${projectId}`;
-    } catch (err) {
-      console.error("❌ Failed to load project:", err.message);
-      alert("Could not open project.");
-    }
-  }
-});
+// ==========================
+// IMAGE PATH HELPER
+// ==========================
+function normalizeImagePath(path) {
+  path = path.replace(/\\/g, '/').trim();
+  if (!path.startsWith('/')) path = '/' + path;
+  return path;
+}
 
+// ==========================
+// RENDER PROJECT CARDS
+// ==========================
 function renderProjectCard(project) {
-  const description = project.description ? project.description.slice(0, 100) + '...' : 'No description available.';
   const div = document.createElement('div');
   div.className = 'project';
   div.innerHTML = `
     <h3>${project.title}</h3>
-    <p>${description}</p>
+    <p>${project.description ? project.description.slice(0, 100) + '...' : 'No description available.'}</p>
     <span>${project.category || 'Uncategorized'}</span><br/>
     <button class="view-project-btn" data-id="${project.id}">View</button>
   `;
@@ -248,34 +329,79 @@ function renderCollabCard(project) {
   div.className = 'collaboration';
   div.innerHTML = `
     <h3>${project.title}</h3>
-    <p>${project.description.slice(0, 100)}...</p>
+    <p>${project.description ? project.description.slice(0, 100) + '...' : 'No description available.'}</p>
     <button class="view-project-btn" data-id="${project.id}">View</button>
   `;
   return div;
 }
-function logoutUser() {
-  // Show logout loader
-  const loader = document.getElementById('logout-loader');
-  loader.style.display = 'flex';
 
-  // Optional delay for UX (e.g. 1.5 seconds)
-  setTimeout(() => {
-    fetch('/user/logout', {
-      method: 'GET',
-      credentials: 'include'
+// ==========================
+// VIEW PROJECT BUTTON
+// ==========================
+document.body.addEventListener('click', async (e) => {
+  if (e.target.classList.contains('view-project-btn')) {
+    const projectId = e.target.getAttribute('data-id');
+    if (!projectId) return;
+
+    try {
+      const res = await fetch(`/api/projects/${projectId}/details`);
+      if (!res.ok) throw new Error('Project not found');
+      const project = await res.json();
+
+      const type = (project.project_type || '').toLowerCase().trim();
+      const page = type === 'it' ? 'project-view' : 'individualProjectsViewnonIT';
+      window.location.href = `/${page}?projectId=${projectId}`;
+    } catch (err) {
+      console.error('❌ Failed to load project:', err);
+      alert('❌ Could not open project.');
+    }
+  }
+});
+// =====================================================
+// ✅ Logout Flow with Spinner
+// =====================================================
+function openLogoutConfirm() {
+  const modal = document.getElementById('logout-confirm-modal');
+  if (modal) modal.style.display = 'flex';
+}
+
+function closeLogoutConfirm() {
+  const modal = document.getElementById('logout-confirm-modal');
+  if (modal) modal.style.display = 'none';
+}
+
+function showLogoutLoader() {
+  const loader = document.getElementById('logout-loader');
+  if (loader) loader.style.display = 'flex';
+}
+
+function hideLogoutLoader() {
+  const loader = document.getElementById('logout-loader');
+  if (loader) loader.style.display = 'none';
+}
+
+function logout() {
+  closeLogoutConfirm();
+  showLogoutLoader();
+
+  const minDelay = new Promise(resolve => setTimeout(resolve, 1500)); 
+  const logoutRequest = fetch('/user/logout', {
+    method: 'GET',
+    credentials: 'include'
+  });
+
+  Promise.all([minDelay, logoutRequest])
+    .then(([_, res]) => {
+      if (res.redirected) {
+        window.location.href = res.url;
+      } else {
+        hideLogoutLoader();
+        alert('Logout failed.');
+      }
     })
-      .then(res => {
-        if (res.redirected) {
-          window.location.href = res.url;
-        } else {
-          loader.style.display = 'none'; // hide loader
-          alert('Logout failed.');
-        }
-      })
-      .catch(err => {
-        loader.style.display = 'none'; // hide loader
-        console.error('Logout error:', err);
-        alert('Error logging out.');
-      });
-  }, 1500); // Show loader before logging out
+    .catch(err => {
+      hideLogoutLoader();
+      console.error('Logout error:', err);
+      alert('An error occurred during logout.');
+    });
 }

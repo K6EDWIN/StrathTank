@@ -83,7 +83,6 @@ async function fetchAndDisplayProjects() {
           <p>${p.description}</p>
           <div class="meta">
             <span>By ${p.author || 'Unknown'}</span>
-            <button onclick="window.location.href='/projects/${p.id}'">View</button>
           </div>
         </div>
       `;
@@ -107,3 +106,12 @@ fetchAndDisplayProjects();
 
 // Rotate projects every 5 seconds
 setInterval(fetchAndDisplayProjects, intervalTime);
+
+document.addEventListener('DOMContentLoaded', () => {
+  const hamburger = document.getElementById('hamburger');
+  const navLinks = document.getElementById('navLinks');
+
+  hamburger.addEventListener('click', () => {
+    navLinks.classList.toggle('mobile-active');
+  });
+});

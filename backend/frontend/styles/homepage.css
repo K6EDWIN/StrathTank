@@ -365,3 +365,171 @@ body, html {
 *::-webkit-scrollbar {
   display: none;
 }
+
+/*mobile menu styles*/
+/* -----------------------------
+   Hamburger Styles
+------------------------------ */
+.hamburger {
+  display: none;
+  flex-direction: column;
+  cursor: pointer;
+  gap: 5px;
+}
+
+.hamburger span {
+  width: 25px;
+  height: 3px;
+  background-color: #333;
+  border-radius: 2px;
+  transition: all 0.3s ease;
+}
+
+/* -----------------------------
+   Mobile Nav Active State
+------------------------------ */
+.nav-links.mobile-active {
+  display: flex !important;
+  flex-direction: column;
+  background-color: #fff;
+  position: absolute;
+  top: 100%;
+  right: 0;
+  width: 200px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  z-index: 999;
+}
+
+.nav-links.mobile-active a {
+  margin: 1rem;
+}
+
+/* -----------------------------
+   Responsive Media Queries
+------------------------------ */
+
+/* Tablet adjustments */
+@media (max-width: 900px) {
+  #navbar {
+    padding: 0.8rem 1rem;
+  }
+
+  .nav-links a {
+    margin-left: 1rem;
+    font-size: 0.95rem;
+  }
+
+  #hero .overlay h1 {
+    font-size: 2.5rem;
+  }
+
+  #hero .overlay p {
+    font-size: 1.2rem;
+  }
+
+  .cards {
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    padding: 0 1rem;
+  }
+
+  .cta-content h2 {
+    font-size: 2rem;
+  }
+
+  .cta-content p {
+    font-size: 1.1rem;
+  }
+
+  .cta-buttons {
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+}
+
+/* Mobile adjustments */
+@media (max-width: 600px) {
+  /* Show hamburger, hide links */
+  .nav-links {
+    display: none;
+  }
+
+  .hamburger {
+    display: flex;
+  }
+
+  #navbar {
+    padding: 0.6rem 1rem;
+  }
+
+  /* Hero section */
+  #hero {
+    padding-top: 3rem;
+    padding-bottom: 2rem;
+  }
+
+  #hero .overlay h1 {
+    font-size: 2rem;
+  }
+
+  #hero .overlay p {
+    font-size: 1rem;
+  }
+
+  .paragraph {
+    width: 90%;
+    padding: 1.2rem;
+    font-size: 0.95rem;
+  }
+
+  /* Cards grid */
+  .cards {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    padding: 0 1rem;
+  }
+
+  .card-body {
+    padding: 1rem;
+  }
+
+  .card h3 {
+    font-size: 1.2rem;
+  }
+
+  .card p {
+    font-size: 0.95rem;
+  }
+
+  /* CTA section */
+  #cta {
+    height: 300px;
+    padding: 1rem;
+  }
+
+  .cta-content h2 {
+    font-size: 1.6rem;
+  }
+
+  .cta-content p {
+    font-size: 0.95rem;
+  }
+
+  .cta-buttons {
+    flex-direction: column;
+    gap: 0.8rem;
+  }
+
+  .cta-buttons button {
+    width: 100%;
+    font-size: 0.95rem;
+    padding: 0.7rem 1rem;
+  }
+
+  .auth-buttons {
+    top: 0.5rem;
+    right: 0.5rem;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+}

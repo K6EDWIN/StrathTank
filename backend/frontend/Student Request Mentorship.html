@@ -10,7 +10,7 @@
 
   <!-- Fixed Top Navigation Bar -->
   <nav class="navbar">
-    <a href="#" class="logo">
+    <a href="/dashboard" class="logo">
       <img src="/assets/logo.png" alt="StrathTank Logo" class="logo-img" />
     </a>
     <div class="nav-links">
@@ -18,8 +18,8 @@
       <a href="/upload-project">Upload</a>
       <a href="/explore-projects">Explore</a>
           <a href="/hub">Mentorship Hub</a>
-      <a href="/profile">My Profile</a>
-      <a href="#" onclick="logoutUser()">Logout</a>
+      <a href="/profile">Profile</a>
+       <a href="#" class="logout-link"  onclick="openLogoutConfirm()">Logout</a>
     </div>
   </nav>
 
@@ -79,6 +79,25 @@
           </aside>
         </section>
       </div>
+      <!-- Logout Loader Modal -->
+<div id="logout-loader" style="display: none;" class="logout-overlay">
+  <div class="logout-box">
+    <p>Logging out...</p>
+    <div class="spinner"></div>
+  </div>
+</div>
+
+<!-- Logout Confirmation Modal -->
+<div id="logout-confirm-modal" class="modal">
+  <div class="modal-content">
+    <h3>Confirm Logout</h3>
+    <p>Do you really want to log out?</p>
+    <div class="modal-actions">
+      <button id="confirmLogoutBtn">Yes, Log Out</button>
+      <button id="cancelLogoutBtn" class="cancel-btn">Cancel</button>
+    </div>
+  </div>
+</div>
     </main>
   </div>
 <script src="/scripts/Student Request Mentorship.js"></script>

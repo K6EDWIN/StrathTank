@@ -4,6 +4,13 @@ document.addEventListener("DOMContentLoaded", () => {
   loadUsers();
   loadApprovals();
   loadFlaggedProjects();
+
+  // ✅ Attach logout modal button handlers
+  const confirmLogoutBtn = document.getElementById('confirmLogoutBtn');
+  const cancelLogoutBtn = document.getElementById('cancelLogoutBtn');
+
+  if (confirmLogoutBtn) confirmLogoutBtn.addEventListener('click', logout);
+  if (cancelLogoutBtn) cancelLogoutBtn.addEventListener('click', closeLogoutConfirm);
 });
 
 // ==============================
@@ -88,7 +95,7 @@ function attachUserActionListeners() {
         .then(data => {
           if (data.success) {
             alert(data.message);
-            loadUsers(); // Refresh list to reflect status change
+            loadUsers(); // Refresh list
           } else {
             alert("Error: " + data.message);
           }
@@ -117,7 +124,7 @@ function attachUserActionListeners() {
 }
 
 // ==============================
-// ✅ Load pending project approvals and display them
+// ✅ Load pending project approvals
 // ==============================
 async function loadApprovals() {
   const list = document.querySelector(".approval-list");
@@ -147,7 +154,7 @@ async function loadApprovals() {
 }
 
 // ==============================
-// ✅ Load flagged projects and display them
+// ✅ Load flagged projects
 // ==============================
 async function loadFlaggedProjects() {
   const list = document.querySelector(".flagged-list");
@@ -177,7 +184,7 @@ async function loadFlaggedProjects() {
 }
 
 // ==============================
-// ✅ Approve a project by ID
+// ✅ Approve a project
 // ==============================
 async function approveProject(projectId) {
   try {
@@ -191,12 +198,12 @@ async function approveProject(projectId) {
       alert("❌ Approval failed");
     }
   } catch (err) {
-    console.error("[APPROVE PROJECT] Error approving project:", err);
+    console.error("[APPROVE PROJECT] Error:", err);
   }
 }
 
 // ==============================
-// ✅ Reject a project by ID
+// ✅ Reject a project
 // ==============================
 async function rejectProject(projectId) {
   try {
@@ -210,45 +217,73 @@ async function rejectProject(projectId) {
       alert("❌ Rejection failed");
     }
   } catch (err) {
-    console.error("[REJECT PROJECT] Error rejecting project:", err);
+    console.error("[REJECT PROJECT] Error:", err);
   }
 }
 
 // ==============================
-// ✅ Smooth scroll to users section and reload user table on link click
+// ✅ Smooth scroll to users section
 // ==============================
-document.getElementById("users-link").addEventListener("click", (e) => {
+document.getElementById("users-link")?.addEventListener("click", (e) => {
   e.preventDefault();
   document.querySelector(".admin-main").scrollIntoView({ behavior: "smooth" });
   loadUsers(); // Reload users table
 });
 
 // ==============================
-// ✅ Logout user with loader and redirect handling
+// ✅ Logout Modal + Spinner logic (shared)
 // ==============================
-function logoutUser() {
-  // Show logout loader
-  const loader = document.getElementById('logout-loader');
-  loader.style.display = 'flex';
 
-  // Optional delay for UX (e.g. 1.5 seconds)
+function openLogoutConfirm() {
+  const modal = document.getElementById('logout-confirm-modal');
+  if (modal) modal.style.display = 'flex';
+}
+
+function closeLogoutConfirm() {
+  const modal = document.getElementById('logout-confirm-modal');
+  if (modal) modal.style.display = 'none';
+}
+
+function showLogoutLoader() {
+  const loader = document.getElementById('logout-loader');
+  if (loader) loader.style.display = 'flex';
+}
+
+function hideLogoutLoader() {
+  const loader = document.getElementById('logout-loader');
+  if (loader) loader.style.display = 'none';
+}
+
+// ✅ Triggered when user confirms logout
+function logout() {
+  // Close the confirmation modal first
+  closeLogoutConfirm();
+
+  // Wait a tiny bit to avoid overlapping modals
   setTimeout(() => {
+    showLogoutLoader();
+
     fetch('/user/logout', {
       method: 'GET',
       credentials: 'include'
     })
-      .then(res => {
+    .then(res => {
+      // Optional delay to make sure spinner is visible before redirect
+      setTimeout(() => {
         if (res.redirected) {
           window.location.href = res.url;
         } else {
-          loader.style.display = 'none'; // hide loader
+          hideLogoutLoader();
           alert('Logout failed.');
         }
-      })
-      .catch(err => {
-        loader.style.display = 'none'; // hide loader
-        console.error('[LOGOUT USER] Error:', err);
-        alert('Error logging out.');
-      });
-  }, 1500); // Show loader before logging out
+      }, 300); // enough time to see spinner
+    })
+    .catch(err => {
+      hideLogoutLoader();
+      console.error('Logout error:', err);
+      alert('An error occurred during logout.');
+    });
+  }, 200); // delay allows modal close animation to finish
 }
+
+
