@@ -55,7 +55,6 @@ async function loadProjectData() {
 
   const infoList = document.getElementById("project-info");
   infoList.innerHTML = `
-    <li><strong>Status:</strong> ${project.status}</li>
     <li><strong>Launch Date:</strong> ${project.launch_date}</li>
     <li><strong>Project Lead:</strong> ${project.project_lead}</li>
     <li><strong>Team Size:</strong> ${project.team_size}</li>
@@ -114,42 +113,45 @@ function normalizeProfileImage(path) {
 }
 
 async function loadTeam() {
- try {
-  const currentUserRes = await fetch('/user');
-  const currentUserData = await currentUserRes.json();
-  const currentUserId = currentUserData?.user?.id;
+  try {
+    const currentUserRes = await fetch('/user');
+    const currentUserData = await currentUserRes.json();
+    currentUserId = currentUserData?.user?.id;
 
-  const res = await fetch(`/api/projects/${projectId}/team`);
-  const team = await res.json();
-  if (!Array.isArray(team)) throw new Error("Team is not an array");
+    const res = await fetch(`/api/projects/${projectId}/team`);
+    const team = await res.json();
 
-  const teamContainer = document.getElementById("team-members");
-  teamContainer.innerHTML = '';
+    const teamContainer = document.getElementById("team-members");
+    teamContainer.innerHTML = '';
 
-  team.forEach(member => {
-   const profileImage = normalizeProfileImage(member.profile_photo);
-   const isCurrentUser = String(member.user_id) === String(currentUserId);
-   const profileLink = isCurrentUser
-    ? '/profile'
-    : `/otherProfile?userId=${member.user_id}`;
+    if (!Array.isArray(team) || team.length === 0) {
+      teamContainer.innerHTML = `<p class="empty-message">This project has no team members associated.</p>`;
+      return;
+    }
 
-   teamContainer.innerHTML += `
-    <div class="card">
-     <img src="${profileImage}" alt="${member.name || 'Unnamed'}"
-       onerror="this.src='/assets/noprofile.jpg'" />
-     <div class="doc-info">
-      <p>${member.name || 'Unnamed'}</p>
-      <p>${member.role || 'No role specified'}</p>
-      <button onclick="window.location.href='${profileLink}'">View Profile</button>
-     </div>
-    </div>
-   `;
-  });
+    team.forEach(member => {
+      const profileImage = normalizeProfileImage(member.profile_photo);
+      const isCurrentUser = String(member.user_id) === String(currentUserId);
+      const profileLink = isCurrentUser ? '/profile' : `/otherProfile?userId=${member.user_id}`;
 
- } catch (err) {
-  console.error("❌ loadTeam failed:", err.message);
- }
+      teamContainer.innerHTML += `
+        <div class="card">
+          <img src="${profileImage}" alt="${member.name || 'Unnamed'}"
+            onerror="this.src='/assets/noprofile.jpg'" />
+          <div class="doc-info">
+            <p>${member.name || 'Unnamed'}</p>
+            <p>${member.role || 'No role specified'}</p>
+            <button onclick="window.location.href='${profileLink}'">View Profile</button>
+          </div>
+        </div>
+      `;
+    });
+
+  } catch (err) {
+    console.error("❌ loadTeam failed:", err.message);
+  }
 }
+
 
 // ==========================
 // LOAD COMMENTS
@@ -164,11 +166,14 @@ async function loadComments() {
     const data = await commentRes.json();
 
     const commentsDiv = document.getElementById("comments-list");
-    if (!Array.isArray(data)) {
-      commentsDiv.innerHTML = "<p>Error loading comments</p>";
+    commentsDiv.innerHTML = '';
+
+    if (!Array.isArray(data) || data.length === 0) {
+      commentsDiv.innerHTML = `<p class="empty-message">This project has no comments yet.</p>`;
       return;
     }
 
+    // Group comments by parent ID
     const grouped = {};
     data.forEach(c => {
       const pid = c.parent_id || "root";
@@ -217,7 +222,6 @@ async function loadComments() {
     }
 
     const rootComments = grouped["root"] || [];
-    commentsDiv.innerHTML = '';
     rootComments.forEach(c => {
       const wrapper = document.createElement('div');
       wrapper.innerHTML = renderComment(c);
@@ -226,9 +230,10 @@ async function loadComments() {
 
   } catch (err) {
     console.error("⚠️ Fetch error:", err);
-    document.getElementById("comments-list").innerHTML = "<p>Failed to fetch comments</p>";
+    document.getElementById("comments-list").innerHTML = "<p class='empty-message'>Failed to fetch comments</p>";
   }
 }
+
 
 // Unified comment click handler (reply + delete + toggle replies)
 document.getElementById('comments-list').addEventListener('click', async (e) => {

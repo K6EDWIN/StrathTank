@@ -56,7 +56,6 @@ async function loadProjectData() {
 
     const infoList = document.getElementById("project-info");
     infoList.innerHTML = `
-      <li><strong>Status:</strong> ${project.status}</li>
       <li><strong>Launch Date:</strong> ${project.launch_date}</li>
       <li><strong>Project Lead:</strong> ${project.project_lead}</li>
       <li><strong>Team Size:</strong> ${project.team_size}</li>
@@ -107,9 +106,13 @@ if (project.status && project.status.toLowerCase() === 'pending') {
 }
 
 
-    const suspendBtn = document.getElementById("suspend-btn");
-   suspendBtn.textContent = project.status.toLowerCase() === "suspended" ? "Unsuspend" : "Suspend";
-    suspendBtn.style.display = project.status.toLowerCase() !== "pending" ? "inline-block" : "none";
+  const suspendBtn = document.getElementById('suspend-btn');
+  if (suspendBtn) {
+   suspendBtn.disabled = false;
+   suspendBtn.textContent = project.status === 'suspended'
+    ? 'Unsuspend Project'
+    : 'Suspend Project';
+  }
 
 
   } catch (err) {
@@ -145,23 +148,27 @@ async function loadTeam() {
     const teamContainer = document.getElementById("team-members");
     teamContainer.innerHTML = '';
 
-    team.forEach(member => {
-      const profileImage = normalizeProfileImage(member.profile_photo);
-      const isCurrentUser = String(member.user_id) === String(currentUserId);
-      const profileLink = isCurrentUser ? '/profile' : `/otherProfile?userId=${member.user_id}`;
-
-      teamContainer.innerHTML += `
-        <div class="card">
-          <img src="${profileImage}" alt="${member.name || 'Unnamed'}"
-               onerror="this.src='/assets/noprofile.jpg'" />
-          <div class="doc-info">
-            <p>${member.name || 'Unnamed'}</p>
-            <p>${member.role || 'No role specified'}</p>
-            <button onclick="window.location.href='${profileLink}'">View Profile</button>
-          </div>
+   if (team.length === 0) {
+  teamContainer.innerHTML = '<p class="no-team-msg">This project has no team members associated.</p>';
+} else {
+  team.forEach(member => {
+    const profileImage = normalizeProfileImage(member.profile_photo);
+    const isCurrentUser = String(member.user_id) === String(currentUserId);
+    const profileLink = isCurrentUser ? '/profile' : `/otherProfile?userId=${member.user_id}`;
+    teamContainer.innerHTML += `
+      <div class="card">
+        <img src="${profileImage}" alt="${member.name || 'Unnamed'}"
+             onerror="this.src='/assets/noprofile.jpg'" />
+        <div class="doc-info">
+          <p>${member.name || 'Unnamed'}</p>
+          <p>${member.role || 'No role specified'}</p>
+          <button onclick="window.location.href='${profileLink}'">View Profile</button>
         </div>
-      `;
-    });
+      </div>
+    `;
+  });
+}
+
   } catch (err) {
     console.error("❌ loadTeam failed:", err.message);
   }
@@ -232,13 +239,19 @@ async function loadComments() {
       `;
     }
 
-    const rootComments = grouped["root"] || [];
-    commentsDiv.innerHTML = '';
-    rootComments.forEach(c => {
-      const wrapper = document.createElement('div');
-      wrapper.innerHTML = renderComment(c);
-      commentsDiv.appendChild(wrapper.firstElementChild);
-    });
+const rootComments = grouped["root"] || [];
+commentsDiv.innerHTML = '';
+
+if (rootComments.length === 0) {
+  commentsDiv.innerHTML = '<p class="no-comments-msg">This project has no comments yet.</p>';
+} else {
+  rootComments.forEach(c => {
+    const wrapper = document.createElement('div');
+    wrapper.innerHTML = renderComment(c);
+    commentsDiv.appendChild(wrapper.firstElementChild);
+  });
+}
+
 
   } catch (err) {
     console.error("⚠️ Fetch error:", err);
@@ -383,11 +396,9 @@ async function suspendProject() {
   const suspendBtn = document.getElementById('suspend-btn');
   if (!suspendBtn) return;
 
-  // Determine current action based on button text (case-insensitive check)
+  // Determine current action based on button text
   let action;
-  const isUnsuspend = suspendBtn.textContent.toLowerCase().includes('unsuspend');
-
-  if (isUnsuspend) {
+  if (suspendBtn.textContent.includes('Unsuspend')) {
     action = 'unsuspend';
     if (!confirm('Are you sure you want to unsuspend this project?')) return;
   } else {
@@ -406,7 +417,7 @@ async function suspendProject() {
     const data = await res.json();
     if (data.success) {
       alert(`✅ Project ${action}ed successfully.`);
-      await loadProjectData();  // Refresh data to update button label and status
+      loadProjectData();
     } else {
       alert('❌ Failed: ' + (data.message || 'Unknown error.'));
     }
@@ -447,6 +458,8 @@ document.addEventListener('DOMContentLoaded', () => {
   loadProjectData();
   loadTeam();
   loadComments();
+  document.getElementById('suspend-btn')?.addEventListener('click', suspendProject);
+
 
   document.addEventListener("click", async (e) => {
     if (e.target.classList.contains("view-doc-btn")) {

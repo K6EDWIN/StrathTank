@@ -147,7 +147,7 @@ router.get('/requests', ensureMentor, (req, res) => {
   const mentorId = req.session.user.id;
 
   const sql = `
-    SELECT mr.*, u.name AS mentee_name, p.title AS project_title
+    SELECT mr.*, u.name AS mentee_name, p.title AS project_title, p.project_type
     FROM mentorship_requests mr
     LEFT JOIN Users u ON mr.mentee_id = u.id
     LEFT JOIN Projects p ON mr.project_id = p.id
@@ -173,7 +173,7 @@ router.get('/request/:id', ensureMentor, (req, res) => {
   const requestId = req.params.id;
 
   const sql = `
-    SELECT mr.*, u.name AS mentee_name, p.title AS project_title
+    SELECT mr.*, u.name AS mentee_name, p.title AS project_title, p.project_type
     FROM mentorship_request mr
     LEFT JOIN Users u ON mr.mentee_id = u.id
     LEFT JOIN Projects p ON mr.project_id = p.id

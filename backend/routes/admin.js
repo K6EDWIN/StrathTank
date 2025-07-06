@@ -410,7 +410,8 @@ router.post('/profile-picture', isAdmin, upload.single('profile_picture'), (req,
       return res.status(500).json({ success: false, message: 'Database update failed' });
     }
 
-    res.json({ success: true, imagePath });
+res.json({ success: true, profile_image: imagePath });
+
   });
 });
 
@@ -649,5 +650,31 @@ router.get('/projects/:id/details', (req, res) => {
     res.json(project);
   });
 });
+
+
+// ----------------------------------------
+// Admin deletes any comment
+// ----------------------------------------
+router.delete('/comment/:id', isAdmin, (req, res) => {
+  const commentId = parseInt(req.params.id, 10);
+
+  if (isNaN(commentId)) {
+    return res.status(400).json({ success: false, message: 'Invalid comment ID' });
+  }
+
+  db.query('DELETE FROM comments WHERE id = ?', [commentId], (err, result) => {
+    if (err) {
+      console.error('❌ Failed to delete comment:', err);
+      return res.status(500).json({ success: false, message: 'Database error' });
+    }
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ success: false, message: 'Comment not found' });
+    }
+
+    res.json({ success: true, message: 'Comment deleted successfully' });
+  });
+});
+
 
 module.exports = router;

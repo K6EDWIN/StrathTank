@@ -147,5 +147,146 @@ router.get('/response-status', (req, res) => {
     </html>
   `);
 });
+// ✅ Get all collaboration requests for owner (for Collaboration Hub)
+router.get('/my-requests', isLoggedIn, async (req, res) => {
+  const ownerId = req.session.user.id;
+
+  try {
+    const [rows] = await db.promise().query(
+      `
+      SELECT c.id AS collaboration_id, c.project_id, c.collaborator_id, c.status,
+             p.title AS project_title,
+             u.name AS collaborator_name
+      FROM collaborations c
+      JOIN projects p ON c.project_id = p.id
+      JOIN users u ON c.collaborator_id = u.id
+      WHERE p.user_id = ?
+      ORDER BY c.id DESC
+      `,
+      [ownerId]
+    );
+
+    res.json(rows);
+  } catch (err) {
+    console.error('❌ Error fetching collaborations:', err);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
+
+// ✅ Get all messages for a collaboration thread
+router.get('/:collaborationId/messages', isLoggedIn, async (req, res) => {
+  const collaborationId = parseInt(req.params.collaborationId);
+
+  try {
+    // Verify user has access to this collaboration
+    const [collabRows] = await db.promise().query(
+      `
+      SELECT c.*, p.user_id AS owner_id
+      FROM collaborations c
+      JOIN projects p ON c.project_id = p.id
+      WHERE c.id = ?
+      `,
+      [collaborationId]
+    );
+
+    if (!collabRows.length) {
+      return res.status(404).json({ error: 'Collaboration not found.' });
+    }
+
+    const collab = collabRows[0];
+    const userId = req.session.user.id;
+
+    if (userId !== collab.owner_id && userId !== collab.collaborator_id) {
+      return res.status(403).json({ error: 'Not authorized to view this conversation.' });
+    }
+
+    // Get messages
+    const [messages] = await db.promise().query(
+      `
+      SELECT sender_id, message, created_at
+      FROM collaboration_messages
+      WHERE collaboration_id = ?
+      ORDER BY created_at ASC
+      `,
+      [collaborationId]
+    );
+
+    res.json(messages);
+  } catch (err) {
+    console.error('❌ Error fetching messages:', err);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
+
+// ✅ Send a new message in a collaboration thread
+router.post('/:collaborationId/messages', isLoggedIn, async (req, res) => {
+  const collaborationId = parseInt(req.params.collaborationId);
+  const senderId = req.session.user.id;
+  const { message } = req.body;
+
+  if (!message || !message.trim()) {
+    return res.status(400).json({ error: "Message cannot be empty." });
+  }
+
+  try {
+    // Check if user is part of this collaboration
+    const [collabRows] = await db.promise().query(
+      `
+      SELECT c.*, p.user_id AS owner_id
+      FROM collaborations c
+      JOIN projects p ON c.project_id = p.id
+      WHERE c.id = ?
+      `,
+      [collaborationId]
+    );
+
+    if (!collabRows.length) {
+      return res.status(404).json({ error: 'Collaboration not found.' });
+    }
+
+    const collab = collabRows[0];
+
+    if (senderId !== collab.owner_id && senderId !== collab.collaborator_id) {
+      return res.status(403).json({ error: 'Not authorized to send messages in this conversation.' });
+    }
+
+    // Insert message
+    await db.promise().query(
+      `INSERT INTO collaboration_messages (collaboration_id, sender_id, message) VALUES (?, ?, ?)`,
+      [collaborationId, senderId, message.trim()]
+    );
+
+    res.json({ message: "Message sent!" });
+  } catch (err) {
+    console.error('❌ Error sending message:', err);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+// ✅ Get all collaborations where I am a collaborator
+router.get('/my-collaborations', isLoggedIn, async (req, res) => {
+  const userId = req.session.user.id;
+
+  try {
+    const [rows] = await db.promise().query(
+      `SELECT c.id AS collaboration_id, c.project_id, c.status,
+              p.title AS project_title,
+              u.name AS owner_name
+       FROM collaborations c
+       JOIN projects p ON c.project_id = p.id
+       JOIN users u ON p.user_id = u.id
+       WHERE c.collaborator_id = ?
+       AND c.status = 'accepted'
+       ORDER BY c.id DESC`,
+      [userId]
+    );
+
+    res.json(rows);
+  } catch (err) {
+    console.error('❌ Error fetching my collaborations:', err);
+    res.status(500).json({ error: "Server error" });
+  }
+});
 
 module.exports = router;

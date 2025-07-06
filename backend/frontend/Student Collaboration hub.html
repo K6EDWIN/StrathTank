@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Collaboration Hub</title>
+  <link rel="stylesheet" href="styles/collaborationHub.css" />
+</head>
+<body>
+  <!-- Main Content -->
+  <main class="main-content">
+    <!-- Top Navigation Bar -->
+    <nav class="navbar">
+      <a href="/" class="logo">
+        <img src="/assets/logo.png" alt="StrathTank Logo" class="logo-img" />
+      </a>
+      <div class="nav-links">
+        <a href="/dashboard">Home</a>
+        <a href="/upload-project">Upload</a>
+        <a href="/explore-projects">Explore</a>
+        <a href="/mentorship-request">Mentorship Request Hub</a>
+        <a href="/hub">Mentorship Hub</a>
+        <a href="/collaborationHub" class="active">Collaboration Hub</a>
+        <a href="/profile">My Profile</a>
+        <a href="#" onclick="openLogoutConfirm()">Logout</a>
+      </div>
+    </nav>
+
+    <!-- Collaboration Hub Content -->
+    <section class="collaboration-container">
+      <header class="collaboration-header">
+        <h1>Collaboration Hub</h1>
+        <p>Chat with collaborators and manage project partnerships here.</p>
+      </header>
+
+      <div class="collaboration-sections">
+        <!-- Owner View: Collaboration Requests -->
+        <section class="request-section">
+          <h2>Collaboration Requests (For Your Projects)</h2>
+          <p class="section-description">
+            These are requests other users have sent to join your projects.
+            Only <strong>accepted</strong> requests will open a chat.
+          </p>
+          <div id="collaboration-request-list" class="request-list"></div>
+        </section>
+
+        <!-- Collaborator View: My Accepted Collaborations -->
+        <section class="collaborations-section">
+          <h2>My Collaborations</h2>
+          <p class="section-description">
+            These are projects you have been accepted to collaborate on.
+          </p>
+          <div id="my-collaborations-list" class="request-list"></div>
+        </section>
+      </div>
+
+      <!-- Chat Section -->
+      <section class="chat-section hidden">
+          <h2>Conversation</h2>
+        <div class="chat-header">
+
+  <button id="close-chat-btn" class="close-chat-btn" title="Close chat">✖</button>
+</div>
+
+        <div id="chat-messages" class="chat-messages"></div>
+        <form id="chat-form" class="chat-form">
+          <textarea id="chat-input" placeholder="Type your message..." required></textarea>
+          <button type="submit">Send</button>
+        </form>
+      </section>
+    </section>
+  </main>
+
+  <!-- Logout Loader Modal -->
+  <div id="logout-loader" style="display: none;" class="logout-overlay">
+    <div class="logout-box">
+      <p>Logging out...</p>
+      <div class="spinner"></div>
+    </div>
+  </div>
+
+  <!-- Logout Confirmation Modal -->
+  <div id="logout-confirm-modal" class="modal">
+    <div class="modal-content">
+      <h3>Confirm Logout</h3>
+      <p>Do you really want to log out?</p>
+      <div class="modal-actions">
+        <button id="confirmLogoutBtn">Yes, Log Out</button>
+        <button id="cancelLogoutBtn" class="cancel-btn">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="scripts/collaborationHub.js"></script>
+</body>
+</html>

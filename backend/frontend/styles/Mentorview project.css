@@ -780,3 +780,12 @@ button:hover {
 .comments button {
   border-radius: 25px;
 }
+
+
+.no-items {
+  padding: 1rem;
+  text-align: center;
+  color: #666;
+  font-style: italic;
+}
+

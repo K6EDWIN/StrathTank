@@ -17,7 +17,19 @@ const searchBar = document.getElementById('searchBar');
 // INITIALIZE
 // ==========================
 document.addEventListener('DOMContentLoaded', () => {
-  loadCategories();
+  loadCategories().then(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const searchParam = urlParams.get('search');
+
+    if (searchParam) {
+      currentSearchTerm = searchParam.trim();
+      if (searchBar) searchBar.value = currentSearchTerm;
+    } else {
+      currentSearchTerm = '';
+    }
+
+    loadProjects(currentSearchTerm);
+  });
 
   sortOptions?.addEventListener('change', () => {
     currentSort = sortOptions.value;
@@ -29,7 +41,6 @@ document.addEventListener('DOMContentLoaded', () => {
     loadProjects(currentSearchTerm);
   });
 
-  // Logout modal buttons
   document.getElementById('confirmLogoutBtn')?.addEventListener('click', logout);
   document.getElementById('cancelLogoutBtn')?.addEventListener('click', closeLogoutConfirm);
 });
@@ -38,11 +49,10 @@ document.addEventListener('DOMContentLoaded', () => {
 // LOAD & RENDER CATEGORIES
 // ==========================
 function loadCategories() {
-  fetch('/api/categories', { credentials: 'include' })
+  return fetch('/api/categories', { credentials: 'include' })
     .then(res => res.json())
     .then(categories => {
       renderCategoryList(categories);
-      loadProjects();
     })
     .catch(err => {
       console.error('❌ Failed to load categories:', err);
@@ -103,9 +113,6 @@ function filterProjects(projects, searchTerm) {
 
     let inTags = false;
     if (project.tags && typeof project.tags === 'string') {
-    
-
-      // Split  for searching
       const tagArray = project.tags
         .split(',')
         .map(tag => tag.trim().toLowerCase())
@@ -117,8 +124,6 @@ function filterProjects(projects, searchTerm) {
     return inTitle || inAuthor || inTags;
   });
 }
-
-
 
 function renderProjectGrid(projects) {
   projectGrid.innerHTML = '';
@@ -145,6 +150,11 @@ function renderProjectGrid(projects) {
     title.textContent = project.title;
     card.appendChild(title);
 
+    const owner = document.createElement('p');
+    owner.className = 'project-owner';
+    owner.textContent = `Owner: ${project.author || 'Unknown'}`;
+    card.appendChild(owner);
+
     const description = document.createElement('p');
     description.textContent = project.description;
     card.appendChild(description);
@@ -170,6 +180,8 @@ function renderProjectGrid(projects) {
     projectGrid.appendChild(card);
   });
 }
+
+
 // =====================================================
 // ✅ Logout Flow with Spinner
 // =====================================================
@@ -197,7 +209,7 @@ function logout() {
   closeLogoutConfirm();
   showLogoutLoader();
 
-  const minDelay = new Promise(resolve => setTimeout(resolve, 1500)); 
+  const minDelay = new Promise(resolve => setTimeout(resolve, 1500));
   const logoutRequest = fetch('/user/logout', {
     method: 'GET',
     credentials: 'include'

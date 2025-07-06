@@ -109,6 +109,10 @@ function createProjectCard(project) {
       <span>💬 ${project.comments ?? 0}</span>
     </div>
   `;
+   card.addEventListener('click', () => {
+  const encodedTitle = encodeURIComponent(project.title.trim());
+  window.location.href = `/explore-projects?search=${encodedTitle}`;
+ });
 
   return card;
 }
@@ -160,11 +164,12 @@ function closeRequestPoolModal() {
 function createRequestPoolCard(item) {
   const card = document.createElement("div");
   card.className = "card request-pool-card";
-
   const imageUrl = item.image || '/assets/noprofile.jpg';
   const description = item.short_description || 'No description provided.';
   const projectDate = item.project_created_at ? new Date(item.project_created_at).toLocaleDateString() : '';
   const requestDate = item.request_created_at ? new Date(item.request_created_at).toLocaleDateString() : '';
+  const type = (item.project_type || '').toLowerCase().trim();
+  const page = type === 'it' ? 'mentorviewit' : 'mentornonit';
 
   card.innerHTML = `
     <img src="${imageUrl}" alt="Project Image" />
@@ -180,15 +185,15 @@ function createRequestPoolCard(item) {
       <em>Requested on: ${requestDate}</em>
     </div>
     <div class="modal-actions">
-      <a class="view-btn" href="/project/${item.project_id}" target="_blank">View Project</a>
+      <a class="view-btn" href="/${page}?projectId=${item.project_id}" target="_blank">View Project</a>
       <button class="assign-btn" data-id="${item.mentorship_request_id}">Assign Yourself</button>
     </div>
   `;
 
   card.querySelector('.assign-btn').addEventListener('click', () => assignYourselfToRequest(item.mentorship_request_id));
-
   return card;
 }
+
 
 // ==========================
 // Assign Mentor to Request

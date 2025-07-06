@@ -15,14 +15,15 @@ router.get('/projects', (req, res) => {
 
   const sql = `
     SELECT 
-      p.id, p.title, p.description, p.category, p.created_at, p.project_type, p.tags,
+      p.id, p.title, p.description, p.category, p.created_at, p.project_type, p.tags,    u.name AS author,
       COALESCE(l.like_count, 0) AS likes,
       COALESCE(c.comment_count, 0) AS comments,
       p.project_profile_picture AS image,
       p.user_id
-    FROM projects p
-    LEFT JOIN (SELECT project_id, COUNT(*) AS like_count FROM likes GROUP BY project_id) l ON p.id = l.project_id
-    LEFT JOIN (SELECT project_id, COUNT(*) AS comment_count FROM comments GROUP BY project_id) c ON p.id = c.project_id
+  FROM projects p
+LEFT JOIN users u ON p.user_id = u.id
+LEFT JOIN (SELECT project_id, COUNT(*) AS like_count FROM likes GROUP BY project_id) l ON p.id = l.project_id
+LEFT JOIN (SELECT project_id, COUNT(*) AS comment_count FROM comments GROUP BY project_id) c ON p.id = c.project_id
     WHERE p.status = 'approved'
     ORDER BY ${orderBy}
   `;

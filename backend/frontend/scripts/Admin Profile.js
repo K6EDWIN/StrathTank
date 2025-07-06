@@ -196,6 +196,7 @@ function logout() {
 // ==========================
 window.addEventListener('DOMContentLoaded', () => {
   loadAdminProfile();
+    setupNameModal();
 
   const confirmLogoutBtn = document.getElementById('confirmLogoutBtn');
   const cancelLogoutBtn = document.getElementById('cancelLogoutBtn');
@@ -203,3 +204,59 @@ window.addEventListener('DOMContentLoaded', () => {
   if (confirmLogoutBtn) confirmLogoutBtn.addEventListener('click', logout);
   if (cancelLogoutBtn) cancelLogoutBtn.addEventListener('click', closeLogoutConfirm);
 });
+
+function setupNameModal() {
+  const nameModal = document.getElementById('nameModal');
+  const nameInput = document.getElementById('nameInput');
+  const nameDisplay = document.getElementById('adminName');
+  const saveBtn = document.getElementById('saveNameBtn');
+
+  document.getElementById('editNameBtn')?.addEventListener('click', () => {
+    nameInput.value = nameDisplay.textContent.trim();
+    nameModal.style.display = 'flex';
+  });
+
+  document.getElementById('closeNameModal')?.addEventListener('click', () => {
+    nameModal.style.display = 'none';
+  });
+
+  window.addEventListener('click', (e) => {
+    if (e.target === nameModal) nameModal.style.display = 'none';
+  });
+
+  saveBtn?.addEventListener('click', async () => {
+    const newName = nameInput.value.trim();
+    if (!newName) return;
+
+    const loader = document.getElementById('nameUpdateLoader');
+    const message = document.getElementById('nameUpdateMessage');
+
+    message.textContent = 'Updating name...';
+    loader.style.display = 'flex';
+
+    try {
+      const res = await fetch(`/user/name`, {
+        method: 'PUT',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: newName })
+      });
+
+      if (!res.ok) throw new Error('Failed to update name');
+
+      nameDisplay.textContent = newName;
+      message.textContent = '✅ Name updated!';
+
+      setTimeout(() => {
+        loader.style.display = 'none';
+        nameModal.style.display = 'none';
+      }, 1500);
+    } catch (err) {
+      console.error('Name update error:', err);
+      message.textContent = '❌ Failed to update name.';
+      setTimeout(() => {
+        loader.style.display = 'none';
+      }, 2000);
+    }
+  });
+}
