@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Dashboard</title>
+  <link rel="stylesheet" href="styles/admin.css" />
+</head>
+<body>
+  <div class="admin-container">
+    <aside class="admin-sidebar">
+        <button class="close-sidebar" id="closeSidebarBtn">&times;</button>
+      <h2>Admin Panel</h2>
+      <nav>
+        <a href="#">Dashboard</a>
+    <a href="/AllUsers">All Users</a>
+        <a href="/adminExplore">Projects</a>
+        <a href="/collaborations">Collaborations</a>
+        <a href="/adminMentorships">Mentorships</a>
+        <a href="/admin/profile">Profile</a>
+      <a href="#" onclick="openLogoutConfirm()">Logout</a>
+      </nav>
+    </aside>
+
+    <main class="admin-main">
+    <section class="admin-header">
+  <button class="hamburger" id="hamburgerBtn">&#9776;</button>
+<h1 id="adminWelcome">Welcome</h1>
+
+</section>
+
+
+      <section class="admin-stats">
+        
+      </section>
+
+      <section class="admin-table">
+        <h2>Recent Users</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Role</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            
+          </tbody>
+        </table>
+      </section>
+
+      <section class="admin-approvals">
+        <h2>Pending Project Approvals</h2>
+        <div class="approval-list">
+          <!-- JS will populate these -->
+        </div>
+      </section>
+
+      <section class="admin-flagged">
+        <h2>Flagged Projects for Review</h2>
+        <div class="flagged-list">
+          <!-- JS will populate these -->
+        </div>
+      </section>
+    <!-- Logout Loader Modal -->
+<div id="logout-loader" style="display: none;" class="logout-overlay">
+  <div class="logout-box">
+    <p>Logging out...</p>
+    <div class="spinner"></div>
+  </div>
+</div>
+
+<!-- Logout Confirmation Modal -->
+<div id="logout-confirm-modal" class="modal">
+  <div class="modal-content">
+    <h3>Confirm Logout</h3>
+    <p>Do you really want to log out?</p>
+    <div class="modal-actions">
+      <button id="confirmLogoutBtn">Yes, Log Out</button>
+      <button id="cancelLogoutBtn" class="cancel-btn">Cancel</button>
+    </div>
+  </div>
+</div>
+    </main>
+  </div>
+
+  <script src="/scripts/Admin Dashboard.js"></script>
+</body>
+</html>

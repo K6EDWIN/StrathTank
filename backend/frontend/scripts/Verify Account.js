@@ -1,0 +1,47 @@
+const params = new URLSearchParams(window.location.search);
+const email = params.get('email');
+if (email) {
+  document.getElementById('email').value = email;
+}
+
+document.getElementById('verifyForm').addEventListener('submit', async function (e) {
+  e.preventDefault();
+  const email = document.getElementById('email').value;
+  const code = document.getElementById('code').value;
+
+  const res = await fetch('/user/verify', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, verificationCode: code })
+  });
+
+  const data = await res.json();
+  const messageDiv = document.getElementById('verify-message');
+  messageDiv.textContent = data.message;
+  messageDiv.style.color = data.success ? 'green' : 'red';
+
+  if (data.success) {
+    setTimeout(() => {
+      window.location.href = '/dashboard';
+    }, 2000);
+  }
+});
+
+document.getElementById('resendBtn').addEventListener('click', async () => {
+  const email = document.getElementById('email').value;
+  if (!email) {
+    alert("Enter your email first to resend code.");
+    return;
+  }
+
+  const res = await fetch('/user/resend-code', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email })
+  });
+
+  const data = await res.json();
+  const messageDiv = document.getElementById('verify-message');
+  messageDiv.textContent = data.message;
+  messageDiv.style.color = data.success ? 'green' : 'red';
+});

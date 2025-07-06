@@ -1,0 +1,913 @@
+/* ====================================================
+   RESET & BASE STYLES
+==================================================== */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+  background-color: #f4f6f8;
+  color: #333;
+  line-height: 1.6;
+}
+
+/* ====================================================
+   LAYOUT
+==================================================== */
+.page-container {
+  display: flex;
+  min-height: 100vh;
+}
+
+.main-content {
+  transition: margin-left 0.3s ease-in-out;
+  margin-left: 0;
+}
+
+/* ====================================================
+   NAVBAR
+==================================================== */
+.navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #2c3e50;
+  padding: 1rem 2rem;
+  color: white;
+  position: relative;
+}
+
+.nav-links {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  flex: 1;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.nav-links a {
+  color: white;
+  text-decoration: none;
+  font-weight: bold;
+    transition: color 0.3s;
+}
+.nav-links a:hover {
+  color: #f39c12;
+}
+
+.logo-img {
+  height: 60px;
+  width: 60px;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 2px solid #f39c12;
+  background-color: white;
+  padding: 5px;
+}
+
+.search-bar {
+  padding: 0.5rem;
+  border-radius: 4px;
+  border: none;
+  margin-left: auto;
+}
+
+/* ====================================================
+   PROFILE CONTENT
+==================================================== */
+.profile-content {
+  margin-left: 0;
+  padding: 2rem;
+  flex: 1;
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.07);
+  max-width: 900px;
+  margin: 2rem auto;
+  transition: box-shadow 0.3s ease;
+}
+
+.profile-content:hover {
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+}
+
+.profile-top {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  margin-bottom: 2.5rem;
+}
+
+.profile-image-container {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.profile-pic {
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 4px solid #3498db;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  transition: transform 0.2s ease;
+}
+
+.profile-pic:hover {
+  transform: scale(1.02);
+}
+
+.edit-pic .edit-icon {
+  position: absolute;
+  bottom: 5px;
+  right: 5px;
+  background-color: #3498db;
+  color: white;
+  padding: 6px 8px;
+  border-radius: 50%;
+  font-size: 1rem;
+  cursor: pointer;
+  border: 2px solid #fff;
+  transition: background-color 0.2s ease;
+}
+
+.edit-pic .edit-icon:hover {
+  background-color: #2c80b4;
+}
+
+.profile-info {
+  flex: 1;
+}
+
+.profile-info h1 {
+  font-size: 2rem;
+  font-weight: 600;
+  color: #2c3e50;
+  margin-bottom: 0.5rem;
+}
+
+.profile-info p {
+  margin-bottom: 0.7rem;
+  color: #555;
+  font-size: 1rem;
+}
+
+.bio {
+  font-style: italic;
+  color: #666;
+  background-color: #f9f9f9;
+  padding: 0.75rem 1rem;
+  border-radius: 6px;
+  line-height: 1.5;
+  margin-top: 0.5rem;
+}
+
+.edit-bio-btn,.deleteaccount {
+  background-color: #3498db;
+  color: white;
+  border: none;
+  padding: 0.4rem 0.9rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  margin-left: 0.5rem;
+  transition: background-color 0.2s ease;
+}
+
+.edit-bio-btn:hover ,.deleteaccount:hover {
+  background-color: #2980b9;
+}
+
+/* ====================================================
+   MODAL POPUP
+==================================================== */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 9999;
+  left: 0; 
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.4);
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-content {
+  background-color: #fff;
+  padding: 20px 25px;
+  border-radius: 8px;
+  max-width: 500px;
+  width: 90%;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+  animation: fadeIn 0.3s ease;
+}
+
+.modal-content h3 {
+  margin-bottom: 10px;
+  color: #2c3e50;
+}
+
+.modal-content textarea {
+  width: 100%;
+  height: 120px;
+  padding: 10px;
+  resize: vertical;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  margin-bottom: 15px;
+  font-size: 1rem;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.modal-actions button {
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+  border-radius: 5px;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+#saveBioBtn {
+  background-color: #2ecc71;
+  color: white;
+}
+
+#saveBioBtn:hover {
+  background-color: #27ae60;
+}
+
+.cancel-btn {
+  background-color: #e74c3c;
+  color: white;
+}
+
+.cancel-btn:hover {
+  background-color: #c0392b;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ====================================================
+   SKILLS SECTION
+==================================================== */
+.skills-section {
+  margin-top: 2rem;
+}
+
+.skills-section h2 {
+  font-size: 1.4rem;
+  margin-bottom: 0.8rem;
+  color: #2c3e50;
+}
+
+.skills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 1rem 0;
+}
+
+.skills span {
+  background-color: #ecf0f1;
+  padding: 0.5rem 1rem;
+  border-radius: 50px;
+  font-size: 0.95rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #2c3e50;
+  transition: background-color 0.2s ease;
+}
+
+.skills span:hover {
+  background-color: #d0d7dc;
+}
+
+.remove-skill {
+  background: none;
+  border: none;
+  color: #e74c3c;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+#skillsEditor {
+  margin-top: 0.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+#newSkillInput {
+  padding: 0.5rem 1rem;
+  width: 250px;
+  border: 1px solid #ccc;
+  border-radius: 50px;
+}
+
+#addSkillBtn {
+  background-color: #3498db;
+  color: white;
+  border: none;
+  padding: 0.5rem 1.2rem;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+#addSkillBtn:hover {
+  background-color: #2980b9;
+}
+
+/* ====================================================
+   STATISTICS SECTION
+==================================================== */
+.stats-section {
+  margin-top: 2rem;
+}
+
+.stats-section ul {
+  list-style: none;
+  display: flex;
+  gap: 2rem;
+  padding: 0;
+  flex-wrap: wrap;
+}
+
+.stats-section li {
+  background-color: #f0f3f5;
+  padding: 1rem;
+  border-radius: 10px;
+  text-align: center;
+  flex: 1;
+  min-width: 150px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  transition: transform 0.2s ease;
+}
+
+.stats-section li:hover {
+  transform: translateY(-3px);
+}
+
+/* ====================================================
+   PROJECTS & COLLABORATIONS SECTIONS
+==================================================== */
+.projects-section,
+.collaborations-section {
+  margin-top: 2rem;
+}
+
+.projects-grid,
+.collaborations-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.project,
+.collaboration {
+  background-color: #fff;
+  border-left: 4px solid #9b59b6;
+  border-right: 4px solid #9b59b6;
+  border-radius: 8px;
+  padding: 1rem;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.project:hover,
+.collaboration:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.project h3,
+.collaboration h3 {
+  margin-bottom: 0.3rem;
+  font-size: 1.2rem;
+  color: #2c3e50;
+}
+
+.project span {
+  font-size: 0.9rem;
+  color: #888;
+  margin-left: 0.5rem;
+}
+
+.project button,
+.collaboration button {
+  margin-top: 0.5rem;
+  background-color: #9b59b6;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.project button:hover {
+  background-color: #8e44ad;
+}
+
+.collaboration {
+  border-left-color: #3498db;
+  border-right-color: #3498db;
+}
+
+.collaboration button {
+  background-color: #3498db;
+}
+
+.collaboration button:hover {
+  background-color: #2980b9;
+}
+
+/* ====================================================
+   SCROLLBAR & RESPONSIVE
+==================================================== */
+*::-webkit-scrollbar {
+  display: none;
+}
+
+@media (max-width: 600px) {
+  .sidebar {
+    display: none;
+  }
+
+  .main-content {
+    margin-left: 0 !important;
+  }
+
+  .projects-grid,
+  .collaborations-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ====================================================
+   MESSAGES FOR EMPTY SECTIONS
+==================================================== */
+.no-projects-msg,
+.no-collabs-msg {
+  padding: 1rem;
+  margin: 1rem 0;
+  border-radius: 10px;
+  background-color: #f9f9f9;
+  border: 1px dashed #ccc;
+  color: #555;
+  font-size: 1rem;
+  text-align: center;
+  font-style: italic;
+  transition: all 0.3s ease;
+}
+
+.no-projects-msg:hover,
+.no-collabs-msg:hover {
+  background-color: #f1f1f1;
+  color: #333;
+  border-color: #aaa;
+}
+/* ====================================================
+   LOGOUT OVERLAY & BOX
+==================================================== */
+.logout-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(44, 62, 80, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.logout-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: #ffffff;
+  padding: 2rem 3rem;
+  border-radius: 12px;
+  text-align: center;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+}
+
+.logout-box p {
+  font-size: 1.2rem;
+  color: #2c3e50;
+  margin-bottom: 1rem;
+}
+
+/* ====================================================
+   LOGOUT CONFIRMATION MODAL
+==================================================== */
+#logout-confirm-modal {
+  display: none;
+  position: fixed;
+  z-index: 9999;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(44, 62, 80, 0.8);
+  justify-content: center;
+  align-items: center;
+}
+
+#logout-confirm-modal .modal-content {
+  background: #ffffff;
+  padding: 2rem 2.5rem;
+  border-radius: 12px;
+  text-align: center;
+  max-width: 400px;
+  width: 90%;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+  animation: fadeIn 0.3s ease;
+}
+
+#logout-confirm-modal .modal-content h3 {
+  color: #2c3e50;
+  margin-bottom: 1rem;
+  font-size: 1.5rem;
+}
+
+#logout-confirm-modal .modal-content p {
+  color: #5a6a7a;
+  margin-bottom: 1.5rem;
+  font-size: 1rem;
+  line-height: 1.4;
+}
+
+#logout-confirm-modal .modal-actions {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+}
+
+#logout-confirm-modal .modal-actions button {
+  padding: 0.6rem 1.2rem;
+  font-size: 0.95rem;
+  border-radius: 5px;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+#logout-confirm-modal #confirmLogoutBtn {
+  background-color: #e74c3c;
+  color: white;
+}
+
+#logout-confirm-modal #confirmLogoutBtn:hover {
+  background-color: #c0392b;
+}
+
+#logout-confirm-modal #cancelLogoutBtn {
+  background-color: #bdc3c7;
+  color: #2c3e50;
+}
+
+#logout-confirm-modal #cancelLogoutBtn:hover {
+  background-color: #95a5a6;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+/* Spinner inside logout box */
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #ecf0f1;
+  border-top: 4px solid #2c3e50;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin-top: 1rem;
+}
+
+/* Animation for spinner */
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+
+
+
+
+/* ========================================
+   BIO UPDATE OVERLAY & BOX
+======================================== */
+.bio-update-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.bio-update-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: white;
+  padding: 20px 30px;
+  border-radius: 10px;
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+.bio-update-box p {
+  margin-bottom: 15px;
+  font-size: 16px;
+  color: #333;
+}
+
+.bio-update-box .spinner {
+  margin-top: 15px;
+  width: 30px;
+  height: 30px;
+  border: 4px solid #ccc;
+  border-top: 4px solid #3498db;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+/* ========================================
+   PAGE LOADER OVERLAY & BOX
+======================================== */
+.page-loader {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255,255,255,0.9);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.loader-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  background: white;
+  padding: 20px 30px;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+
+.loader-box p {
+  margin-bottom: 10px;
+  font-size: 16px;
+  color: #333;
+}
+
+.loader-box .spinner {
+  margin-top: 10px;
+  width: 30px;
+  height: 30px;
+  border: 4px solid #ccc;
+  border-top: 4px solid #3498db;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+/* ========================================
+   SPINNER ANIMATION
+======================================== */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+
+/* ========================================
+   SKILL UPDATE OVERLAY & BOX
+======================================== */
+.skill-update-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.skill-update-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: white;
+  padding: 20px 30px;
+  border-radius: 10px;
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+.skill-update-box p {
+  font-size: 16px;
+  color: #333;
+  margin-bottom: 15px;
+}
+
+.skill-update-box .spinner {
+  width: 30px;
+  height: 30px;
+  border: 4px solid #ccc;
+  border-top: 4px solid #3498db;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+
+
+
+
+/* ================= MOBILE RESPONSIVE FOR PROFILE PAGE ================= */
+@media (max-width: 768px) {
+
+  /* Make navbar stack neatly */
+  .navbar {
+    flex-wrap: wrap;
+    padding: 0.75rem 1rem;
+  }
+
+  .logo-img {
+    height: 40px;
+    width: 40px;
+  }
+
+  .nav-links {
+    position: static;
+    transform: none;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.75rem;
+    margin-top: 0.5rem;
+    width: 100%;
+  }
+
+  .nav-links a {
+    font-size: 0.85rem;
+    padding: 0.3rem 0.5rem;
+    white-space: nowrap;
+    flex: 0 0 auto;
+  }
+
+  /* Profile header layout: vertical stack */
+  .profile-top {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 1rem;
+  }
+
+  .profile-image-container {
+    margin-bottom: 1rem;
+  }
+
+  .profile-pic {
+    width: 120px;
+    height: 120px;
+  }
+
+  .profile-info h1 {
+    font-size: 1.5rem;
+  }
+
+  .profile-info p {
+    font-size: 0.95rem;
+  }
+
+  .bio {
+    font-size: 0.95rem;
+    padding: 0.6rem 0.9rem;
+    margin-top: 0.5rem;
+  }
+
+  .edit-bio-btn {
+    margin-top: 0.5rem;
+    margin-left: 0;
+  }
+
+  /* Skills section tighter */
+  .skills-section {
+    margin-top: 1.5rem;
+  }
+
+  #newSkillInput {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  #skillsEditor {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .skills {
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+
+  .nav-links a {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.4rem;
+  }
+
+  .profile-pic {
+    width: 100px;
+    height: 100px;
+  }
+
+  .profile-info h1 {
+    font-size: 1.3rem;
+  }
+
+  .profile-info p,
+  .bio {
+    font-size: 0.9rem;
+  }
+
+  .skills-section h2 {
+    font-size: 1.2rem;
+  }
+
+  .skills span {
+    font-size: 0.85rem;
+    padding: 0.4rem 0.8rem;
+  }
+
+  #addSkillBtn {
+    width: 100%;
+  }
+}
+#delete-confirm-modal {
+  display: none;
+  position: fixed;
+  z-index: 9999;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.5);
+  justify-content: center;
+  align-items: center;
+}
+#delete-confirm-modal .modal-content {
+  background: white;
+  padding: 2rem;
+  border-radius: 10px;
+  max-width: 500px;
+  width: 90%;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+  animation: fadeIn 0.3s ease;
+}

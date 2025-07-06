@@ -15,7 +15,7 @@
       <button class="GitHub" onclick="location.href='/auth/github'">
         <img src="assets/githubIcon.png" alt="GitHub Icon" class="github-logo">
       </button>
-      <button class="google" onclick="location.href='/auth/google'">Google</button>
+      <button class="google" onclick="location.href='/auth/google'">G+</button>
     </div>
 
     <div id="message" class="form-message"></div>
@@ -39,43 +39,66 @@
 
       <!-- Step 2 -->
       <div id="step2" style="display: none;">
-        <div class="form-group">
-          <label for="password">Password</label>
-          <input type="password" id="password" name="password" required />
-        </div>
+  <div class="form-group">
+    <label for="password">Password</label>
+    <input type="password" id="password" name="password" required />
+  </div>
 
-        <div class="form-group">
-          <label for="confirmPassword">Confirm Password</label>
-          <input type="password" id="confirmPassword" required />
-        </div>
+  <div class="form-group">
+    <label for="confirmPassword">Confirm Password</label>
+    <input type="password" id="confirmPassword" required />
+  </div>
 
-        <div class="form-group">
-          <label for="role">Role</label>
-          <select id="role" name="role" required>
-            <option value="">-- Select Role --</option>
-            <option value="student">Student</option>
-            <option value="mentor">Mentor</option>
-            <option value="admin">Admin</option>
-          </select>
-        </div>
+  <div class="form-group">
+    <label for="role">Role</label>
+    <select id="role" name="role" required>
+      <option value="">-- Select Role --</option>
+      <option value="student">Student</option>
+      <option value="mentor">Mentor</option>
+      <option value="admin">Admin</option>
+    </select>
+  </div>
 
-        <button type="button" class="back-btn" onclick="goToStep1()">👈🏽</button>
-        <button type="submit" class="registration-btn">Sign Up</button>
-      </div>
+  <div class="form-group" id="skillsGroup" style="display: none;">
+    <label for="skills">Skills (comma-separated)</label>
+    <input type="text" id="skills" name="skills" placeholder="e.g. JavaScript, Python, UI Design">
+  </div>
+
+  <button type="button" class="back-btn" onclick="goToStep1()">👈🏽</button>
+  <button type="submit" class="registration-btn">Sign Up</button>
+</div>
+
     </form>
 
     <a href="/login" class="register-link">Already have an account? Login</a>
   </div>
 
   <!-- Modal for role selection after social login -->
-  <div id="roleModal" class="modal" style="display: none;">
-    <div class="modal-content">
-      <h3>Select Your Role</h3>
-      <button onclick="submitRole('student')">Student</button>
-      <button onclick="submitRole('mentor')">Mentor</button>
-      <button onclick="submitRole('admin')">Admin</button>
-    </div>
+ <div id="roleModal" style="display:none;">
+  <h3>Select Your Role</h3>
+  <select id="socialRoleSelect">
+    <option value="">Choose role</option>
+    <option value="student">Student</option>
+    <option value="mentor">Mentor</option>
+    <option value="admin">Admin</option>
+  </select>
+
+  <div id="socialSkillsGroup" style="display:none;">
+    <label for="socialSkills">Skills (comma separated)</label>
+    <input type="text" id="socialSkills" />
   </div>
-  <script src="scripts/registration.js"></script>
+
+  <button onclick="submitSocialRole()">Submit</button>
+</div>
+<!-- Global Popup Modal -->
+<div id="popupModal" class="popup-modal hidden">
+  <div class="popup-content">
+    <div id="popupSpinner" class="spinner hidden"></div>
+    <p id="popupMessage"></p>
+    <button id="popupClose" class="hidden">Close</button>
+  </div>
+</div>
+
+  <script src="scripts/Registration.js"></script>
 </body>
 </html>

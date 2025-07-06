@@ -1,17 +1,34 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>StrathTank</title>
-  <link rel="stylesheet" href="styles/homepage.css">
-  <script src="scripts/homepage.js" defer></script>
+  <link rel="stylesheet" href="styles/homepage.css"/>
+  <script defer src="scripts/Homepage.js"></script>
 </head>
 <body>
+
+<!-- Navigation Bar -->
+<header id="navbar">
+  <div class="nav-logo">StrathTank</div>
+  
+  <div class="hamburger" id="hamburger">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+  
+  <nav class="nav-links" id="navLinks">
+    <a href="#hero">Home</a>
+    <a href="#projects">Projects</a>
+    <a href="#cta">Join</a>
+  </nav>
+</header>
+
+
+<!-- Hero Section -->
 <section id="hero">
-  <video autoplay muted loop id="heroVideo">
-    <source src="assets/background 2.mp4" type="video/mp4" />
-  </video>
   <div class="overlay">
     <h1>Welcome to STRATHTANK</h1>
     <p>"YOUR PROJECTS DESERVE MORE THAN JUST A GRADE"</p>
@@ -20,9 +37,10 @@
   <div class="paragraph">
     <p>
       StrathTank is a platform where student innovation finds a second life. 
-      Whether it's a web app, a hardware prototype, or a green initiative, this is your space to showcase what you've built, connect with other creators, and grow your portfolio for the real world. 
-      Don’t just let your projects collect dust, turn them into conversation starters, career boosters, or even future startups.
-      Because here, every idea deserves the spotlight.
+      Whether it's a web app, a hardware prototype, or a green initiative, this is your space to showcase what you've built, connect with other creators, and grow your portfolio for the real world.
+    </p>
+    <p>
+      Don’t just let your projects collect dust,turn them into conversation starters, career boosters, or even future startups. Every idea deserves the spotlight.
     </p>
     <div class="explore">
       <p>Explore</p>
@@ -36,40 +54,31 @@
   </div>
 </section>
 
-  <!-- Projects Section -->
-  <section id="projects">
-    <video autoplay muted loop id="projectsVideo">
-      <source src="assets/background 2.mp4" type="video/mp4">
-    </video>
-    <div class="overlay">
-      <h2>Featured Projects</h2>
-      <p>These projects didn’t stop at the classroom... Who knows yours might be next</p>
-       <div class="cards" id="projectCards">
-</div>
-        </div>
-      </div>
-    </div>
-  </section>
+<!-- Projects Section -->
+<section id="projects">
+  <h2>Featured Projects</h2>
+  <p>These projects didn’t stop at the classroom... Yours might be next.</p>
+  <div class="cards" id="projectCards">
+    <!-- Dynamic project cards will go here -->
+  </div>
+</section>
 
-  <!-- Join Us CTA -->
-  <section id="cta">
+<!-- CTA Section -->
+<!-- CTA Section with Video -->
+<section id="cta">
+  <video autoplay muted loop id="ctaVideo">
+    <source src="assets/background 3.mp4" type="video/mp4" />
+  </video>
+  <div class="cta-overlay"></div>
+  <div class="cta-content">
     <h2>Join us</h2>
     <p>This platform was made for creators like you... come build with us.</p>
     <div class="cta-buttons">
-      <button id="signinbtnbottom">log in to your account</button>
-      <button id="signupbtnbottom">Create account</button>
+      <button id="signinbtnbottom">Log In to Your Account</button>
+      <button id="signupbtnbottom">Create Account</button>
     </div>
-  </section>
-
-<!--role selection-->
-<div id="roleModal" class="modal" style="display: none;">
-  <div class="modal-content">
-    <h3>Select Your Role</h3>
-    <button onclick="submitRole('Student')">Student</button>
-    <button onclick="submitRole('Mentor')">Mentor</button>
-    <button onclick="submitRole('Admin')">Admin</button>
   </div>
-</div>
+</section>
 
 
 </body>

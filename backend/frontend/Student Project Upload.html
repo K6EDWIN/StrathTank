@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Upload Your Project</title>
+  <link rel="stylesheet" href="styles/upload.css" />
+  <script src="scripts/Student Project Upload.js" defer></script>
+</head>
+<body>
+
+  <nav class="navbar">
+    <a href="#" class="logo">
+      <img src="assets/logo.png" alt="StrathTank Logo" class="logo-img" />
+    </a>
+    <div class="nav-links">
+      <a href="/dashboard">Home</a>
+      <a href="/explore-projects">Explore</a>
+    <a href="/mentorship-request">Mentorship request Hub</a>
+          <a href="/hub">Mentorship Hub</a>
+      <a href="/profile">My Profile</a>
+       <a href="#" onclick="openLogoutConfirm()">Logout</a>
+    </div>
+  </nav>
+
+  <div class="container">
+    <header>
+      <h1 class="animated-heading">Show Us What You’ve Cooked Up</h1>
+      <p>Turn your school project into something bigger. Share your innovation with the world.</p>
+    </header>
+
+    <form method="POST" enctype="multipart/form-data">
+      <div class="form-columns">
+        <!-- Left Column -->
+        <div class="left-column">
+          <section>
+            <h2>Project Details</h2>
+            <label for="title">Project Title
+              <input id="title" name="title" type="text" required placeholder="e.g., Smart Waste Bin System" />
+            </label>
+            <label for="shortDesc">Short Description
+              <input id="shortDesc" name="short_description" type="text" required placeholder="Add a short description about your project" />
+            </label>
+            <label for="category">Category
+              <input id="category" name="category" type="text" required placeholder="e.g., AI, IoT, Sustainability" />
+            </label>
+            <label for="lead">Project Lead
+              <input id="lead" name="project_lead" type="text" placeholder="e.g., John Dim" />
+            </label>
+            <label>
+              <input type="checkbox" id="isITProject" onchange="toggleITFields(this)" />
+              Is this project an IT or Coding Project?
+            </label>
+            <label for="abstract">Project Abstract
+              <textarea id="abstract" name="description" required placeholder="Summary of the project..."></textarea>
+            </label>
+            <label for="tags">Tags
+              <input id="tags" name="tags" type="text" placeholder="e.g., AI, IoT, Sustainability (separate by comma🙂)" />
+            </label>
+            <label for="launchDate">Launch Date
+              <input id="launchDate" name="launch_date" type="date" />
+            </label>
+            <label for="status">Status
+              <select id="status" name="status">
+                <option>In Progress</option>
+                <option>Completed</option>
+                <option>On Hold</option>
+              </select>
+            </label>
+          </section>
+
+          <section>
+  <h2>Project Media</h2>
+
+  <div class="custom-upload">
+    <button type="button" id="uploadDocumentsBtn">📄 Upload Documents</button>
+    <input type="file" id="documentsInput" name="documents[]" multiple accept=".pdf,.doc,.docx" hidden />
+    <div id="documentsSummary" class="file-summary hidden"></div>
+  </div>
+
+  <div class="custom-upload">
+    <button type="button" id="uploadScreenshotsBtn">🖼️ Upload Screenshots</button>
+    <input type="file" id="screenshotsInput" name="screenshots[]" multiple accept=".jpg,.jpeg,.png" hidden />
+    <div id="screenshotsSummary" class="file-summary hidden"></div>
+  </div>
+
+  <small>Max 50MB. Images, videos, PDFs, docs supported.</small>
+</section>
+
+
+          <section>
+  <h2>Team Members</h2>
+  <div id="teamMembers">
+  </div>
+  <button type="button" onclick="addTeamMemberInput()">+ Add More</button>
+</section>
+
+        </div>
+
+        <!-- Right Column -->
+        <div class="right-column">
+          <section>
+            <div class="project-motivation">
+              <img src="assets/strath.png" alt="Project motivation" />
+              <p class="selectionCaption">
+                Every great project starts with an idea. We provide the tools to make it a reality.
+              </p>
+            </div>
+          </section>
+
+        <section>
+  <h2>Project Profile Image</h2>
+
+  <div class="custom-upload">
+    <button type="button" id="uploadProfileBtn">📷 Upload Profile Image</button>
+    <input type="file" id="profileImageInput" name="project_profile_picture" accept="image/png, image/jpeg" hidden />
+    <div id="profileImageSummary" class="file-summary hidden"></div>
+  </div>
+</section>
+
+
+          <!-- Conditional Fields for IT Projects -->
+          <div id="itFields" style="display: none;">
+            <section>
+              <h2>GitHub Repository (Must be set to Public)</h2>
+                <input
+    type="url"
+    name="repo_url"
+    id="repo_url"
+    placeholder="https://github.com/your-repo"
+  />
+              <button id="selectRepoBtn" type="button">Select from GitHub</button>
+            </section>
+
+            <section>
+              <h2>Technical Stack</h2>
+              <input type="text" placeholder="Programming Language (e.g., Python)" />
+              <input type="text" placeholder="Framework (e.g., Django)" />
+              <input type="text" placeholder="Database (e.g., MySQL)" />
+              <input type="text" placeholder="Deployment (e.g., Heroku, AWS)" />
+            </section>
+          </div>
+
+          <!-- Conditional Fields for Non-IT Projects -->
+          <div id="nonItFields">
+            <section>
+              <h2>Project Details</h2>
+              <label for="focus">Project Focus
+                <input id="focus" type="text" placeholder="e.g., Clean Energy Access" />
+              </label>
+              <label for="methodology">Approach Methodology
+                <input id="methodology" type="text" placeholder="e.g., Field Deployment" />
+              </label>
+              <label for="beneficiaries">Target Beneficiaries
+                <input id="beneficiaries" type="text" placeholder="e.g., Rural Communities" />
+              </label>
+              <label for="goals">Impact Goals
+                <input id="goals" type="text" placeholder="e.g., Reduce Waste, Improve Access" />
+              </label>
+            </section>
+          </div>
+
+          <!-- Thumbs Up Animation -->
+          <div id="thumbsGif" class="thumbs-animation" style="display: none;">
+            <img src="assets/thumbsup.gif" alt="Good job thumbs up" />
+          </div>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button type="submit" class="submit">Upload Project for Approval</button>
+      </div>
+    </form>
+  </div>
+  
+
+<!-- Upload spinner -->
+<div id="uploadSpinner" style="display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); justify-content:center; align-items:center; z-index:9999;">
+  <div style="background:white; padding:2rem; border-radius:8px; text-align:center;">
+    <div class="loader"></div>
+    <p>Uploading project...</p>
+  </div>
+</div>
+
+<!-- Success modal --> 
+<div id="successModal">
+  <div class="modal-content">
+    <h3>🎉 Project Submitted</h3>
+    <p>
+      Your project has been successfully uploaded and is pending admin review.<br>
+      Redirecting to dashboard in <span id="countdown">10</span> seconds...
+    </p>
+    <div class="modal-actions">
+      <button id="cancelRedirect">Cancel</button>
+      <button id="proceedNow">Proceed Now</button>
+    </div>
+  </div>
+</div>
+<!-- Logout Loader Modal -->
+<div id="logout-loader" style="display: none;" class="logout-overlay">
+  <div class="logout-box">
+    <p>Logging out...</p>
+    <div class="spinner"></div>
+  </div>
+</div>
+
+<!-- Logout Confirmation Modal -->
+<div id="logout-confirm-modal" class="modal">
+  <div class="modal-content">
+    <h3>Confirm Logout</h3>
+    <p>Do you really want to log out?</p>
+    <div class="modal-actions">
+      <button id="confirmLogoutBtn">Yes, Log Out</button>
+      <button id="cancelLogoutBtn" class="cancel-btn">Cancel</button>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

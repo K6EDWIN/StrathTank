@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Mentorship Hub</title>
+  <link rel="stylesheet" href="/styles/hub.css" />
+  <script src="/scripts/Student mentorship Hub.js" defer></script>
+</head>
+<body>
+  <div class="layout">
+
+    <!-- Main Content -->
+    <main class="main-content" id="mainContent">
+      <!-- Navigation Bar -->
+      <nav class="navbar">
+        <a href="/" class="logo">
+          <img src="/assets/logo.png" alt="StrathTank Logo" class="logo-img" />
+        </a>
+        <div class="nav-links">
+          <a href="/dashboard">Home</a>
+          <a href="/upload-project">Upload</a>
+          <a href="/explore-projects">Explore</a>
+          <a href="/mentorship-request">Mentorship request Hub</a>
+          <a href="/profile">My Profile</a>
+            <a href="#" onclick="openLogoutConfirm()">Logout</a>
+        </div>
+      </nav>
+
+      <!-- Mentorship Hub Content -->
+      <section class="mentorship-container">
+        <header class="mentorship-header">
+          <h1>Mentorship Hub</h1>
+          <p>Chat with your mentor and track your mentorship requests here.</p>
+        </header>
+
+        <section class="request-section">
+          <h2>Your Mentorship Requests</h2>
+          <div id="request-list" class="request-list">
+            <!-- Dynamically loaded requests -->
+          </div>
+        </section>
+
+        <section class="chat-section hidden" id="chatSection">
+          <h2>Conversation with Mentor</h2>
+          <div id="chat-messages" class="chat-messages"></div>
+          <form id="chat-form" class="chat-form">
+            <textarea id="chat-input" placeholder="Type your message..." required></textarea>
+            <button type="submit">Send</button>
+          </form>
+        </section>
+      </section>
+      <!-- Logout Loader Modal -->
+<div id="logout-loader" style="display: none;" class="logout-overlay">
+  <div class="logout-box">
+    <p>Logging out...</p>
+    <div class="spinner"></div>
+  </div>
+</div>
+
+<!-- Logout Confirmation Modal -->
+<div id="logout-confirm-modal" class="modal">
+  <div class="modal-content">
+    <h3>Confirm Logout</h3>
+    <p>Do you really want to log out?</p>
+    <div class="modal-actions">
+      <button id="confirmLogoutBtn">Yes, Log Out</button>
+      <button id="cancelLogoutBtn" class="cancel-btn">Cancel</button>
+    </div>
+  </div>
+</div>
+    </main>
+  </div>
+</body>
+</html>

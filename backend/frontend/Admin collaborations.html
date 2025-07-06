@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Collaborations Overview</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="/styles/admin.css" />
+</head>
+<body>
+
+  <div class="admin-container">
+    
+    <!-- Sidebar -->
+    <aside class="admin-sidebar">
+      <h2>Admin Panel</h2>
+      <nav>
+        <a href="/admin">Dashboard</a>
+        <a href="/AllUsers">All Users</a>
+        <a href="/adminExplore">Projects</a>
+        <a href="#" class="active">Collaborations</a>
+        <a href="/adminMentorships">Mentorships</a>
+      <a href="/admin/profile">Profile</a>
+         <a href="#" onclick="openLogoutConfirm()">Logout</a>
+      </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="admin-main">
+      
+      <div class="admin-header">
+        <h1>Project Collaborations</h1>
+        <input 
+          type="text" 
+          id="collabSearch" 
+          placeholder="Search by project, owner or collaborator..."
+          aria-label="Search collaborations"
+        />
+      </div>
+
+      <!-- Table -->
+      <div class="admin-table">
+        <table>
+          <thead>
+            <tr>
+              <th>Project</th>
+              <th>Owner</th>
+              <th>Collaborator</th>
+              <th>Status</th>
+              <th>Requested</th>
+            </tr>
+          </thead>
+          <tbody id="collabTableBody">
+            <!-- JS will populate rows -->
+          </tbody>
+        </table>
+      </div>
+
+    </main>
+
+  </div>
+<!-- Logout Loader Modal -->
+<div id="logout-loader" style="display: none;" class="logout-overlay">
+  <div class="logout-box">
+    <p>Logging out...</p>
+    <div class="spinner"></div>
+  </div>
+</div>
+
+<!-- Logout Confirmation Modal -->
+<div id="logout-confirm-modal" class="modal">
+  <div class="modal-content">
+    <h3>Confirm Logout</h3>
+    <p>Do you really want to log out?</p>
+    <div class="modal-actions">
+      <button id="confirmLogoutBtn">Yes, Log Out</button>
+      <button id="cancelLogoutBtn" class="cancel-btn">Cancel</button>
+    </div>
+  </div>
+</div>
+  <script src="/scripts/Admin collaborations.js"></script>
+</body>
+</html>

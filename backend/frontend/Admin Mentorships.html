@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Admin – Mentorships Overview</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="/styles/admin.css" />
+</head>
+<body>
+
+  <div class="admin-container">
+
+    <!-- Sidebar -->
+    <aside class="admin-sidebar">
+      <h2>Admin Panel</h2>
+      <nav>
+        <a href="/admin">Dashboard</a>
+        <a href="/AllUsers">All Users</a>
+        <a href="/adminExplore">Projects</a>
+        <a href="/adminCollaborations">Collaborations</a>
+        <a href="#" class="active">Mentorships</a>
+        <a href="/admin/profile">Profile</a>
+        <a href="#" onclick="openLogoutConfirm()">Logout</a>
+      </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="admin-main">
+
+      <div class="admin-header">
+        <h1>Mentorships Management</h1>
+        <input 
+          type="text" 
+          id="mentorshipSearch" 
+          placeholder="Search by mentee, mentor, project..."
+          aria-label="Search mentorships"
+        />
+      </div>
+
+      <!-- Mentorship Requests Table -->
+      <div class="admin-table">
+        <table>
+      <thead>
+  <tr>
+    <th>Project</th>
+    <th>Subject</th>
+    <th>Mentee</th>
+    <th>Assigned Mentor</th>
+    <th>Status</th>
+    <th>Requested At</th>
+    <th>Chat</th>
+  </tr>
+</thead>
+
+          <tbody id="mentorshipTableBody">
+            <!-- JS will populate rows -->
+          </tbody>
+        </table>
+      </div>
+
+    </main>
+
+  </div>
+
+  <!-- Logout Loader Modal -->
+  <div id="logout-loader" style="display: none;" class="logout-overlay">
+    <div class="logout-box">
+      <p>Logging out...</p>
+      <div class="spinner"></div>
+    </div>
+  </div>
+
+  <!-- Logout Confirmation Modal -->
+  <div id="logout-confirm-modal" class="modal">
+    <div class="modal-content">
+      <h3>Confirm Logout</h3>
+      <p>Do you really want to log out?</p>
+      <div class="modal-actions">
+        <button id="confirmLogoutBtn">Yes, Log Out</button>
+        <button id="cancelLogoutBtn" class="cancel-btn">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Chat View Modal -->
+<!-- Chat View Modal -->
+<div id="chat-modal" class="chat-modal hidden">
+  <div class="chat-modal-box">
+    <!-- Header -->
+    <div class="chat-modal-header">
+      <h3>Mentor / Mentee Chat</h3>
+      <span class="close-btn" onclick="closeChatModal()">&times;</span>
+    </div>
+
+    <!-- Messages Area -->
+    <div id="chat-messages" class="chat-messages">
+      <!-- Example messages for layout -->
+      <!--
+      <div class="chat-message mentee">Hi, I need help with my project.</div>
+      <div class="chat-message mentor">Of course! What’s the challenge?</div>
+      -->
+    </div>
+  </div>
+</div>
+
+
+  <script src="/scripts/Admin Mentorships.js"></script>
+</body>
+</html>

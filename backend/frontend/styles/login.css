@@ -1,4 +1,6 @@
-
+/* -----------------------------------------------
+   Reset & Base Styles
+-------------------------------------------------*/
 * {
   margin: 0;
   padding: 0;
@@ -6,51 +8,70 @@
 }
 
 body {
-  font-family: Arial, sans-serif;
-  background-color: #f2f4f7;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(to right, #eef2f3, #ffffff);
   display: flex;
   justify-content: center;
   align-items: center;
   height: 100vh;
 }
 
+/* -----------------------------------------------
+   Login Container
+-------------------------------------------------*/
 .login-container {
-  background-color: white;
-  padding: 30px 25px;
-  border-radius: 10px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  background-color: #fff;
+  padding: 40px 30px;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
   width: 100%;
   max-width: 400px;
   text-align: center;
+  transition: transform 0.3s ease;
 }
 
+.login-container:hover {
+  transform: translateY(-4px);
+}
+
+/* -----------------------------------------------
+   Headings & Text
+-------------------------------------------------*/
 h2 {
-  margin-bottom: 10px;
-  color: #333;
+  margin-bottom: 12px;
+  color: #222;
+  font-size: 26px;
 }
 
 p {
-  margin-bottom: 20px;
+  margin-bottom: 24px;
   color: #555;
   font-size: 14px;
 }
 
-/* Social Buttons */
+/* -----------------------------------------------
+   Social Login Buttons
+-------------------------------------------------*/
 .social-login {
   display: flex;
   justify-content: center;
-  gap: 10px;
-  margin-bottom: 20px;
+  gap: 12px;
+  margin-bottom: 24px;
 }
 
 .social-login button {
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   border: none;
   border-radius: 50%;
   font-size: 16px;
   cursor: pointer;
   color: white;
+  transition: transform 0.2s ease;
+}
+
+.social-login button:hover {
+  transform: scale(1.1);
 }
 
 .GitHub {
@@ -61,77 +82,141 @@ p {
 }
 
 .github-logo {
-  width: 20px;
-  height: 20px;
+  width: 22px;
+  height: 22px;
 }
 
 .google {
   background-color: #db4437;
 }
 
-/* Form Styling */
+/* -----------------------------------------------
+   Form Styling
+-------------------------------------------------*/
 .form-group {
   text-align: left;
-  margin-bottom: 15px;
+  margin-bottom: 18px;
 }
 
 label {
   display: block;
   margin-bottom: 6px;
-  font-weight: bold;
+  font-weight: 600;
   color: #444;
 }
 
 input {
   width: 100%;
-  padding: 10px;
+  padding: 11px 12px;
   border-radius: 6px;
   border: 1px solid #ccc;
-  font-size: 14px;
+  font-size: 15px;
+  transition: border 0.3s, box-shadow 0.3s;
 }
 
 input:focus {
-  border-color: #ff758c;
+  border-color: #0077b5;
   outline: none;
-  box-shadow: 0 0 5px #ff758c88;
+  box-shadow: 0 0 6px rgba(0, 119, 181, 0.3);
 }
 
-/* Login Button */
+/* -----------------------------------------------
+   Login Button
+-------------------------------------------------*/
 button.login-btn {
+  margin-top: 10px;
   width: 100%;
-  padding: 10px;
-  background-color: #000000;
+  padding: 12px;
+  background-color: #111;
   color: white;
   border: none;
   border-radius: 6px;
   font-size: 16px;
   cursor: pointer;
-  margin-top: 10px;
+  transition: background-color 0.3s ease;
+  font-weight: 600;
 }
 
 button.login-btn:hover {
-  background-color: #e9486d;
+  background-color: #0077b5;
 }
 
-/* Links */
+/* -----------------------------------------------
+   Links
+-------------------------------------------------*/
 .register-link,
 .forgot-link {
   display: block;
-  margin-top: 15px;
+  margin-top: 16px;
   font-size: 14px;
   color: #0077b5;
   text-decoration: none;
   text-align: center;
+  transition: color 0.3s ease;
 }
 
 .register-link:hover,
 .forgot-link:hover {
+  color: #004a77;
   text-decoration: underline;
 }
 
-/* Message */
+/* -----------------------------------------------
+   Login Message
+-------------------------------------------------*/
 #login-message {
-  margin-top: 10px;
+  margin-top: 12px;
   font-size: 14px;
   color: red;
+}
+
+/* -----------------------------------------------
+   Login Loading Overlay
+-------------------------------------------------*/
+.login-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(44, 62, 80, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.login-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: #ffffff;
+  padding: 2rem 3rem;
+  border-radius: 12px;
+  text-align: center;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+}
+
+.login-box p {
+  font-size: 1.2rem;
+  color: #2c3e50;
+  margin-bottom: 1rem;
+}
+
+/* -----------------------------------------------
+   Spinner Animation
+-------------------------------------------------*/
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #ccc;
+  border-top: 4px solid #2c3e50;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }

@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Profile Page</title>
+  <link rel="stylesheet" href="styles/userProfile.css" />
+</head>
+<body>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <!-- Top Navigation Bar -->
+    <nav class="navbar">
+      <a href="#" class="logo">
+        <img src="/assets/logo.png" alt="StrathTank Logo" class="logo-img" />
+      </a>
+      <div class="nav-links">
+        <a href="/dashboard">Home</a>
+        <a href="/upload-project">Upload</a>
+        <a href="/explore-projects">Explore</a>
+        <a href="/mentorship-request">Mentorship request Hub</a>
+        <a href="/hub">Mentorship Hub</a>
+       <a href="#" onclick="openLogoutConfirm()">Logout</a>
+      </div>
+    </nav>
+
+    <!-- Profile Content -->
+    <div class="page-container">
+      <main class="profile-content">
+        <section class="profile-header">
+          <div class="profile-top">
+            <div class="profile-image-container">
+              <img id="profilePic" class="profile-pic" alt="Profile Picture" />
+              <label id="editIcon" class="edit-pic" style="display: none;">
+               <input type="file" id="profilePicInput" accept="image/*" hidden />
+                <span class="edit-icon">🖉</span>
+              </label>
+            </div>
+            <div class="profile-info">
+              <h1 id="username">Loading...</h1>
+              <p id="email" style="display: none;"></p>
+             <p id="bio" class="bio">No bio yet.</p>
+<button id="openBioModal" class="edit-bio-btn">Edit Bio</button>
+<button id="openDeleteModal" class="deleteaccount">Delete Account</button>
+
+
+<!-- Bio Edit Modal -->
+<div id="bioModal" class="modal">
+  <div class="modal-content">
+    <h3>Edit Your Bio</h3>
+    <textarea id="bioTextarea" placeholder="Write something about yourself..."></textarea>
+    <div class="modal-actions">
+      <button id="saveBioBtn">Save</button>
+      <button id="closeBioModal" class="cancel-btn">Cancel</button>
+    </div>
+  </div>
+</div>
+
+            </div>
+          </div>
+        </section>
+
+  <section class="skills-section">
+  <h2>Skills & Expertise</h2>
+  <div id="skillsList" class="skills"></div>
+  <div id="skillsEditor">
+    <input type="text" id="newSkillInput" class="add-skill-input" placeholder="Add a new skill..." />
+    <button id="addSkillBtn" class="add-skill-btn">Add</button>
+  </div>
+ 
+
+</section>
+
+
+
+
+        <section class="stats-section">
+          <h2>Statistics Overview</h2>
+          <ul id="statsList">
+            <li><strong>Projects Created:</strong> <span id="projectsCreated">0</span></li>
+            <li><strong>Collaborations:</strong> <span id="collaborationsCount">0</span></li>
+            <li><strong>Total Likes:</strong> <span id="totalLikes">0</span></li>
+          </ul>
+        </section>
+
+        <section class="projects-section">
+          <h2 id="projectsHeader">My Projects</h2>
+          <div id="ownedProjects" class="projects-grid"></div>
+        </section>
+
+        <section class="collaborations-section">
+          <h2 id="collabsHeader">Collaborated Projects</h2>
+          <div id="collaborations" class="collaborations-grid"></div>
+        </section>
+        <!-- Logout Loader Modal -->
+<div id="logout-loader" style="display: none;" class="logout-overlay">
+  <div class="logout-box">
+    <p>Logging out...</p>
+    <div class="spinner"></div>
+  </div>
+</div>
+
+<!-- Logout Confirmation Modal -->
+<div id="logout-confirm-modal" class="modal">
+  <div class="modal-content">
+    <h3>Confirm Logout</h3>
+    <p>Do you really want to log out?</p>
+    <div class="modal-actions">
+      <button id="confirmLogoutBtn">Yes, Log Out</button>
+      <button id="cancelLogoutBtn" class="cancel-btn">Cancel</button>
+    </div>
+  </div>
+</div>
+      </main>
+    </div>
+  </main>
+<!-- Bio Update Loader Modal -->
+<div id="bioUpdateLoader" class="bio-update-overlay" style="display: none;">
+  <div class="bio-update-box">
+    <p id="bioUpdateMessage">Updating bio...</p>
+    <div class="spinner"></div>
+  </div>
+</div>
+<!-- Page Loading Spinner -->
+<div id="profileLoader" class="page-loader">
+  <div class="loader-box">
+    <p>Loading profile...</p>
+    <div class="spinner"></div>
+  </div>
+</div>
+<!-- Skill Update Overlay -->
+<div id="skillUpdateOverlay" class="skill-update-overlay" style="display: none;">
+  <div class="skill-update-box">
+    <p>Updating skill...</p>
+    <div class="spinner"></div>
+  </div>
+</div>
+<!-- Delete Account Confirmation Modal -->
+<div id="delete-confirm-modal" class="modal">
+  <div class="modal-content">
+    <h3>Confirm Account Deletion</h3>
+    <p>Are you sure you want to permanently delete your account? This action cannot be undone.</p>
+    <div class="modal-actions">
+      <button id="confirmDeleteBtn">Yes, Delete Account</button>
+      <button id="cancelDeleteBtn" class="cancel-btn">Cancel</button>
+    </div>
+  </div>
+</div>
+<!-- Delete Account Spinner -->
+<div id="deleteAccountLoader" style="display: none;" class="bio-update-overlay">
+  <div class="bio-update-box">
+    <p id="deleteAccountMessage">Deleting account...</p>
+    <div class="spinner"></div>
+  </div>
+</div>
+
+<script>
+
+ const deleteModal = document.getElementById("delete-confirm-modal");
+  const deleteLoader = document.getElementById("deleteAccountLoader");
+  const deleteMessage = document.getElementById("deleteAccountMessage");
+
+  document.getElementById("openDeleteModal")?.addEventListener("click", () => {
+    deleteModal.style.display = "flex";
+  });
+
+  document.getElementById("cancelDeleteBtn")?.addEventListener("click", () => {
+    deleteModal.style.display = "none";
+  });
+
+  document.getElementById("confirmDeleteBtn")?.addEventListener("click", async () => {
+    deleteModal.style.display = "none";
+    deleteLoader.style.display = "flex";
+    deleteMessage.textContent = "Deleting account...";
+
+    try {
+      const res = await fetch(`/user/${userId}`, {
+        method: "DELETE",
+        credentials: "include"
+      });
+
+      if (res.ok) {
+        deleteMessage.textContent = "✅ Account deleted.";
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        window.location.href = "/signup";
+      } else {
+        const err = await res.json();
+        deleteLoader.style.display = "none";
+        alert("❌ Delete failed: " + (err.message || "Unknown error."));
+      }
+    } catch (e) {
+      deleteLoader.style.display = "none";
+      console.error("❌ Delete error:", e);
+      alert("An error occurred while deleting your account.");
+    }
+  });
+</script>
+
+  <script src="scripts/Student My Profile.js"></script>
+</body>
+</html>
