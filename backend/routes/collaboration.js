@@ -3,12 +3,18 @@ const router = express.Router();
 const db = require('../config/db');
 const transporter = require('../config/mailer');
 
-// ✅ Send a collaboration request
-router.post('/:projectId/request', async (req, res) => {
-  const projectId = parseInt(req.params.projectId);
-  const userId = req.session?.user?.id;
+// ✅ Middleware to ensure user is logged in
+function isLoggedIn(req, res, next) {
+  if (!req.session?.user) {
+    return res.status(401).json({ error: 'Unauthorized. Please log in.' });
+  }
+  next();
+}
 
-  if (!userId) return res.status(401).json({ error: "Unauthorized. Please log in." });
+// ✅ Send a collaboration request
+router.post('/:projectId/request', isLoggedIn, async (req, res) => {
+  const projectId = parseInt(req.params.projectId);
+  const userId = req.session.user.id;
 
   try {
     // Check if already requested
@@ -72,23 +78,38 @@ router.post('/:projectId/request', async (req, res) => {
   }
 });
 
-// ✅ Handle accept/decline action from email
+// ✅ Accept or Decline from Email Link (must log in + be project owner)
 router.get('/response', async (req, res) => {
   const { projectId, userId, action } = req.query;
+  const currentUser = req.session?.user;
 
   if (!projectId || !userId || !['accept', 'decline'].includes(action)) {
     return res.status(400).send("Invalid response link.");
   }
 
-  const status = action === 'accept' ? 'accepted' : 'declined';
+  if (!currentUser) {
+    const redirectTo = `/api/collaboration/response?projectId=${projectId}&userId=${userId}&action=${action}`;
+    return res.redirect(`/login?next=${encodeURIComponent(redirectTo)}`);
+  }
 
   try {
+    // Check if current user owns the project
+    const [project] = await db.promise().query(
+      `SELECT user_id FROM projects WHERE id = ?`,
+      [projectId]
+    );
+
+    if (project.length === 0 || project[0].user_id !== currentUser.id) {
+      return res.status(403).send("You are not authorized to perform this action.");
+    }
+
+    const status = action === 'accept' ? 'accepted' : 'declined';
+
     await db.promise().query(
       `UPDATE collaborations SET status = ? WHERE project_id = ? AND collaborator_id = ?`,
       [status, projectId, userId]
     );
 
-    // Redirect to visual confirmation page
     return res.redirect(`/api/collaboration/response-status?status=${status}`);
   } catch (err) {
     console.error("❌ Error updating collaboration status:", err);
@@ -96,7 +117,7 @@ router.get('/response', async (req, res) => {
   }
 });
 
-// ✅ Final status page with popup and redirect
+// ✅ Final response page
 router.get('/response-status', (req, res) => {
   const status = req.query.status;
 

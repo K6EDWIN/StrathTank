@@ -460,7 +460,7 @@ Impact Goals: ${details[3] || 'N/A'}`;
 
 
 // ----------------------------------------
-// GET /user/search - Autocomplete User Search
+// GET /user/search - Search for users by name
 // ----------------------------------------
 router.get('/search', (req, res) => {
   const q = req.query.q;
@@ -763,6 +763,117 @@ router.post('/mentorship/request/:id/messages', ensureUser, (req, res) => {
 });
 
 
+// ----------------------------------------
+// DELETE /user/:id - User deletes their own account and related data
+// ----------------------------------------
+router.delete('/:id', ensureUser, (req, res) => {
+  const userIdFromSession = req.session.user.id;
+  const userIdFromParams = parseInt(req.params.id, 10);
+
+  if (isNaN(userIdFromParams) || userIdFromSession !== userIdFromParams) {
+    return res.status(403).json({ success: false, message: 'Unauthorized deletion attempt' });
+  }
+
+  // Step 1: Delete likes
+  db.query('DELETE FROM likes WHERE user_id = ?', [userIdFromParams], (err) => {
+    if (err) {
+      console.error('❌ Failed to delete likes:', err);
+      return res.status(500).json({ success: false, message: 'Failed to delete user likes' });
+    }
+
+    // Step 2: Delete comments
+    db.query('DELETE FROM comments WHERE user_id = ?', [userIdFromParams], (err) => {
+      if (err) {
+        console.error('❌ Failed to delete comments:', err);
+        return res.status(500).json({ success: false, message: 'Failed to delete user comments' });
+      }
+
+      // Step 3: Remove user from project_team_members
+      db.query('DELETE FROM project_team_members WHERE user_id = ?', [userIdFromParams], (err) => {
+        if (err) {
+          console.error('❌ Failed to remove user from team_members:', err);
+          return res.status(500).json({ success: false, message: 'Team member deletion failed' });
+        }
+
+        // Step 4: Delete projects owned by user (and their team members)
+        db.query('SELECT id FROM projects WHERE user_id = ?', [userIdFromParams], (err, projectRows) => {
+          if (err) {
+            console.error('❌ Failed to fetch user projects:', err);
+            return res.status(500).json({ success: false, message: 'Error fetching projects' });
+          }
+
+          const projectIds = projectRows.map(p => p.id);
+          if (projectIds.length === 0) {
+            // No owned projects — skip to collaborations
+            return deleteCollaborations();
+          }
+
+          // 4a: Delete team members of those projects
+          db.query('DELETE FROM project_team_members WHERE project_id IN (?)', [projectIds], (err) => {
+            if (err) {
+              console.error('❌ Failed to delete project team members:', err);
+              return res.status(500).json({ success: false, message: 'Team member cleanup failed' });
+            }
+
+            // 4b: Delete the projects themselves
+            db.query('DELETE FROM projects WHERE id IN (?)', [projectIds], (err) => {
+              if (err) {
+                console.error('❌ Failed to delete projects:', err);
+                return res.status(500).json({ success: false, message: 'Project deletion failed' });
+              }
+
+              // Continue to collaborations
+              deleteCollaborations();
+            });
+          });
+        });
+
+        // Helper to remove from collaborations and finally delete the user
+        function deleteCollaborations() {
+          // Step 5: Remove from collaborations
+          db.query('DELETE FROM collaborations WHERE collaborator_id = ?', [userIdFromParams], (err) => {
+            if (err) {
+              console.error('❌ Failed to remove user from collaborations:', err);
+              return res.status(500).json({ success: false, message: 'Collaboration deletion failed' });
+            }
+
+            // Step 6: Delete user record
+            db.query('DELETE FROM Users WHERE id = ?', [userIdFromParams], (err, result) => {
+              if (err) {
+                console.error('❌ Error deleting user:', err);
+                return res.status(500).json({ success: false, message: 'User deletion failed' });
+              }
+
+              if (result.affectedRows === 0) {
+                return res.status(404).json({ success: false, message: 'User not found' });
+              }
+
+              // ✅ Step 7: Clean up sessions belonging to this user
+              db.query(
+                `DELETE FROM sessions WHERE JSON_EXTRACT(data, '$.user.id') = ?`,
+                [userIdFromParams],
+                (err) => {
+                  if (err) {
+                    console.error('⚠️ Failed to clean up sessions:', err);
+                    // Don't hard-fail, just log
+                  }
+
+                  // Log them out
+                  req.logout(() => {
+                    req.session.destroy(() => {
+                      res.clearCookie('connect.sid', { path: '/' });
+                      res.json({ success: true, message: 'Account and related data deleted successfully' });
+                    });
+                  });
+                }
+              );
+            });
+          });
+        }
+      });
+    });
+  });
+});
 
 
 

@@ -96,11 +96,29 @@ function loadProjects(searchTerm = '') {
 
 function filterProjects(projects, searchTerm) {
   const term = searchTerm.toLowerCase();
-  return projects.filter(project =>
-    project.title.toLowerCase().includes(term) ||
-    (project.author && project.author.toLowerCase().includes(term))
-  );
+
+  return projects.filter(project => {
+    const inTitle = project.title?.toLowerCase().includes(term);
+    const inAuthor = project.author?.toLowerCase().includes(term);
+
+    let inTags = false;
+    if (project.tags && typeof project.tags === 'string') {
+    
+
+      // Split  for searching
+      const tagArray = project.tags
+        .split(',')
+        .map(tag => tag.trim().toLowerCase())
+        .filter(tag => tag.length > 0);
+
+      inTags = tagArray.some(tag => tag.includes(term));
+    }
+
+    return inTitle || inAuthor || inTags;
+  });
 }
+
+
 
 function renderProjectGrid(projects) {
   projectGrid.innerHTML = '';

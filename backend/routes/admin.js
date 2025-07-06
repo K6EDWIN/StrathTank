@@ -526,7 +526,7 @@ router.get('/projects', (req, res) => {
 
   const sql = `
     SELECT 
-      p.id, p.title, p.description, p.category, p.created_at, p.status,p.project_type,
+      p.id, p.title, p.description, p.category, p.created_at, p.status,p.project_type,p.tags,
       u.name AS author,
       COALESCE(l.like_count, 0) AS likes,
       COALESCE(c.comment_count, 0) AS comments,
@@ -555,7 +555,7 @@ router.get('/searchprojects', (req, res) => {
   const likeQuery = `%${searchTerm}%`;
   const sql = `
     SELECT 
-      p.id, p.title, p.description, p.category, p.created_at,
+      p.id, p.title, p.description, p.category, p.created_at,p.tags,
       u.name AS author,
       COALESCE(l.like_count, 0) AS likes,
       COALESCE(c.comment_count, 0) AS comments,
@@ -564,11 +564,11 @@ router.get('/searchprojects', (req, res) => {
     LEFT JOIN users u ON p.user_id = u.id
     LEFT JOIN (SELECT project_id, COUNT(*) AS like_count FROM likes GROUP BY project_id) l ON p.id = l.project_id
     LEFT JOIN (SELECT project_id, COUNT(*) AS comment_count FROM comments GROUP BY project_id) c ON p.id = c.project_id
-    WHERE p.title LIKE ? OR u.name LIKE ?
+    WHERE p.title LIKE ? OR u.name LIKE ? OR p.tags LIKE ?
     ORDER BY p.created_at DESC
   `;
 
-  db.query(sql, [likeQuery, likeQuery], (err, results) => {
+  db.query(sql, [likeQuery,likeQuery, likeQuery], (err, results) => {
     if (err) return res.status(500).json({ error: 'Database error' });
     res.json(results);
   });
@@ -602,7 +602,7 @@ router.get('/projects/by-category', (req, res) => {
 
   const sql = `
     SELECT 
-      p.id, p.title, p.description, p.category, p.created_at,p.project_type,
+      p.id, p.title, p.description, p.category, p.created_at,p.project_type,p.tags,
       COALESCE(l.like_count, 0) AS likes,
       COALESCE(c.comment_count, 0) AS comments,
       p.project_profile_picture AS image
@@ -627,7 +627,7 @@ router.get('/projects/:id/details', (req, res) => {
   const sql = `
     SELECT 
       p.id, p.title, p.Short_description AS short_description,
-      p.description AS overview, p.tags, p.technical_details,
+      p.description AS overview, p.tags, p.technical_details,p.tags,
       p.status, p.launch_date, p.project_lead, p.team_size,
       p.Project_profile_picture AS profile_picture,
       p.screenshots, p.documents, p.version, p.project_type, p.category,

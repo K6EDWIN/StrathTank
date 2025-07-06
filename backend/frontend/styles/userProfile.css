@@ -167,7 +167,7 @@ body {
   margin-top: 0.5rem;
 }
 
-.edit-bio-btn {
+.edit-bio-btn,.deleteaccount {
   background-color: #3498db;
   color: white;
   border: none;
@@ -179,7 +179,7 @@ body {
   transition: background-color 0.2s ease;
 }
 
-.edit-bio-btn:hover {
+.edit-bio-btn:hover ,.deleteaccount:hover {
   background-color: #2980b9;
 }
 
@@ -889,4 +889,25 @@ body {
   #addSkillBtn {
     width: 100%;
   }
+}
+#delete-confirm-modal {
+  display: none;
+  position: fixed;
+  z-index: 9999;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.5);
+  justify-content: center;
+  align-items: center;
+}
+#delete-confirm-modal .modal-content {
+  background: white;
+  padding: 2rem;
+  border-radius: 10px;
+  max-width: 500px;
+  width: 90%;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+  animation: fadeIn 0.3s ease;
 }

@@ -58,7 +58,7 @@ passport.use(new GoogleStrategy({
 }, (accessToken, refreshToken, profile, done) => {
   const email = profile.emails?.[0]?.value;
   const name = profile.displayName || 'Google User';
-  const image = profile.photos?.[0]?.value || null;
+ const image = '/assets/noprofile.jpg'; 
 
   if (!email) {
     return done(null, false, { message: 'No email provided by Google.' });
@@ -101,7 +101,7 @@ passport.use(new GitHubStrategy({
 }, (accessToken, refreshToken, profile, done) => {
   const email = profile.emails?.[0]?.value;
   const name = profile.displayName || profile.username || 'GitHub User';
-  const image = profile.photos?.[0]?.value || null;
+ const image = '/assets/noprofile.jpg'; 
 
   if (!email) {
     return done(null, false, { message: 'Email is required from GitHub. Please make your email public or use another method.' });

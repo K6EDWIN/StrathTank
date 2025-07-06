@@ -42,6 +42,8 @@
               <p id="email" style="display: none;"></p>
              <p id="bio" class="bio">No bio yet.</p>
 <button id="openBioModal" class="edit-bio-btn">Edit Bio</button>
+<button id="openDeleteModal" class="deleteaccount">Delete Account</button>
+
 
 <!-- Bio Edit Modal -->
 <div id="bioModal" class="modal">
@@ -134,7 +136,66 @@
     <div class="spinner"></div>
   </div>
 </div>
+<!-- Delete Account Confirmation Modal -->
+<div id="delete-confirm-modal" class="modal">
+  <div class="modal-content">
+    <h3>Confirm Account Deletion</h3>
+    <p>Are you sure you want to permanently delete your account? This action cannot be undone.</p>
+    <div class="modal-actions">
+      <button id="confirmDeleteBtn">Yes, Delete Account</button>
+      <button id="cancelDeleteBtn" class="cancel-btn">Cancel</button>
+    </div>
+  </div>
+</div>
+<!-- Delete Account Spinner -->
+<div id="deleteAccountLoader" style="display: none;" class="bio-update-overlay">
+  <div class="bio-update-box">
+    <p id="deleteAccountMessage">Deleting account...</p>
+    <div class="spinner"></div>
+  </div>
+</div>
 
+<script>
+
+ const deleteModal = document.getElementById("delete-confirm-modal");
+  const deleteLoader = document.getElementById("deleteAccountLoader");
+  const deleteMessage = document.getElementById("deleteAccountMessage");
+
+  document.getElementById("openDeleteModal")?.addEventListener("click", () => {
+    deleteModal.style.display = "flex";
+  });
+
+  document.getElementById("cancelDeleteBtn")?.addEventListener("click", () => {
+    deleteModal.style.display = "none";
+  });
+
+  document.getElementById("confirmDeleteBtn")?.addEventListener("click", async () => {
+    deleteModal.style.display = "none";
+    deleteLoader.style.display = "flex";
+    deleteMessage.textContent = "Deleting account...";
+
+    try {
+      const res = await fetch(`/user/${userId}`, {
+        method: "DELETE",
+        credentials: "include"
+      });
+
+      if (res.ok) {
+        deleteMessage.textContent = "✅ Account deleted.";
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        window.location.href = "/signup";
+      } else {
+        const err = await res.json();
+        deleteLoader.style.display = "none";
+        alert("❌ Delete failed: " + (err.message || "Unknown error."));
+      }
+    } catch (e) {
+      deleteLoader.style.display = "none";
+      console.error("❌ Delete error:", e);
+      alert("An error occurred while deleting your account.");
+    }
+  });
+</script>
 
   <script src="scripts/Student My Profile.js"></script>
 </body>

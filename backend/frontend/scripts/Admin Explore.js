@@ -73,11 +73,23 @@ if (currentSort === 'pending') {
 
       // Filter by title or author
       const filtered = data.filter(project => {
-        return (
-          project.title.toLowerCase().includes(term) ||
-          (project.author && project.author.toLowerCase().includes(term))
-        );
-      });
+  // Check title and author
+  if (
+    project.title.toLowerCase().includes(term) ||
+    (project.author && project.author.toLowerCase().includes(term))
+  ) return true;
+
+  // Check tags
+  if (project.tags) {
+    const tagArray = project.tags
+      .split(',')
+      .map(tag => tag.trim().toLowerCase());
+    if (tagArray.some(tag => tag.includes(term))) return true;
+  }
+
+  return false;
+});
+
 
       projectGrid.innerHTML = '';
 

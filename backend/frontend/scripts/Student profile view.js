@@ -54,16 +54,13 @@ document.addEventListener("DOMContentLoaded", async () => {
       collabs.forEach(project => collaborationsEl.appendChild(renderCollabCard(project)));
     }
 
-    // If no owned and no collaborated projects
     if (owned.length === 0 && collabs.length === 0) {
       const noProjectsMsg = document.createElement("p");
       noProjectsMsg.textContent = "No projects added.";
       noProjectsMsg.classList.add("no-projects-msg");
-
       ownedProjectsEl.appendChild(noProjectsMsg);
       collaborationsEl.appendChild(noProjectsMsg.cloneNode(true));
     }
-
   } catch (err) {
     console.error("Profile load error:", err);
     alert("Could not load profile.");
@@ -132,26 +129,14 @@ document.body.addEventListener("click", async (e) => {
   }
 });
 
-// =====================================================
-// ✅ Logout Flow with Spinner
-// =====================================================
 const logoutBtn = document.getElementById('logoutBtn');
-  const cancelLogoutBtn = document.getElementById('cancelLogoutBtn');
-  const confirmLogoutBtn = document.getElementById('confirmLogoutBtn');
+const cancelLogoutBtn = document.getElementById('cancelLogoutBtn');
+const confirmLogoutBtn = document.getElementById('confirmLogoutBtn');
 
-  if (logoutBtn) {
-    logoutBtn.addEventListener('click', openLogoutConfirm);
-  }
+if (logoutBtn) logoutBtn.addEventListener('click', openLogoutConfirm);
+if (cancelLogoutBtn) cancelLogoutBtn.addEventListener('click', closeLogoutConfirm);
+if (confirmLogoutBtn) confirmLogoutBtn.addEventListener('click', logout);
 
-  if (cancelLogoutBtn) {
-    cancelLogoutBtn.addEventListener('click', closeLogoutConfirm);
-  }
-
-  if (confirmLogoutBtn) {
-    confirmLogoutBtn.addEventListener('click', logout);
-
-  }
-  
 function openLogoutConfirm() {
   const modal = document.getElementById('logout-confirm-modal');
   if (modal) modal.style.display = 'flex';
@@ -175,8 +160,7 @@ function hideLogoutLoader() {
 function logout() {
   closeLogoutConfirm();
   showLogoutLoader();
-
-  const minDelay = new Promise(resolve => setTimeout(resolve, 1500)); 
+  const minDelay = new Promise(resolve => setTimeout(resolve, 1500));
   const logoutRequest = fetch('/user/logout', {
     method: 'GET',
     credentials: 'include'
