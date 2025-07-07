@@ -259,7 +259,7 @@ if (rootComments.length === 0) {
   }
 }
 
-// Unified comment click handler (reply + delete + toggle replies)
+// Unified comment click handler (reply + delete +  replies)
 document.getElementById('comments-list').addEventListener('click', async (e) => {
   const replyBtn = e.target.closest('.reply-comment');
   const deleteBtn = e.target.closest('.delete-comment');

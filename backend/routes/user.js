@@ -120,7 +120,7 @@ router.post('/resend-code', (req, res) => {
 });
 
 // ----------------------------------------
-// POST /user/login
+// login
 // ----------------------------------------
 router.post('/login', (req, res) => {
   const { email, password } = req.body;
@@ -166,7 +166,7 @@ router.post('/login', (req, res) => {
 
 
 // ----------------------------------------
-// POST /user/forgot-password
+// forgot-password
 // ----------------------------------------
 router.post('/forgot-password', (req, res) => {
   const { email } = req.body;
@@ -187,7 +187,7 @@ router.post('/forgot-password', (req, res) => {
   });
 });
 // ----------------------------------------
-// POST /user/check-password-reuse
+// check-password-reuse
 // ----------------------------------------
 router.post('/check-password-reuse', async (req, res) => {
   const { email, newPassword } = req.body;
@@ -213,7 +213,7 @@ router.post('/check-password-reuse', async (req, res) => {
   });
 });
 // ----------------------------------------
-// POST /user/reset-password
+// reset-password
 // ----------------------------------------
 router.post('/reset-password', async (req, res) => {
   const { email, resetCode, newPassword } = req.body;

@@ -290,9 +290,6 @@ router.get('/uploads/documents/:filename', (req, res) => {
 
   const mimeTypes = {
     '.pdf': 'application/pdf',
-    '.txt': 'text/plain',
-    '.docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-    '.doc': 'application/msword',
     '.png': 'image/png',
     '.jpg': 'image/jpeg',
     '.jpeg': 'image/jpeg'
@@ -398,7 +395,6 @@ router.get('/profile/:id/stats', (req, res) => {
 });
 
 // ✅ Get comments with parent_id
-// ✅ Post a comment with optional parent_id
 router.post('/projects/:id/comment', (req, res) => {
   const { id } = req.params;
   const { content, parent_id } = req.body;

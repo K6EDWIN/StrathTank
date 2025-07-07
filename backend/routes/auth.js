@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const passport = require('../middleware/passport');
 
-// ✅ Helper: Redirect based on role
+// ✅ Redirect based on role
 function redirectByRole(req, res) {
   const user = req.user || req.session.user;
 
@@ -116,7 +116,7 @@ router.post('/login', (req, res, next) => {
   })(req, res, next);
 });
 
-// ✅ Middleware to attach flash error to query string for redirects
+// ✅ attach flash error to query string for redirects
 router.use((req, res, next) => {
   if (req.session && req.session.messages && req.session.messages.length) {
     const msg = encodeURIComponent(req.session.messages.pop());
