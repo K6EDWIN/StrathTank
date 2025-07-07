@@ -4,7 +4,7 @@
 const params = new URLSearchParams(window.location.search);
 const projectId = params.get('projectId');
 let currentUserId = null;
-
+const currentUserRole = 'admin';
 // ==========================
 // INITIALIZE
 // ==========================
@@ -235,14 +235,20 @@ async function loadTeam() {
 
     const res = await fetch(`/api/projects/${projectId}/team`, { credentials: 'include' });
     const team = await res.json();
-    if (!Array.isArray(team)) throw new Error('Team data invalid');
 
     const container = document.getElementById('team-members');
     container.innerHTML = '';
+
+    if (!Array.isArray(team) || team.length === 0) {
+      container.innerHTML = '<p>This project has no team members associated.</p>';
+      return;
+    }
+
     team.forEach(member => {
       const profileImage = normalizeProfileImage(member.profile_photo);
       const isMe = String(member.user_id) === String(currentUserId);
       const link = isMe ? '/profile' : `/otherProfile?userId=${member.user_id}`;
+
       container.innerHTML += `
         <div class="card">
           <img src="${profileImage}" alt="${member.name || 'Unnamed'}" onerror="this.src='/assets/noprofile.jpg'"/>
@@ -256,8 +262,10 @@ async function loadTeam() {
     });
   } catch (err) {
     console.error('❌ loadTeam failed:', err);
+    document.getElementById('team-members').innerHTML = '<p>Failed to load team members.</p>';
   }
 }
+
 
 function normalizeProfileImage(path) {
   if (!path || !path.trim()) return '/assets/noprofile.jpg';
@@ -277,8 +285,10 @@ async function loadComments() {
     const data = await commentRes.json();
 
     const commentsDiv = document.getElementById("comments-list");
-    if (!Array.isArray(data)) {
-      commentsDiv.innerHTML = "<p>Error loading comments</p>";
+    commentsDiv.innerHTML = '';
+
+    if (!Array.isArray(data) || data.length === 0) {
+      commentsDiv.innerHTML = '<p>This project has no comments yet.</p>';
       return;
     }
 
@@ -320,7 +330,7 @@ async function loadComments() {
           </div>
           <p class="comment-content">${c.content}</p>
           <div class="comment-actions">
-            ${isOwner ? `<button class="delete-comment" data-id="${c.id}">🗑️ Delete</button>` : ''}
+            ${(isOwner || currentUserRole === 'admin') ? `<button class="delete-comment" data-id="${c.id}">🗑️ Delete</button>` : ''}
             <button class="reply-comment" data-id="${c.id}" data-user="${c.user_name}">💬 Reply</button>
           </div>
           <div class="reply-box-container"></div>
@@ -330,7 +340,6 @@ async function loadComments() {
     }
 
     const rootComments = grouped["root"] || [];
-    commentsDiv.innerHTML = '';
     rootComments.forEach(c => {
       const wrapper = document.createElement('div');
       wrapper.innerHTML = renderComment(c);
@@ -342,6 +351,7 @@ async function loadComments() {
     document.getElementById("comments-list").innerHTML = "<p>Failed to fetch comments</p>";
   }
 }
+
 
 // Unified comment click handler (reply + delete + toggle replies)
 document.getElementById('comments-list').addEventListener('click', async (e) => {
@@ -416,25 +426,29 @@ document.getElementById('comments-list').addEventListener('submit', async (e) =>
 // Delete comment
 async function deleteComment(commentId) {
   try {
-    const res = await fetch(`/api/projects/comments/${commentId}`, {
-
+    const res = await fetch(`/admin/comment/${commentId}`, {
       method: "DELETE",
+      credentials: "include",
       headers: { "Content-Type": "application/json" }
     });
 
     if (!res.ok) {
-      const text = await res.text(); // get raw text instead of json
+      const text = await res.text();
       console.error("❌ Delete response (not ok):", text);
       throw new Error(`Server returned status ${res.status}`);
     }
 
     const data = await res.json();
+    if (!data.success) throw new Error(data.message || "Unknown error");
+
     await loadComments();
   } catch (err) {
     console.error("❌ Delete error:", err);
     alert("❌ " + err.message);
   }
 }
+
+
 // ==========================
 // LIKE
 // ==========================

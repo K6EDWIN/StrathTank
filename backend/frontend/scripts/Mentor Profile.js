@@ -5,6 +5,9 @@ document.addEventListener('DOMContentLoaded', () => {
   loadMentorProfile();
   loadMentorshipStats();
   loadCurrentMentees();
+  
+   setupNameModal();
+  setupPasswordModal();
 
   // Logout modal listeners
   document.getElementById('confirmLogoutBtn')?.addEventListener('click', logout);
@@ -329,4 +332,114 @@ function logout() {
       console.error('Logout error:', err);
       alert('An error occurred during logout.');
     });
+}
+
+function setupNameModal() {
+  const nameModal = document.getElementById('nameModal');
+  const nameInput = document.getElementById('nameInput');
+  const nameDisplay = document.getElementById('mentorName');
+  const saveBtn = document.getElementById('saveNameBtn');
+
+  document.getElementById('editNameBtn')?.addEventListener('click', () => {
+    nameInput.value = nameDisplay.textContent.trim();
+    nameModal.style.display = 'flex';
+  });
+
+  document.getElementById('closeNameModal')?.addEventListener('click', () => {
+    nameModal.style.display = 'none';
+  });
+
+  window.addEventListener('click', (e) => {
+    if (e.target === nameModal) nameModal.style.display = 'none';
+  });
+
+  saveBtn?.addEventListener('click', async () => {
+    const newName = nameInput.value.trim();
+    if (!newName) return;
+
+    const nameLoader = document.getElementById('nameUpdateLoader');
+    const nameMessage = document.getElementById('nameUpdateMessage');
+    nameMessage.textContent = 'Updating name...';
+    nameLoader.style.display = 'flex';
+
+    try {
+      const res = await fetch(`/user/name`, {
+        method: 'PUT',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: newName })
+      });
+
+      if (!res.ok) throw new Error('Failed to update name');
+      nameDisplay.textContent = newName;
+      nameMessage.textContent = '✅ Name updated!';
+
+      setTimeout(() => {
+        nameLoader.style.display = 'none';
+        nameModal.style.display = 'none';
+      }, 1500);
+    } catch (err) {
+      nameMessage.textContent = '❌ Failed to update name.';
+      setTimeout(() => {
+        nameLoader.style.display = 'none';
+      }, 2000);
+    }
+  });
+}
+
+
+
+function setupPasswordModal() {
+  const modal = document.getElementById('passwordModal');
+  const oldInput = document.getElementById('oldPassword');
+  const newInput = document.getElementById('newPassword');
+  const saveBtn = document.getElementById('savePasswordBtn');
+
+  document.getElementById('openPasswordModal')?.addEventListener('click', () => {
+    modal.style.display = 'flex';
+    oldInput.value = '';
+    newInput.value = '';
+  });
+
+  document.getElementById('closePasswordModal')?.addEventListener('click', () => {
+    modal.style.display = 'none';
+  });
+
+  window.addEventListener('click', (e) => {
+    if (e.target === modal) modal.style.display = 'none';
+  });
+
+  saveBtn?.addEventListener('click', async () => {
+    const oldPassword = oldInput.value.trim();
+    const newPassword = newInput.value.trim();
+    if (!oldPassword || !newPassword) return;
+
+    const passLoader = document.getElementById('passwordUpdateLoader');
+    const passMessage = document.getElementById('passwordUpdateMessage');
+    passMessage.textContent = 'Updating password...';
+    passLoader.style.display = 'flex';
+
+    try {
+      const res = await fetch(`/user/password`, {
+        method: 'PUT',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ oldPassword, newPassword })
+      });
+
+      if (!res.ok) throw new Error('Failed to update password');
+      passMessage.textContent = '✅ Password updated!';
+
+      setTimeout(() => {
+        passLoader.style.display = 'none';
+        modal.style.display = 'none';
+      }, 1500);
+    } catch (err) {
+      console.error('Password update error:', err);
+      passMessage.textContent = '❌ Failed to update password.';
+      setTimeout(() => {
+        passLoader.style.display = 'none';
+      }, 2000);
+    }
+  });
 }

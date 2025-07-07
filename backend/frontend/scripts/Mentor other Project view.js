@@ -119,7 +119,12 @@ async function loadTeam() {
     const teamContainer = document.getElementById("team-members");
     teamContainer.innerHTML = '';
 
-    team.forEach(member => {
+  if (!Array.isArray(team) || team.length === 0) {
+  teamContainer.innerHTML = "<p class='no-items'>This project has no team members associated.</p>";
+  return;
+}
+
+team.forEach(member => {
       const profileImage = normalizeProfileImage(member.profile_photo);
       const isCurrentUser = String(member.user_id) === String(currentUserId);
       const profileLink = isCurrentUser ? '/profile' : `/otherProfile?userId=${member.user_id}`;
@@ -207,9 +212,16 @@ async function loadComments() {
       `;
     }
 
-    const rootComments = grouped["root"] || [];
-    commentsDiv.innerHTML = '';
-    rootComments.forEach(c => {
+  const rootComments = grouped["root"] || [];
+commentsDiv.innerHTML = '';
+
+if (rootComments.length === 0) {
+  commentsDiv.innerHTML = "<p class='no-items'>This project has no comments yet.</p>";
+  return;
+}
+
+rootComments.forEach(c => {
+
       const wrapper = document.createElement('div');
       wrapper.innerHTML = renderComment(c);
       commentsDiv.appendChild(wrapper.firstElementChild);

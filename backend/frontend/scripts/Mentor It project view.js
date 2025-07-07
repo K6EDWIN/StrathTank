@@ -58,7 +58,6 @@ async function loadProjectData() {
 
   const infoList = document.getElementById("project-info");
   infoList.innerHTML = `
-    <li><strong>Status:</strong> ${project.status}</li>
     <li><strong>Launch Date:</strong> ${project.launch_date}</li>
     <li><strong>Project Lead:</strong> ${project.project_lead}</li>
     <li><strong>Team Size:</strong> ${project.team_size}</li>
@@ -116,10 +115,15 @@ async function loadTeam() {
     const team = await res.json();
     if (!Array.isArray(team)) throw new Error("Team data error");
 
-    const container = document.getElementById("team-members");
-    container.innerHTML = '';
+const container = document.getElementById("team-members");
+container.innerHTML = '';
 
-    team.forEach(member => {
+if (team.length === 0) {
+  container.innerHTML = "<p class='no-items'>This project has no team members associated.</p>";
+  return;
+}
+
+team.forEach(member => {
       const img = normalizeProfileImage(member.profile_photo);
       const isMe = String(member.user_id) === String(currentId);
       const profileLink = isMe ? '/profile' : `/otherProfile?userId=${member.user_id}`;
@@ -205,9 +209,15 @@ async function loadComments() {
       `;
     }
 
-    const rootComments = grouped["root"] || [];
-    commentsDiv.innerHTML = '';
-    rootComments.forEach(c => {
+  const rootComments = grouped["root"] || [];
+commentsDiv.innerHTML = '';
+
+if (rootComments.length === 0) {
+  commentsDiv.innerHTML = "<p class='no-items'>This project has no comments yet.</p>";
+  return;
+}
+
+rootComments.forEach(c => {
       const wrapper = document.createElement('div');
       wrapper.innerHTML = renderComment(c);
       commentsDiv.appendChild(wrapper.firstElementChild);

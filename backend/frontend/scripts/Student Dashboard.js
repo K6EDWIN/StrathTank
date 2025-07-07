@@ -43,22 +43,28 @@ function renderProjects(projects) {
 // Generate HTML structure for a single project
 // ========================================
 function createProjectCard(project) {
-  const card = document.createElement('div');
-  card.className = 'card';
-  card.innerHTML = `
-    <img src="${project.image || '/assets/placeholder.jpg'}" alt="Project Image" />
-    <h3>${project.title}</h3>
-    <p>${project.description}</p>
-    <div class="meta">
-      ${project.category} | ${new Date(project.created_at).toLocaleDateString()}
-    </div>
-    <div class="interactions">
-      <span>❤️ ${project.likes}</span>
-      <span>💬 ${project.comments}</span>
-    </div>
-  `;
-  return card;
+ const card = document.createElement('div');
+ card.className = 'card';
+ card.innerHTML = `
+  <img src="${project.image || '/assets/placeholder.jpg'}" alt="Project Image" />
+  <h3>${project.title}</h3>
+  <p>${project.description}</p>
+  <div class="meta">
+   ${project.category} | ${new Date(project.created_at).toLocaleDateString()}
+  </div>
+  <div class="interactions">
+   <span>❤️ ${project.likes}</span>
+   <span>💬 ${project.comments}</span>
+  </div>
+ `;
+ card.addEventListener('click', () => {
+  const encodedTitle = encodeURIComponent(project.title.trim());
+  window.location.href = `/explore-projects?search=${encodedTitle}`;
+ });
+
+ return card;
 }
+
 
 // ========================================
 // Show user welcome name
@@ -78,25 +84,6 @@ async function loadUserInfo() {
     console.error('Failed to fetch user info:', err);
   }
 }
-
-// ========================================
-// Sidebar toggle on scroll
-// ========================================
-/*
-let lastScrollTop = 0;
-window.addEventListener('scroll', function () {
-  let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-
-  if (scrollTop > 100) {
-    document.querySelector('.sidebar').classList.add('visible');
-    document.body.classList.add('sidebar-visible');
-  } else {
-    document.querySelector('.sidebar').classList.remove('visible');
-    document.body.classList.remove('sidebar-visible');
-  }
-
-  lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
-});*/
 
 // ========================================
 // Explore button functionality

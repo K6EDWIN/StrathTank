@@ -52,6 +52,9 @@ router.get('/mentorship-request', ensureAuth, (req, res) =>
 router.get('/hub', ensureAuth, (req, res) =>
   res.sendFile(path.join(__dirname, '../frontend/Student mentorship Hub.html'))
 );
+router.get('/collaborationHub', ensureAuth, (req, res) =>
+  res.sendFile(path.join(__dirname, '../frontend/Student collaboration Hub.html'))
+);
 
 // ---------- MENTOR ROUTES ----------
 router.get('/mentor', ensureAuth, (req, res) =>

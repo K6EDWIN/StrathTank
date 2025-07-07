@@ -136,9 +136,26 @@ body {
   transition: background-color 0.2s ease;
 }
 
-.edit-pic .edit-icon:hover {
+.edit-pic .edit-icon:hover,.edit-name-btn:hover {
   background-color: #2c80b4;
 }
+.name-edit-container {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.edit-name-btn {
+   background-color: #3498db;
+  color: white;
+  padding: 6px 8px;
+  border-radius: 50%;
+  font-size: 1rem;
+  cursor: pointer;
+  border: 2px solid #fff;
+  transition: background-color 0.2s ease;
+}
+
 
 .profile-info {
   flex: 1;
@@ -167,7 +184,7 @@ body {
   margin-top: 0.5rem;
 }
 
-.edit-bio-btn,.deleteaccount {
+.edit-bio-btn,.deleteaccount,.changepassword {
   background-color: #3498db;
   color: white;
   border: none;
@@ -179,9 +196,317 @@ body {
   transition: background-color 0.2s ease;
 }
 
-.edit-bio-btn:hover ,.deleteaccount:hover {
+.edit-bio-btn:hover ,.deleteaccount:hover, .changepassword:hover {
   background-color: #2980b9;
 }
+/* === Bio Modal Background === */
+#bioModal.modal {
+  display: none; /* Initially hidden */
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.5);
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+/* === Bio Modal Content === */
+#bioModal .modal-content {
+  background-color: #ffffff;
+  padding: 2rem;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 500px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+/* === Modal Title === */
+#bioModal .modal-content h3 {
+  font-size: 1.5rem;
+  margin: 0;
+  text-align: center;
+  color: #333;
+}
+
+/* === Textarea Field === */
+#bioTextarea {
+  width: 100%;
+  height: 120px;
+  padding: 1rem;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  resize: vertical;
+  transition: border-color 0.3s ease;
+}
+
+#bioTextarea:focus {
+  border-color: #007bff;
+  outline: none;
+}
+
+/* === Modal Action Buttons === */
+#bioModal .modal-actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+#saveBioBtn,
+#closeBioModal {
+  flex: 1;
+  padding: 0.6rem;
+  font-size: 1rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+/* Save Button */
+#saveBioBtn {
+  background-color: #28a745;
+  color: white;
+}
+
+#saveBioBtn:hover {
+  background-color: #218838;
+}
+
+/* Cancel Button */
+#closeBioModal {
+  background-color: #dc3545;
+  color: white;
+}
+
+#closeBioModal:hover {
+  background-color: #c82333;
+}
+
+/* === Fade In Animation === */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* === Name Modal Background === */
+#nameModal.modal {
+  display: none; /* Hidden by default */
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent black */
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+/* === Name Modal Content === */
+#nameModalContent {
+  background-color: #ffffff;
+  padding: 2rem;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 400px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+/* === Heading === */
+#nameModalContent h3 {
+  margin: 0;
+  font-size: 1.6rem;
+  font-weight: 600;
+  color: #333;
+  text-align: center;
+}
+
+/* === Name Input Field === */
+#nameInput {
+  padding: 0.75rem 1rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 1rem;
+  width: 100%;
+  transition: border-color 0.3s ease;
+}
+
+#nameInput:focus {
+  border-color: #007bff;
+  outline: none;
+}
+
+/* === Modal Action Buttons === */
+#nameModalContent .modal-actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+#saveNameBtn,
+#closeNameModal {
+  flex: 1;
+  padding: 0.6rem;
+  font-size: 1rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+/* Save Button Styling */
+#saveNameBtn {
+  background-color: #28a745;
+  color: white;
+}
+
+#saveNameBtn:hover {
+  background-color: #218838;
+}
+
+/* Cancel Button Styling */
+#closeNameModal {
+  background-color: #dc3545;
+  color: white;
+}
+
+#closeNameModal:hover {
+  background-color: #c82333;
+}
+
+/* === Fade In Animation === */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+
+/* Modal Background Styling */
+#passwordModal.modal {
+  display: none; /* Hidden by default */
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.5);
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+/* Modal Content Styling */
+#passwordModal .modal-content {
+  background-color: #fff;
+  padding: 2rem;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 420px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+/* Heading */
+#passwordModal h3 {
+  font-size: 1.6rem;
+  text-align: center;
+  margin-bottom: 0.5rem;
+  color: #333;
+}
+
+/* Input Fields */
+#passwordModal input[type="password"] {
+  padding: 0.75rem 1rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 1rem;
+  width: 100%;
+  transition: border-color 0.2s ease;
+}
+
+#passwordModal input[type="password"]:focus {
+  border-color: #007bff;
+  outline: none;
+}
+
+/* Button Container */
+#passwordModal .modal-actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+/* Buttons */
+#savePasswordBtn,
+#closePasswordModal {
+  flex: 1;
+  padding: 0.6rem;
+  font-size: 1rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+#savePasswordBtn {
+  background-color: #28a745;
+  color: white;
+}
+
+#savePasswordBtn:hover {
+  background-color: #218838;
+}
+
+#closePasswordModal {
+  background-color: #dc3545;
+  color: white;
+}
+
+#closePasswordModal:hover {
+  background-color: #c82333;
+}
+
+/* Animation */
+@keyframes fadeIn {
+  from {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+F
 
 /* ====================================================
    MODAL POPUP
@@ -911,3 +1236,4 @@ body {
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
   animation: fadeIn 0.3s ease;
 }
+

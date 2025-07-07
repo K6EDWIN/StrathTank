@@ -37,6 +37,8 @@
           <div>
             <h2 id="adminName">Admin Name</h2>
             <p id="adminEmail">admin@email.com</p>
+            <button id="editNameBtn" class="edit-name-btn">Edit Name</button>
+
           </div>
         </div>
 
@@ -82,6 +84,24 @@
     </div>
   </div>
 </div>
+<!-- Edit Name Modal -->
+<div id="nameModal" class="modal">
+  <div class="modal-content">
+    <h3>Edit Name</h3>
+    <input type="text" id="nameInput" placeholder="Enter new name" />
+    
+    <div id="nameUpdateLoader" class="loader-overlay" style="display: none;">
+      <p id="nameUpdateMessage">Updating name...</p>
+      <div class="spinner"></div>
+    </div>
+
+    <div class="modal-actions">
+      <button id="saveNameBtn" class="btn-primary">Save</button>
+      <button id="closeNameModal" class="cancel-btn">Cancel</button>
+    </div>
+  </div>
+</div>
+
   <script src="/scripts/Admin Profile.js"></script>
 </body>
 </html>

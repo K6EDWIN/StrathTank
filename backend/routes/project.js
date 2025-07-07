@@ -15,14 +15,15 @@ router.get('/projects', (req, res) => {
 
   const sql = `
     SELECT 
-      p.id, p.title, p.description, p.category, p.created_at, p.project_type, p.tags,
+      p.id, p.title, p.description, p.category, p.created_at, p.project_type, p.tags,    u.name AS author,
       COALESCE(l.like_count, 0) AS likes,
       COALESCE(c.comment_count, 0) AS comments,
       p.project_profile_picture AS image,
       p.user_id
-    FROM projects p
-    LEFT JOIN (SELECT project_id, COUNT(*) AS like_count FROM likes GROUP BY project_id) l ON p.id = l.project_id
-    LEFT JOIN (SELECT project_id, COUNT(*) AS comment_count FROM comments GROUP BY project_id) c ON p.id = c.project_id
+  FROM projects p
+LEFT JOIN users u ON p.user_id = u.id
+LEFT JOIN (SELECT project_id, COUNT(*) AS like_count FROM likes GROUP BY project_id) l ON p.id = l.project_id
+LEFT JOIN (SELECT project_id, COUNT(*) AS comment_count FROM comments GROUP BY project_id) c ON p.id = c.project_id
     WHERE p.status = 'approved'
     ORDER BY ${orderBy}
   `;
@@ -289,9 +290,6 @@ router.get('/uploads/documents/:filename', (req, res) => {
 
   const mimeTypes = {
     '.pdf': 'application/pdf',
-    '.txt': 'text/plain',
-    '.docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-    '.doc': 'application/msword',
     '.png': 'image/png',
     '.jpg': 'image/jpeg',
     '.jpeg': 'image/jpeg'
@@ -397,7 +395,6 @@ router.get('/profile/:id/stats', (req, res) => {
 });
 
 // ✅ Get comments with parent_id
-// ✅ Post a comment with optional parent_id
 router.post('/projects/:id/comment', (req, res) => {
   const { id } = req.params;
   const { content, parent_id } = req.body;

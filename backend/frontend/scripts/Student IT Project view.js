@@ -153,7 +153,6 @@ function renderTechnicalDetails(details) {
 
 function renderInfoList(project) {
   document.getElementById('project-info').innerHTML = `
-    <li><strong>Status:</strong> ${project.status}</li>
     <li><strong>Launch Date:</strong> ${project.launch_date}</li>
     <li><strong>Project Lead:</strong> ${project.project_lead}</li>
     <li><strong>Team Size:</strong> ${project.team_size}</li>
@@ -206,6 +205,12 @@ async function loadTeam() {
 
     const container = document.getElementById('team-members');
     container.innerHTML = '';
+
+    if (team.length === 0) {
+      container.innerHTML = `<p class="no-items">This project has no team members associated.</p>`;
+      return;
+    }
+
     team.forEach(member => {
       const profileImage = normalizeProfileImage(member.profile_photo);
       const isMe = String(member.user_id) === String(currentUserId);
@@ -225,6 +230,7 @@ async function loadTeam() {
     console.error('❌ loadTeam failed:', err);
   }
 }
+
 
 function normalizeProfileImage(path) {
   if (!path || !path.trim()) return '/assets/noprofile.jpg';
@@ -255,6 +261,14 @@ async function loadComments() {
       grouped[pid] = grouped[pid] || [];
       grouped[pid].push(c);
     });
+
+    const rootComments = grouped["root"] || [];
+    commentsDiv.innerHTML = '';
+
+    if (rootComments.length === 0) {
+      commentsDiv.innerHTML = `<p class="no-items">This project has no comments yet.</p>`;
+      return;
+    }
 
     function renderComment(c, depth = 0) {
       const rawPhoto = (c.user_profile_photo || '').trim();
@@ -296,8 +310,6 @@ async function loadComments() {
       `;
     }
 
-    const rootComments = grouped["root"] || [];
-    commentsDiv.innerHTML = '';
     rootComments.forEach(c => {
       const wrapper = document.createElement('div');
       wrapper.innerHTML = renderComment(c);
@@ -309,6 +321,7 @@ async function loadComments() {
     document.getElementById("comments-list").innerHTML = "<p>Failed to fetch comments</p>";
   }
 }
+
 
 // Unified comment click handler (reply + delete + toggle replies)
 document.getElementById('comments-list').addEventListener('click', async (e) => {

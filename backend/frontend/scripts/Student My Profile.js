@@ -3,37 +3,7 @@
 // ==========================
 let userId = null;
 
-// ==========================
-// DOM READY
-// ==========================
-document.addEventListener('DOMContentLoaded', initProfilePage);
 
-async function initProfilePage() {
-  const loader = document.getElementById('profileLoader');
-  loader.style.display = 'flex';
-
-  try {
-    await loadUserData();
-    await loadProfileData();
-    await loadStats();
-    await loadProjects();
-    await loadCollaborations();
-  } catch (err) {
-    console.error('❌ Profile load error:', err);
-    window.location.href = '/login';
-  } finally {
-    loader.style.display = 'none';
-  }
-
-  setupBioModal();
-  setupSkillInput();
-  setupProfilePictureHover();
-  setupProfilePictureUpload();
-
-  document.getElementById('logoutBtn')?.addEventListener('click', openLogoutConfirm);
-  document.getElementById('confirmLogoutBtn')?.addEventListener('click', logout);
-  document.getElementById('cancelLogoutBtn')?.addEventListener('click', closeLogoutConfirm);
-}
 
 
 // ==========================
@@ -404,4 +374,167 @@ function logout() {
       console.error('Logout error:', err);
       alert('An error occurred during logout.');
     });
+}
+// ==========================
+// NAME EDIT MODAL
+// ==========================
+function setupNameModal() {
+  const nameModal = document.getElementById('nameModal');
+  const nameInput = document.getElementById('nameInput');
+  const usernameEl = document.getElementById('username');
+  const saveNameBtn = document.getElementById('saveNameBtn');
+
+document.getElementById('editNameBtn')?.addEventListener('click', () => {
+  nameModal.style.display = 'flex';
+  nameInput.value = usernameEl.textContent.trim();
+});
+
+
+  document.getElementById('closeNameModal')?.addEventListener('click', () => {
+    nameModal.style.display = 'none';
+  });
+
+  window.addEventListener('click', e => {
+    if (e.target === nameModal) nameModal.style.display = 'none';
+  });
+
+  saveNameBtn?.addEventListener('click', async () => {
+    const newName = nameInput.value.trim();
+    if (!newName) return;
+
+    const nameLoader = document.getElementById('nameUpdateLoader');
+    const nameMessage = document.getElementById('nameUpdateMessage');
+
+    nameMessage.textContent = 'Updating name...';
+    nameLoader.style.display = 'flex';
+
+    try {
+      const res = await fetch(`/user/name`, {
+        method: 'PUT',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: newName })
+      });
+
+      if (!res.ok) throw new Error('Failed to update name');
+
+  document.getElementById('username').textContent = newName;
+
+      nameMessage.textContent = '✅ Name updated!';
+
+      setTimeout(() => {
+        nameLoader.style.display = 'none';
+        nameModal.style.display = 'none';
+      }, 1500);
+    } catch (err) {
+      console.error('Name update error:', err);
+      nameMessage.textContent = '❌ Failed to update name.';
+      setTimeout(() => {
+        nameLoader.style.display = 'none';
+      }, 2000);
+    }
+  });
+}
+
+// ==========================
+// PASSWORD CHANGE MODAL
+// ==========================
+function setupPasswordModal() {
+  const passwordModal = document.getElementById('passwordModal');
+  const oldPassInput = document.getElementById('oldPassword');
+  const newPassInput = document.getElementById('newPassword');
+  const savePasswordBtn = document.getElementById('savePasswordBtn');
+
+  document.getElementById('openPasswordModal')?.addEventListener('click', () => {
+    passwordModal.style.display = 'flex';
+    oldPassInput.value = '';
+    newPassInput.value = '';
+  });
+
+  document.getElementById('closePasswordModal')?.addEventListener('click', () => {
+    passwordModal.style.display = 'none';
+  });
+
+  window.addEventListener('click', e => {
+    if (e.target === passwordModal) passwordModal.style.display = 'none';
+  });
+
+  savePasswordBtn?.addEventListener('click', async () => {
+    const oldPassword = oldPassInput.value.trim();
+    const newPassword = newPassInput.value.trim();
+    if (!oldPassword || !newPassword) return;
+
+    const passLoader = document.getElementById('passwordUpdateLoader');
+    const passMessage = document.getElementById('passwordUpdateMessage');
+
+    passMessage.textContent = 'Updating password...';
+    passLoader.style.display = 'flex';
+
+    try {
+      const res = await fetch(`/user/password`, {
+        method: 'PUT',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ oldPassword, newPassword })
+      });
+
+      if (!res.ok) throw new Error('Failed to change password');
+
+      passMessage.textContent = '✅ Password updated!';
+      setTimeout(() => {
+        passLoader.style.display = 'none';
+        passwordModal.style.display = 'none';
+      }, 1500);
+    } catch (err) {
+      console.error('Password update error:', err);
+      passMessage.textContent = '❌ Failed to update password.';
+      setTimeout(() => {
+        passLoader.style.display = 'none';
+      }, 2000);
+    }
+  });
+}
+
+
+
+// ==========================
+// DOM READY
+// ==========================
+document.addEventListener('DOMContentLoaded', initProfilePage);
+
+async function initProfilePage() {
+  console.log('✅ initProfilePage called');
+  const loader = document.getElementById('profileLoader');
+  loader.style.display = 'flex';
+
+  try {
+    console.log('Loading user data...');
+    await loadUserData();
+    console.log('Loading profile data...');
+    await loadProfileData();
+    console.log('Loading stats...');
+    await loadStats();
+    console.log('Loading owned projects...');
+    await loadProjects();
+    console.log('Loading collaborations...');
+    await loadCollaborations();
+  } catch (err) {
+    console.error('❌ Profile load error:', err);
+  } finally {
+    loader.style.display = 'none';
+  }
+
+  console.log('Setting up modals and interactions...');
+  setupBioModal();
+  setupNameModal();
+  setupPasswordModal();
+  setupSkillInput();
+  setupProfilePictureHover();
+  setupProfilePictureUpload();
+
+  document.getElementById('logoutBtn')?.addEventListener('click', openLogoutConfirm);
+  document.getElementById('confirmLogoutBtn')?.addEventListener('click', logout);
+  document.getElementById('cancelLogoutBtn')?.addEventListener('click', closeLogoutConfirm);
+
+  console.log('✅ initProfilePage completed');
 }

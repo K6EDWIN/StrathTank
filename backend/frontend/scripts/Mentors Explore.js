@@ -1,4 +1,11 @@
 // ==========================
+// STATE
+// ==========================
+let currentCategory = '';
+let currentSort = 'default';
+let currentSearchTerm = '';
+
+// ==========================
 // SELECTORS
 // ==========================
 const categoryList = document.getElementById('category-list');
@@ -7,17 +14,35 @@ const projectGrid = document.getElementById('project-grid');
 const searchBar = document.getElementById('searchBar');
 
 // ==========================
-// STATE
-// ==========================
-let currentCategory = '';
-let currentSort = 'default';
-let currentSearchTerm = '';
-
-// ==========================
 // INITIALIZE
 // ==========================
 document.addEventListener('DOMContentLoaded', () => {
-  loadCategories();
+  // First load categories, THEN handle URL search param & load projects
+  loadCategories().then(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const searchParam = urlParams.get('search');
+
+    if (searchParam) {
+      currentSearchTerm = searchParam.trim();
+      if (searchBar) searchBar.value = currentSearchTerm;
+    } else {
+      currentSearchTerm = '';
+    }
+
+    loadProjects(currentSearchTerm);
+  });
+
+  // Sort selector
+  sortOptions?.addEventListener('change', () => {
+    currentSort = sortOptions.value;
+    loadProjects(currentSearchTerm);
+  });
+
+  // Search input
+  searchBar?.addEventListener('input', (e) => {
+    currentSearchTerm = e.target.value.trim();
+    loadProjects(currentSearchTerm);
+  });
 
   // Logout modal buttons
   document.getElementById('confirmLogoutBtn')?.addEventListener('click', logout);
@@ -28,14 +53,13 @@ document.addEventListener('DOMContentLoaded', () => {
 // LOAD CATEGORIES FROM API
 // ==========================
 function loadCategories() {
-  fetch('/api/categories')
+  return fetch('/api/categories')
     .then(res => res.json())
     .then(categories => {
       renderCategoryList(categories);
-      loadProjects();
     })
     .catch(err => {
-      console.error('Failed to load categories:', err);
+      console.error('❌ Failed to load categories:', err);
       categoryList.innerHTML = '<li class="error">Error loading categories</li>';
     });
 }
@@ -74,12 +98,9 @@ function selectCategory(category) {
 // LOAD PROJECTS FROM API
 // ==========================
 function loadProjects(searchTerm = '') {
-  let url;
-  if (currentCategory) {
-    url = `/api/projects/by-category?category=${encodeURIComponent(currentCategory)}&sort=${currentSort}`;
-  } else {
-    url = `/api/projects?sort=${currentSort}`;
-  }
+  let url = currentCategory
+    ? `/api/projects/by-category?category=${encodeURIComponent(currentCategory)}&sort=${currentSort}`
+    : `/api/projects?sort=${currentSort}`;
 
   fetch(url)
     .then(res => res.json())
@@ -88,7 +109,7 @@ function loadProjects(searchTerm = '') {
       renderProjectGrid(filtered);
     })
     .catch(err => {
-      console.error('Failed to load projects:', err);
+      console.error('❌ Failed to load projects:', err);
       projectGrid.innerHTML = '<p class="error">Error loading projects</p>';
     });
 }
@@ -105,9 +126,6 @@ function filterProjects(projects, searchTerm) {
 
     let inTags = false;
     if (project.tags && typeof project.tags === 'string') {
-    
-
-      // Split  for searching
       const tagArray = project.tags
         .split(',')
         .map(tag => tag.trim().toLowerCase())
@@ -119,6 +137,7 @@ function filterProjects(projects, searchTerm) {
     return inTitle || inAuthor || inTags;
   });
 }
+
 // ==========================
 // RENDER PROJECT GRID
 // ==========================
@@ -145,6 +164,11 @@ function renderProjectGrid(projects) {
     const title = document.createElement('h3');
     title.textContent = project.title;
     card.appendChild(title);
+    
+     const owner = document.createElement('p');
+    owner.className = 'project-owner';
+    owner.textContent = `Owner: ${project.author || 'Unknown'}`;
+    card.appendChild(owner);
 
     const description = document.createElement('p');
     description.textContent = project.description;
@@ -171,19 +195,6 @@ function renderProjectGrid(projects) {
     projectGrid.appendChild(card);
   });
 }
-
-// ==========================
-// EVENT LISTENERS
-// ==========================
-sortOptions?.addEventListener('change', () => {
-  currentSort = sortOptions.value;
-  loadProjects(currentSearchTerm);
-});
-
-searchBar?.addEventListener('input', e => {
-  currentSearchTerm = e.target.value.trim();
-  loadProjects(currentSearchTerm);
-});
 
 // =====================================================
 // ✅ Logout Flow with Spinner

@@ -1,9 +1,14 @@
+// ====================================================
+//  1️⃣ IMPORTS & SETUP
+// ====================================================
 const express = require('express');
 const router = express.Router();
 const db = require('../config/db');
 const transporter = require('../config/mailer');
 
-// ✅ Middleware to ensure user is logged in
+// ====================================================
+//  2️⃣ MIDDLEWARE
+// ====================================================
 function isLoggedIn(req, res, next) {
   if (!req.session?.user) {
     return res.status(401).json({ error: 'Unauthorized. Please log in.' });
@@ -11,7 +16,11 @@ function isLoggedIn(req, res, next) {
   next();
 }
 
-// ✅ Send a collaboration request
+// ====================================================
+//  3️⃣ REQUEST / RESPONSE WORKFLOW
+// ====================================================
+
+// ✅ 3.1 Send a collaboration request
 router.post('/:projectId/request', isLoggedIn, async (req, res) => {
   const projectId = parseInt(req.params.projectId);
   const userId = req.session.user.id;
@@ -78,7 +87,7 @@ router.post('/:projectId/request', isLoggedIn, async (req, res) => {
   }
 });
 
-// ✅ Accept or Decline from Email Link (must log in + be project owner)
+// ✅ 3.2 Accept or Decline from Email Link
 router.get('/response', async (req, res) => {
   const { projectId, userId, action } = req.query;
   const currentUser = req.session?.user;
@@ -117,7 +126,7 @@ router.get('/response', async (req, res) => {
   }
 });
 
-// ✅ Final response page
+// ✅ 3.3 Final response page
 router.get('/response-status', (req, res) => {
   const status = req.query.status;
 
@@ -148,4 +157,156 @@ router.get('/response-status', (req, res) => {
   `);
 });
 
+// ====================================================
+//  4️⃣ OWNER VIEWS (for Collaboration Hub)
+// ====================================================
+router.get('/my-requests', isLoggedIn, async (req, res) => {
+  const ownerId = req.session.user.id;
+
+  try {
+    const [rows] = await db.promise().query(
+      `
+      SELECT c.id AS collaboration_id, c.project_id, c.collaborator_id, c.status,
+             p.title AS project_title,
+             u.name AS collaborator_name
+      FROM collaborations c
+      JOIN projects p ON c.project_id = p.id
+      JOIN users u ON c.collaborator_id = u.id
+      WHERE p.user_id = ?
+      ORDER BY c.id DESC
+      `,
+      [ownerId]
+    );
+
+    res.json(rows);
+  } catch (err) {
+    console.error('❌ Error fetching collaborations:', err);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
+// ====================================================
+//  5️⃣ COLLABORATOR VIEWS
+// ====================================================
+router.get('/my-collaborations', isLoggedIn, async (req, res) => {
+  const userId = req.session.user.id;
+
+  try {
+    const [rows] = await db.promise().query(
+      `SELECT c.id AS collaboration_id, c.project_id, c.status,
+              p.title AS project_title,
+              u.name AS owner_name
+       FROM collaborations c
+       JOIN projects p ON c.project_id = p.id
+       JOIN users u ON p.user_id = u.id
+       WHERE c.collaborator_id = ?
+       AND c.status = 'accepted'
+       ORDER BY c.id DESC`,
+      [userId]
+    );
+
+    res.json(rows);
+  } catch (err) {
+    console.error('❌ Error fetching my collaborations:', err);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
+// ====================================================
+//  6️⃣ MESSAGING (Both Sides)
+// ====================================================
+
+// ✅ Get all messages for a collaboration thread
+router.get('/:collaborationId/messages', isLoggedIn, async (req, res) => {
+  const collaborationId = parseInt(req.params.collaborationId);
+
+  try {
+    // Verify user has access to this collaboration
+    const [collabRows] = await db.promise().query(
+      `
+      SELECT c.*, p.user_id AS owner_id
+      FROM collaborations c
+      JOIN projects p ON c.project_id = p.id
+      WHERE c.id = ?
+      `,
+      [collaborationId]
+    );
+
+    if (!collabRows.length) {
+      return res.status(404).json({ error: 'Collaboration not found.' });
+    }
+
+    const collab = collabRows[0];
+    const userId = req.session.user.id;
+
+    if (userId !== collab.owner_id && userId !== collab.collaborator_id) {
+      return res.status(403).json({ error: 'Not authorized to view this conversation.' });
+    }
+
+    // Get messages
+    const [messages] = await db.promise().query(
+      `
+      SELECT sender_id, message, created_at
+      FROM collaboration_messages
+      WHERE collaboration_id = ?
+      ORDER BY created_at ASC
+      `,
+      [collaborationId]
+    );
+
+    res.json(messages);
+  } catch (err) {
+    console.error('❌ Error fetching messages:', err);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
+// ✅ Send a new message in a collaboration thread
+router.post('/:collaborationId/messages', isLoggedIn, async (req, res) => {
+  const collaborationId = parseInt(req.params.collaborationId);
+  const senderId = req.session.user.id;
+  const { message } = req.body;
+
+  if (!message || !message.trim()) {
+    return res.status(400).json({ error: "Message cannot be empty." });
+  }
+
+  try {
+    // Check if user is part of this collaboration
+    const [collabRows] = await db.promise().query(
+      `
+      SELECT c.*, p.user_id AS owner_id
+      FROM collaborations c
+      JOIN projects p ON c.project_id = p.id
+      WHERE c.id = ?
+      `,
+      [collaborationId]
+    );
+
+    if (!collabRows.length) {
+      return res.status(404).json({ error: 'Collaboration not found.' });
+    }
+
+    const collab = collabRows[0];
+
+    if (senderId !== collab.owner_id && senderId !== collab.collaborator_id) {
+      return res.status(403).json({ error: 'Not authorized to send messages in this conversation.' });
+    }
+
+    // Insert message
+    await db.promise().query(
+      `INSERT INTO collaboration_messages (collaboration_id, sender_id, message) VALUES (?, ?, ?)`,
+      [collaborationId, senderId, message.trim()]
+    );
+
+    res.json({ message: "Message sent!" });
+  } catch (err) {
+    console.error('❌ Error sending message:', err);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
+// ====================================================
+//  7️⃣ EXPORT ROUTER
+// ====================================================
 module.exports = router;

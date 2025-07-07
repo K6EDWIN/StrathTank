@@ -55,10 +55,6 @@ body {
 /* ====================================================
    MAIN CONTENT
 ==================================================== */
-.main-content {
-  margin-left: 220px;
-  padding-top: 80px;
-}
 
 @media (max-width: 768px) {
   .sidebar {
@@ -75,31 +71,23 @@ body {
    NAVBAR
 ==================================================== */
 .navbar {
-  position: fixed;
-  top: 0;
-  left: 250px;
-  right: 0;
-  height: 80px;
-  background-color: #2c3e50;
   display: flex;
   align-items: center;
-  padding: 0 2rem;
+  justify-content: space-between;
+  background-color: #2c3e50;
+  padding: 1rem 2rem;
   color: white;
-  z-index: 999;
-  gap: 2rem;
-  transition: left 0.3s ease-in-out;
+  position: relative;
 }
 
-/* Logo */
-.logo {
+.navbar .logo {
   display: flex;
   align-items: center;
-  text-decoration: none;
 }
 
 .logo-img {
-  height: 40px;
-  width: 40px;
+  height: 60px;
+  width: 60px;
   object-fit: cover;
   border-radius: 50%;
   border: 2px solid #f39c12;
@@ -107,23 +95,27 @@ body {
   padding: 5px;
 }
 
-/* Nav Links */
 .nav-links {
   display: flex;
-  align-items: center;
-  gap: 1.5rem;
+  justify-content: center;
+  gap: 2rem;
   flex: 1;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
 }
 
 .nav-links a {
   color: white;
   text-decoration: none;
   font-weight: bold;
-    transition: color 0.3s;
+  transition: color 0.3s;
 }
+
 .nav-links a:hover {
   color: #f39c12;
 }
+
 
 
 /* Navbar Mobile Responsive */

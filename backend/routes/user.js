@@ -120,7 +120,7 @@ router.post('/resend-code', (req, res) => {
 });
 
 // ----------------------------------------
-// POST /user/login
+// login
 // ----------------------------------------
 router.post('/login', (req, res) => {
   const { email, password } = req.body;
@@ -166,7 +166,7 @@ router.post('/login', (req, res) => {
 
 
 // ----------------------------------------
-// POST /user/forgot-password
+// forgot-password
 // ----------------------------------------
 router.post('/forgot-password', (req, res) => {
   const { email } = req.body;
@@ -187,7 +187,7 @@ router.post('/forgot-password', (req, res) => {
   });
 });
 // ----------------------------------------
-// POST /user/check-password-reuse
+// check-password-reuse
 // ----------------------------------------
 router.post('/check-password-reuse', async (req, res) => {
   const { email, newPassword } = req.body;
@@ -213,7 +213,7 @@ router.post('/check-password-reuse', async (req, res) => {
   });
 });
 // ----------------------------------------
-// POST /user/reset-password
+// reset-password
 // ----------------------------------------
 router.post('/reset-password', async (req, res) => {
   const { email, resetCode, newPassword } = req.body;
@@ -875,6 +875,86 @@ router.delete('/:id', ensureUser, (req, res) => {
   });
 });
 
+// ----------------------------------------
+// PUT /user/name - Update user's name
+// ----------------------------------------
+router.put('/name', (req, res) => {
+  const user = req.session.user;
+  if (!user) {
+    return res.status(401).json({ success: false, message: 'Not authenticated' });
+  }
+
+  const userId = user.id;
+  const { name } = req.body;
+
+  if (typeof name !== 'string' || name.trim().length < 2 || name.trim().length > 100) {
+    return res.status(400).json({ success: false, message: 'Invalid name input' });
+  }
+
+  db.query('UPDATE Users SET name = ? WHERE id = ?', [name.trim(), userId], (err) => {
+    if (err) {
+      console.error('❌ Name update error:', err);
+      return res.status(500).json({ success: false, message: 'Database error' });
+    }
+
+    req.session.user.name = name.trim();
+    res.json({ success: true, message: 'Name updated successfully', name: name.trim() });
+  });
+});
+
+
+
+// ----------------------------------------
+// POST /user/change-password
+// ----------------------------------------
+router.post('/change-password', async (req, res) => {
+  const user = req.session.user;
+  if (!user) {
+    return res.status(401).json({ success: false, message: 'Not authenticated' });
+  }
+
+  const { oldPassword, newPassword } = req.body;
+
+  if (!oldPassword || !newPassword) {
+    return res.status(400).json({ success: false, message: 'Old and new password required' });
+  }
+
+  // Get user's current hashed password
+  db.query('SELECT password FROM Users WHERE id = ?', [user.id], async (err, results) => {
+    if (err) {
+      console.error('❌ DB error:', err);
+      return res.status(500).json({ success: false, message: 'Database error' });
+    }
+
+    if (!results.length) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
+    const hashedPassword = results[0].password;
+    const isMatch = await bcrypt.compare(oldPassword, hashedPassword);
+
+    if (!isMatch) {
+      return res.status(401).json({ success: false, message: 'Old password is incorrect' });
+    }
+
+    // Check if reusing old password
+    const isReused = await bcrypt.compare(newPassword, hashedPassword);
+    if (isReused) {
+      return res.status(400).json({ success: false, message: 'New password cannot be same as old' });
+    }
+
+    const newHashed = await bcrypt.hash(newPassword, 10);
+
+    db.query('UPDATE Users SET password = ? WHERE id = ?', [newHashed, user.id], (err) => {
+      if (err) {
+        console.error('❌ Password update error:', err);
+        return res.status(500).json({ success: false, message: 'Database error' });
+      }
+
+      res.json({ success: true, message: 'Password updated successfully' });
+    });
+  });
+});
 
 
 module.exports = router;

@@ -1,4 +1,6 @@
-// Get userId from query params
+// ==========================
+// STATE
+// ==========================
 const params = new URLSearchParams(window.location.search);
 const userId = params.get("userId");
 console.log("🧪 userId from URL:", userId);
@@ -54,13 +56,21 @@ document.addEventListener("DOMContentLoaded", async () => {
       collabs.forEach(project => collaborationsEl.appendChild(renderCollabCard(project)));
     }
 
-    if (owned.length === 0 && collabs.length === 0) {
-      const noProjectsMsg = document.createElement("p");
-      noProjectsMsg.textContent = "No projects added.";
-      noProjectsMsg.classList.add("no-projects-msg");
-      ownedProjectsEl.appendChild(noProjectsMsg);
-      collaborationsEl.appendChild(noProjectsMsg.cloneNode(true));
+    // ✅ Updated no-projects logic with personalized messages
+    if (owned.length === 0) {
+      const noOwnedMsg = document.createElement("p");
+      noOwnedMsg.textContent = `${user.name} has no projects.`;
+      noOwnedMsg.classList.add("no-projects-msg");
+      ownedProjectsEl.appendChild(noOwnedMsg);
     }
+
+    if (collabs.length === 0) {
+      const noCollabMsg = document.createElement("p");
+      noCollabMsg.textContent = `${user.name} is not collaborating on any project.`;
+      noCollabMsg.classList.add("no-projects-msg");
+      collaborationsEl.appendChild(noCollabMsg);
+    }
+
   } catch (err) {
     console.error("Profile load error:", err);
     alert("Could not load profile.");
@@ -101,11 +111,12 @@ function renderProjectCard(project) {
 }
 
 function renderCollabCard(project) {
+  const description = project.description ? project.description.slice(0, 100) + "..." : "No description available.";
   const div = document.createElement("div");
   div.className = "collaboration";
   div.innerHTML = `
     <h3>${project.title}</h3>
-    <p>${project.description.slice(0, 100)}...</p>
+    <p>${description}</p>
     <button class="view-project-btn" data-id="${project.id}">View</button>
   `;
   return div;
@@ -129,6 +140,9 @@ document.body.addEventListener("click", async (e) => {
   }
 });
 
+// ==========================
+// LOGOUT HANDLING
+// ==========================
 const logoutBtn = document.getElementById('logoutBtn');
 const cancelLogoutBtn = document.getElementById('cancelLogoutBtn');
 const confirmLogoutBtn = document.getElementById('confirmLogoutBtn');

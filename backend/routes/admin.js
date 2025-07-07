@@ -133,7 +133,7 @@ router.get('/flagged-projects', isAdmin, (req, res) => {
 
 
 // ----------------------------------------
-// POST /admin/approve/:projectId
+// approve project
 // ----------------------------------------
 router.post('/approve/:projectId', isAdmin, (req, res) => {
   const { projectId } = req.params;
@@ -144,18 +144,7 @@ router.post('/approve/:projectId', isAdmin, (req, res) => {
 });
 
 // ----------------------------------------
-// POST /admin/reject/:projectId
-// ----------------------------------------
-router.post('/reject/:projectId', isAdmin, (req, res) => {
-  const { projectId } = req.params;
-  db.query(`UPDATE Projects SET status = 'rejected' WHERE id = ?`, [projectId], (err) => {
-    if (err) return res.status(500).json({ success: false });
-    res.json({ success: true });
-  });
-});
-
-// ----------------------------------------
-// POST /admin/reject/:projectId
+// reject project
 // ----------------------------------------
 router.post('/reject/:projectId', isAdmin, (req, res) => {
   const { projectId } = req.params;
@@ -166,8 +155,9 @@ router.post('/reject/:projectId', isAdmin, (req, res) => {
 });
 
 
+
 // ----------------------------------------
-// POST /admin/suspend/:userId
+// Suspend user 
 // ----------------------------------------
 router.post('/suspend/:userId', isAdmin, (req, res) => {
   const { userId } = req.params;
@@ -180,7 +170,7 @@ router.post('/suspend/:userId', isAdmin, (req, res) => {
 });
 
 // ----------------------------------------
-// DELETE /admin/users/:id - Delete User and Related Data + Sessions
+// Delete User and Related Data + Sessions
 // ----------------------------------------
 router.delete('/users/:id', isAdmin, (req, res) => {
   const userId = parseInt(req.params.id);
@@ -243,42 +233,70 @@ router.delete('/users/:id', isAdmin, (req, res) => {
           });
         });
 
-        // Helper to remove from collaborations and finally delete the user
+        // NEW Step 5: Remove from collaborations and related messages
         function deleteCollaborations() {
-          // Step 5: Remove from collaborations
-          db.query('DELETE FROM collaborations WHERE collaborator_id = ?', [userId], (err) => {
+          db.query('SELECT id FROM collaborations WHERE collaborator_id = ?', [userId], (err, collabRows) => {
             if (err) {
-              console.error('❌ Failed to remove user from collaborations:', err);
-              return res.status(500).json({ success: false, message: 'Collaboration deletion failed' });
+              console.error('❌ Failed to fetch collaborations:', err);
+              return res.status(500).json({ success: false, message: 'Error fetching collaborations' });
             }
 
-            // Step 6: Delete user record
-            db.query('DELETE FROM Users WHERE id = ?', [userId], (err, result) => {
+            if (collabRows.length === 0) {
+              // No collaborations — just delete user
+              return deleteUser();
+            }
+
+            const collaborationIds = collabRows.map(row => row.id);
+
+            // 5a: Delete collaboration_messages for these collaborations
+            db.query('DELETE FROM collaboration_messages WHERE collaboration_id IN (?)', [collaborationIds], (err) => {
               if (err) {
-                console.error('❌ Error deleting user:', err);
-                return res.status(500).json({ success: false, message: 'User deletion failed' });
+                console.error('❌ Failed to delete collaboration messages:', err);
+                return res.status(500).json({ success: false, message: 'Error deleting collaboration messages' });
               }
 
-              if (result.affectedRows === 0) {
-                return res.status(404).json({ success: false, message: 'User not found' });
-              }
-
-              // ✅ Step 7: Clean up sessions belonging to this user
-              db.query(
-                `DELETE FROM sessions WHERE JSON_EXTRACT(data, '$.user.id') = ?`,
-                [userId],
-                (err) => {
-                  if (err) {
-                    console.error('⚠️ Failed to clean up sessions:', err);
-                    // Don't hard-fail, just log
-                  }
-
-                  res.json({ success: true, message: 'User and related data deleted successfully' });
+              // 5b: Delete collaborations themselves
+              db.query('DELETE FROM collaborations WHERE id IN (?)', [collaborationIds], (err) => {
+                if (err) {
+                  console.error('❌ Failed to delete collaborations:', err);
+                  return res.status(500).json({ success: false, message: 'Error deleting collaborations' });
                 }
-              );
+
+                // Continue to user deletion
+                deleteUser();
+              });
             });
           });
         }
+
+        // Step 6: Delete the user and clean sessions
+        function deleteUser() {
+          db.query('DELETE FROM Users WHERE id = ?', [userId], (err, result) => {
+            if (err) {
+              console.error('❌ Error deleting user:', err);
+              return res.status(500).json({ success: false, message: 'User deletion failed' });
+            }
+
+            if (result.affectedRows === 0) {
+              return res.status(404).json({ success: false, message: 'User not found' });
+            }
+
+            // Step 7: Clean up sessions belonging to this user
+            db.query(
+              `DELETE FROM sessions WHERE JSON_EXTRACT(data, '$.user.id') = ?`,
+              [userId],
+              (err) => {
+                if (err) {
+                  console.error('⚠️ Failed to clean up sessions:', err);
+                  // Non-critical
+                }
+
+                res.json({ success: true, message: 'User and related data deleted successfully' });
+              }
+            );
+          });
+        }
+
       });
     });
   });
@@ -287,8 +305,9 @@ router.delete('/users/:id', isAdmin, (req, res) => {
 
 
 
+
 // ----------------------------------------
-// GET /admin/collaborations - All collaboration requests
+// All collaboration requests
 // ----------------------------------------
 router.get('/collaborations', isAdmin, (req, res) => {
   const sql = `
@@ -410,14 +429,15 @@ router.post('/profile-picture', isAdmin, upload.single('profile_picture'), (req,
       return res.status(500).json({ success: false, message: 'Database update failed' });
     }
 
-    res.json({ success: true, imagePath });
+res.json({ success: true, profile_image: imagePath });
+
   });
 });
 
 
 
 // ----------------------------------------
-// GET /admin/mentorships - All mentorship requests
+// All mentorship requests
 // ----------------------------------------
 router.get('/mentorships', isAdmin, (req, res) => {
   res.set('Cache-Control', 'no-store');
@@ -649,5 +669,31 @@ router.get('/projects/:id/details', (req, res) => {
     res.json(project);
   });
 });
+
+
+// ----------------------------------------
+// Admin deletes any comment
+// ----------------------------------------
+router.delete('/comment/:id', isAdmin, (req, res) => {
+  const commentId = parseInt(req.params.id, 10);
+
+  if (isNaN(commentId)) {
+    return res.status(400).json({ success: false, message: 'Invalid comment ID' });
+  }
+
+  db.query('DELETE FROM comments WHERE id = ?', [commentId], (err, result) => {
+    if (err) {
+      console.error('❌ Failed to delete comment:', err);
+      return res.status(500).json({ success: false, message: 'Database error' });
+    }
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ success: false, message: 'Comment not found' });
+    }
+
+    res.json({ success: true, message: 'Comment deleted successfully' });
+  });
+});
+
 
 module.exports = router;
