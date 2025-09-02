@@ -1,5 +1,5 @@
 
-# StrathTank
+# StrathTank 🚀
 
 StrathTank is a platform where student innovation finds a second life. Whether it’s a web app, a hardware prototype, or a green initiative, this is your space to:
 
@@ -9,7 +9,7 @@ StrathTank is a platform where student innovation finds a second life. Whether i
 
 📂 Grow your portfolio for the real world
 
-# Why StrathTank 
+# ✨Why StrathTank 
 Too often, student projects get submitted for grades and then forgotten. StrathTank changes that by giving your work a spotlight beyond the classroom.
 
 💬 Turn your projects into conversation starters
