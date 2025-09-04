@@ -74,21 +74,19 @@ p {
   transform: scale(1.1);
 }
 
-.GitHub {
+/*.GitHub {
   background-color: #333;
   display: flex;
   align-items: center;
   justify-content: center;
 }
+   */
 
 .github-logo {
   width: 22px;
   height: 22px;
 }
-
-.google {
-  background-color: #db4437;
-}
+ 
 
 /* -----------------------------------------------
    Form Styling

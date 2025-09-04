@@ -54,7 +54,7 @@ passport.use(new LocalStrategy(
 passport.use(new GoogleStrategy({
   clientID: process.env.GOOGLE_CLIENT_ID,
   clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-  callbackURL: '/auth/google/callback'
+  callbackURL: "https://16acba33fb04.ngrok-free.app/auth/google/callback"
 }, (accessToken, refreshToken, profile, done) => {
   const email = profile.emails?.[0]?.value;
   const name = profile.displayName || 'Google User';
@@ -96,7 +96,7 @@ passport.use(new GoogleStrategy({
 passport.use(new GitHubStrategy({
   clientID: process.env.GITHUB_CLIENT_ID,
   clientSecret: process.env.GITHUB_CLIENT_SECRET,
-  callbackURL: '/auth/github/callback',
+  callbackURL: "https://16acba33fb04.ngrok-free.app/auth/github/callback",
   scope: ['user:email', 'repo']
 }, (accessToken, refreshToken, profile, done) => {
   const email = profile.emails?.[0]?.value;
